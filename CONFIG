@@ -1,0 +1,10 @@
+#! /bin/bash
+# change path to samtools or bwa - absolute path required
+
+dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+samtools=$dir/prog/samtools-1.6/samtools
+bwa=$dir/prog/bwa-0.7.17/bwa
+
+echo $samtools
+echo $bwa
