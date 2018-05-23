@@ -3,3 +3,4 @@
 prog/._.DS_Store
 prog/._bwa-0.7.17
 prog/._samtools-1.6
+**/._*
