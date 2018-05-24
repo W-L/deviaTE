@@ -40,8 +40,7 @@ class bam_file:
             
     def fuse(self, script_loc):
         args = [script_loc + '/bin/deviaTE_fuse.py',
-                '--input', self.path,
-                '--si']
+                '--input', self.path]
         
         execute(command=' '.join(args))
         
