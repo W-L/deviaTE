@@ -48,10 +48,12 @@ for read in inpfile:
     if rid == seg_list[-1].query_name:
         seg_list.append(read)
     else:
-        if len(seg_list) < 2:
-            seg_list = [read]
+        if len(seg_list) == 1:
             # no processing, write directly
-            outfile.write(read.tostring(inpfile) + '\n')
+            read_out = seg_list[0].tostring(inpfile)
+            outfile.write(read_out + '\n')
+            seg_list = [read]
+            
         else:
             # more than one segment in list: process
             Multihit_list = []
@@ -95,6 +97,8 @@ for read in inpfile:
             # construct new cigar
             hMAC_read.build_cigar()
             hMAC_read.write_read(f=outfile)
+            
+            seg_list = [read]
             
             
 outfile.close()
