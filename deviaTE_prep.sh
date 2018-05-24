@@ -108,14 +108,14 @@ fuse="python3 $FUSING --input $FILT --output $FUSE 2>&1 | tee -a $LOG"
 printf "$fuse\n\n" >>$LOG
 eval $fuse
 
-# sort and index bam
-sort="$SAMTOOLS view -b $FUSE -@ $THREADS | $SAMTOOLS sort -o $SORT -@ $THREADS 2>&1 | tee -a $LOG"
-printf "$sort\n\n" >>$LOG
-eval $sort
-
-indx="$SAMTOOLS index $SORT $INDEX -@ $THREADS 2>&1 | tee -a $LOG"
-printf "$indx\n\n" >>$LOG
-eval $indx
+## sort and index bam
+#sort="$SAMTOOLS view -b $FUSE -@ $THREADS | $SAMTOOLS sort -o $SORT -@ $THREADS 2>&1 | tee -a $LOG"
+#printf "$sort\n\n" >>$LOG
+#eval $sort
+#
+#indx="$SAMTOOLS index $SORT $INDEX -@ $THREADS 2>&1 | tee -a $LOG"
+#printf "$indx\n\n" >>$LOG
+#eval $indx
 
 # remove tmp files
 rm $INP.*.tmp*
