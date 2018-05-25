@@ -61,8 +61,8 @@ TRIM=$INP.trim.tmp
 MAP=$INP.sam.tmp
 FILT=$INP.filt.tmp
 FUSE=$INP.fused
-SORT=$INP.sort.bam
-INDEX=$INP.sort.bam.bai
+#SORT=$INP.sort.bam
+#INDEX=$INP.sort.bam.bai
 
 
 :>$LOG
@@ -88,7 +88,7 @@ printf "\n$mapping\n\n" >>$LOG
 eval $mapping
 
 # filtering unmapped etc.
-filtering="$SAMTOOLS view -h $MAP -o tmp -@ $THREADS -F 0x100 -F 0x4 -F 0x400 -F 0x200 2>&1 | tee -a $LOG"
+filtering="$SAMTOOLS view -h $MAP -o tmp -@ $THREADS -F 0x4 -F 0x400 -F 0x200 2>&1 | tee -a $LOG"
 printf "\n$filtering\n\n" >>$LOG
 eval $filtering
 
