@@ -73,6 +73,10 @@ class MAC(Multihit):
         elif self.n_hsp > 1:
             for subset in itertools.combinations(self.ref_ranges, 2):
                 ref_overlap = set.intersection(*subset)
+                
+                # check for chiasma reads
+                if min(subset[0]) >= (max(subset[1]) - 5):
+                    self.valid = False
 
                 if len(ref_overlap) > limit:
                     self.valid = False
@@ -82,10 +86,6 @@ class MAC(Multihit):
 
                 if len(read_overlap) > limit:
                     self.valid = False
-                    
-            # check for x-hsp
-            if (max(self.ref_ranges[-1]) - min(self.ref_ranges[0])) < 0:
-                self.valid = False
 
         else:
             warnings.warn('mac contains no hsp')
