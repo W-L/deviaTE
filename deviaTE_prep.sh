@@ -60,7 +60,7 @@ LOG=$INP.log
 TRIM=$INP.trim.tmp
 MAP=$INP.sam.tmp
 FILT=$INP.filt.tmp
-FUSE=$INP.fused.tmp
+FUSE=$INP.fused
 SORT=$INP.sort.bam
 INDEX=$INP.sort.bam.bai
 

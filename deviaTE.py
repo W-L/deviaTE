@@ -38,7 +38,7 @@ def process_fq(file):
     fq.prep(script_loc=deviaTE, lib=args.lib, qual_tr=args.quality_threshold, min_rl=args.min_read_len,
             min_al=args.min_alignment_len, read_ty=args.read_type, thr=args.threads)
     
-    prep_bam = IO.bam_file(inp=fq.path + '.sort.bam', from_fq=True)    
+    prep_bam = IO.bam_file(inp=fq.path + '.fused.sort.bam', from_fq=True)    
     prep_bam.analyze(script_loc=deviaTE, lib=args.lib, fam=args.fam, sid=sample_id,
                      out=output_table, anno=args.annotation)
     
