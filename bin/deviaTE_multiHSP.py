@@ -182,6 +182,7 @@ class MAC(Multihit):
                 while hsp_ref_pos < cig_ref_pos:
                     if len(cig_stack) is not 0:
                         cig_stack.pop(0)
+                        last_clip = last_clip + 'S'
                     hsp_ref_pos += 1
 
             elif hsp_ref_pos > cig_ref_pos:
