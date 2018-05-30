@@ -94,7 +94,7 @@ bamfile_op.close()
 # process the extracted data
 for site in sites:
     site.sum_coverage()
-    site.is_snp(min_count=10, min_freq=0.1)
+    site.is_snp(min_count=5, min_freq=0.05, A=site.A, C=site.C, G=site.G, T=site.T, cov=site.cov)
     site.filter_IND(att='int_del', min_count=3, norm_fac=norm_fac)
     site.filter_IND(att='ins', min_count=5, norm_fac=norm_fac)
     site.filter_IND(att='delet', min_count=5, norm_fac=norm_fac)

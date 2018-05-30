@@ -43,35 +43,33 @@ class Site:
     def sum_coverage(self):
         self.cov = self.A + self.C + self.G + self.T
 
-    def is_snp(self, min_count, min_freq):
+    def is_snp(self, min_count, min_freq, A, C, G, T, cov):
 
-        nuc = [self.A, self.C, self.G, self.T]
+        nuc = {'A' : A, 'C' : C, 'G' : G, 'T' : T}
 
         # check if site is a polymorphic SNP
         # only if coverage is higher than most abundant base
-        if self.cov > max(nuc):
+        if cov > max(nuc.values()):
             # check counts
-            minor_counts = [x for x in nuc if x is not max(nuc)]
+            alt_counts = {base : count for base, count in nuc.items() if base is not self.refbase}
+            alt_freqs = {base : (count / cov) for base, count in alt_counts.items()}
 
-            # append the maximum again if there are multiple
-            while len(minor_counts) is not 3:
-                minor_counts.append(max(nuc))
-
-            minor_freq = [x / self.cov for x in minor_counts]
-
-            if any(x >= min_count for x in minor_counts):
-                if any(x >= min_freq for x in minor_freq):
+            if any(x >= min_count for x in alt_counts.values()):
+                if any(x >= min_freq for x in alt_freqs.values()):
                     self.snp = True
 
         # check if site is reference snp
-        # needs 0 at ref, and coverage equal to most abundant base#
-        # but not 0
+        # needs 0 at ref, and coverage equal to most abundant base, but ne 0
         if self.refbase in uniq_nuc:
-            ref_count = getattr(self, self.refbase)
+            #ref_count = getattr(self, self.refbase)
+            ref_count = nuc[self.refbase]
             if ref_count == 0:
-                if self.cov is not 0:
-                    if self.cov == max(nuc):
+                if cov is not 0:
+                    if cov == max(nuc.values()):
                         self.refsnp = True
+                        
+        # return val for unit test
+        return (self.snp, self.refsnp)
 
     def filter_IND(self, att, min_count, norm_fac):
         # grab attribute to filter
