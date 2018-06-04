@@ -158,7 +158,7 @@ def perform_pileup(sitelist, bam, min_int_del_len, min_trunc_len, min_indel_len)
     readdump_indels = set()
 
     # for all covered positions in the reference
-    for pileupcolumn in bam.pileup(Site.name, truncate=True):
+    for pileupcolumn in bam.pileup(Site.name, truncate=True): 
         # for each read at this pos
         for pileupread in pileupcolumn.pileups:
 
