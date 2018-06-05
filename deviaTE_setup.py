@@ -6,9 +6,8 @@ setup(
     description='polymorphic TEs',
     license='BSD',
     author='Lukas W',
-    # author_email='foomail@foo.com',
-    # url="http://www.foopackage.com/",
-    packages=['bin'],  # same as name
-    install_requires=['pysam', 'pandas'],  # subprocess, itertools
+    url="https://github.com/W-L/deviaTE.git",
+    packages=['bin'],
+    install_requires=['pysam', 'pandas'],
     scripts=['deviate_analyse.py']
 )
