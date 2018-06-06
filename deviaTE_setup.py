@@ -9,5 +9,8 @@ setup(
     url="https://github.com/W-L/deviaTE.git",
     packages=['bin'],
     install_requires=['pysam', 'pandas'],
-    scripts=['deviate_analyse.py']
+    scripts=['deviaTE_analyse.py',
+    		 'deviaTE_plot.R',
+    		 'deviaTE_prep.sh',
+    		 'deviaTE.py']
 )
