@@ -12,11 +12,10 @@ cig_dict = {0: 'M', 1: 'I', 2: 'D', 3: 'N', 4: 'S'}
 
 class Multihit:
 
-    def __init__(self, read_id, hsp_list, orig_container, fam):
+    def __init__(self, read_id, hsp_list, fam):
         self.id = read_id
         self.hsps = list(hsp_list)
         self.fam = fam
-        self.orig_container = orig_container
 
         # sort the segments based on their first aligned position
         self.hsps.sort(key=lambda s: s.al_start)
@@ -26,8 +25,7 @@ class Multihit:
 
         for L in range(1, len(self.hsps) + 1):
             for subset in itertools.combinations(self.hsps, L):
-                self.MACs.append(MAC(read_id=self.id, hsp_list=subset,
-                                     orig_container=self.orig_container, fam=self.fam))
+                self.MACs.append(MAC(read_id=self.id, hsp_list=subset, fam=self.fam))
 
     def find_hMAC(self):
         # find highest-scoring MAC for a Multihit
@@ -45,13 +43,12 @@ class Multihit:
 
 class MAC(Multihit):
 
-    def __init__(self, read_id, hsp_list, orig_container, fam):
+    def __init__(self, read_id, hsp_list, fam):
 
         self.id = read_id
         self.hsps = list(hsp_list)
         self.n_hsp = len(hsp_list)
         self.fam = fam
-        self.orig_container = orig_container
         self.valid = True
         self.read_ranges = []
         self.ref_ranges = []
@@ -229,12 +226,17 @@ class MAC(Multihit):
 
     def write_read(self, f):
         # replaces the reference_start and the cigarstring
-        read_string = self.orig_container
+        read_string = self.hsps[0].orig_container
         read_list = read_string.split('\t')
 
         ref_starts = [hsp.ref_start for hsp in self.hsps]
         read_list[3] = str(min(ref_starts) + 1)
         read_list[5] = self.cig
+        
+        if read_list[1] == '256':
+            read_list[1] = '0'
+        elif read_list[1] == '272':
+            read_list[1] = '16'
 
         read_out = '\t'.join(read_list)
         # print(read_out)
@@ -243,7 +245,7 @@ class MAC(Multihit):
 
 class HSP:
     # translator for the AlignmentSegment object from pysam
-    def __init__(self, cigartuples, al_start, al_end, ref_start, ref_end):
+    def __init__(self, cigartuples, al_start, al_end, ref_start, ref_end, orig_container):
 
         self.cigartuples = cigartuples
         self.al_start = al_start
@@ -253,6 +255,7 @@ class HSP:
         self.ref_end = ref_end
         self.read_range = set(range(self.al_start, self.al_end))
         self.ref_range = set(range(self.ref_start, self.ref_end))
+        self.orig_container = orig_container
 
 
 def get_ranges(inp):

@@ -71,13 +71,12 @@ for read in inpfile:
                                                      al_start=seg.query_alignment_start,
                                                      al_end=seg.query_alignment_end,
                                                      ref_start=seg.reference_start,
-                                                     ref_end=seg.reference_end))
+                                                     ref_end=seg.reference_end,
+                                                     orig_container=seg.tostring(inpfile)))
                     
             # Multihit_list contains all Multihits per family/strand for the current rid
             for fam, hsp_list in fams.items():
-                Multihit_list.append(multiHSP.Multihit(read_id=rid, hsp_list=hsp_list,
-                                                       orig_container=seg_list[0].tostring(inpfile),
-                                                       fam=fam))
+                Multihit_list.append(multiHSP.Multihit(read_id=rid, hsp_list=hsp_list, fam=fam))
                 
             for mh in Multihit_list:
                 mh.create_MACs()
