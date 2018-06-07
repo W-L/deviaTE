@@ -180,6 +180,7 @@ class MAC(Multihit):
                     if len(cig_stack) is not 0:
                         cig_stack.pop(0)
                         last_clip = last_clip + 'S'
+                        cig_read_pos += 1
                     hsp_ref_pos += 1
 
             elif hsp_ref_pos > cig_ref_pos:
@@ -237,6 +238,16 @@ class MAC(Multihit):
             read_list[1] = '0'
         elif read_list[1] == '272':
             read_list[1] = '16'
+            
+        # check if len CIG == len seq
+        cig_split = iter([''.join(x) for _, x in itertools.groupby(self.cig, key=str.isdigit)])
+        cig_len = sum([int(x) for x in cig_split if next(cig_split) not in 'ND'])
+        seq_len = len(read_list[9])
+        
+        if cig_len != seq_len:
+            print('CIGAR and read of unequal length')
+            print(self.cig)
+            print(read_list)
 
         read_out = '\t'.join(read_list)
         # print(read_out)

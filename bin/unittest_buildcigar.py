@@ -8,76 +8,118 @@ import pysam
 class Test_build_cigar(unittest.TestCase):
 
     def setUp(self):
-        self.case1 = multiHSP.MAC(read_id='read_name', orig_container='sam_format', fam='unit_te',
+        self.case1 = multiHSP.MAC(read_id='read_name', fam='unit_te',
                          hsp_list=[multiHSP.HSP(cigartuples=[(4, 10), (0, 100), (4, 390)],
-                                                al_start=10, al_end=110, ref_start=399, ref_end=499),
+                                                al_start=10, al_end=110,
+                                                ref_start=399, ref_end=499,
+                                                orig_container='sam_format'),
                                    multiHSP.HSP(cigartuples=[(4, 120), (0, 100), (4, 280)],
-                                                al_start=120, al_end=220, ref_start=599, ref_end=699)])
+                                                al_start=120, al_end=220,
+                                                ref_start=599, ref_end=699,
+                                                orig_container='sam_format')])
     
     
-        self.case2 = multiHSP.MAC(read_id='read_name', orig_container='sam_format', fam='unit_te',
+        self.case2 = multiHSP.MAC(read_id='read_name', fam='unit_te',
                          hsp_list=[multiHSP.HSP(cigartuples=[(4, 10), (0, 100), (4, 390)],
-                                                al_start=10, al_end=110, ref_start=399, ref_end=499),
+                                                al_start=10, al_end=110,
+                                                ref_start=399, ref_end=499,
+                                                orig_container='sam_format'),
                                    multiHSP.HSP(cigartuples=[(4, 120), (0, 100), (4, 280)],
-                                                al_start=120, al_end=220, ref_start=499, ref_end=599)])
+                                                al_start=120, al_end=220,
+                                                ref_start=499, ref_end=599,
+                                                orig_container='sam_format')])
 
 
-        self.case3 = multiHSP.MAC(read_id='read_name', orig_container='sam_format', fam='unit_te',
+        self.case3 = multiHSP.MAC(read_id='read_name', fam='unit_te',
                          hsp_list=[multiHSP.HSP(cigartuples=[(4, 10), (0, 100), (4, 390)],
-                                                al_start=10, al_end=110, ref_start=399, ref_end=499),
+                                                al_start=10, al_end=110,
+                                                ref_start=399, ref_end=499,
+                                                orig_container='sam_format'),
                                    multiHSP.HSP(cigartuples=[(4, 120), (0, 100), (4, 280)],
-                                                al_start=120, al_end=220, ref_start=494, ref_end=594)])
+                                                al_start=120, al_end=220,
+                                                ref_start=494, ref_end=594,
+                                                orig_container='sam_format')])
         
         
-        self.case4 = multiHSP.MAC(read_id='read_name', orig_container='sam_format', fam='unit_te',
+        self.case4 = multiHSP.MAC(read_id='read_name', fam='unit_te',
                          hsp_list=[multiHSP.HSP(cigartuples=[(4, 10), (0, 100), (4, 390)],
-                                                al_start=10, al_end=110, ref_start=349, ref_end=449),
+                                                al_start=10, al_end=110,
+                                                ref_start=349, ref_end=449,
+                                                orig_container='sam_format'),
                                    multiHSP.HSP(cigartuples=[(4, 110), (0, 100), (4, 290)],
-                                                al_start=110, al_end=210, ref_start=549, ref_end=649)])
+                                                al_start=110, al_end=210,
+                                                ref_start=549, ref_end=649,
+                                                orig_container='sam_format')])
         
         
-        self.case5 = multiHSP.MAC(read_id='read_name', orig_container='sam_format', fam='unit_te',
+        self.case5 = multiHSP.MAC(read_id='read_name', fam='unit_te',
                          hsp_list=[multiHSP.HSP(cigartuples=[(4, 10), (0, 100), (4, 390)],
-                                                al_start=10, al_end=110, ref_start=399, ref_end=499),
+                                                al_start=10, al_end=110,
+                                                ref_start=399, ref_end=499,
+                                                orig_container='sam_format'),
                                    multiHSP.HSP(cigartuples=[(4, 110), (0, 100), (4, 290)],
-                                                al_start=110, al_end=210, ref_start=499, ref_end=599)])
+                                                al_start=110, al_end=210,
+                                                ref_start=499, ref_end=599,
+                                                orig_container='sam_format')])
         
         
-        self.case6 = multiHSP.MAC(read_id='read_name', orig_container='sam_format', fam='unit_te',
+        self.case6 = multiHSP.MAC(read_id='read_name', fam='unit_te',
                          hsp_list=[multiHSP.HSP(cigartuples=[(4, 10), (0, 100), (4, 390)],
-                                                al_start=10, al_end=110, ref_start=399, ref_end=499),
+                                                al_start=10, al_end=110,
+                                                ref_start=399, ref_end=499,
+                                                orig_container='sam_format'),
                                    multiHSP.HSP(cigartuples=[(4, 110), (0, 100), (4, 290)],
-                                                al_start=110, al_end=210, ref_start=494, ref_end=594)])
+                                                al_start=110, al_end=210,
+                                                ref_start=494, ref_end=594,
+                                                orig_container='sam_format')])
         
         
-        self.case7 = multiHSP.MAC(read_id='read_name', orig_container='sam_format', fam='unit_te',
+        self.case7 = multiHSP.MAC(read_id='read_name', fam='unit_te',
                          hsp_list=[multiHSP.HSP(cigartuples=[(4, 10), (0, 100), (4, 390)],
-                                                al_start=10, al_end=110, ref_start=349, ref_end=449),
+                                                al_start=10, al_end=110,
+                                                ref_start=349, ref_end=449,
+                                                orig_container='sam_format'),
                                    multiHSP.HSP(cigartuples=[(4, 105), (0, 100), (4, 295)],
-                                                al_start=105, al_end=205, ref_start=549, ref_end=649)])
+                                                al_start=105, al_end=205,
+                                                ref_start=549, ref_end=649,
+                                                orig_container='sam_format')])
         
         
-        self.case8 = multiHSP.MAC(read_id='read_name', orig_container='sam_format', fam='unit_te',
+        self.case8 = multiHSP.MAC(read_id='read_name', fam='unit_te',
                          hsp_list=[multiHSP.HSP(cigartuples=[(4, 10), (0, 100), (4, 390)],
-                                                al_start=10, al_end=110, ref_start=399, ref_end=499),
+                                                al_start=10, al_end=110,
+                                                ref_start=399, ref_end=499,
+                                                orig_container='sam_format'),
                                    multiHSP.HSP(cigartuples=[(4, 105), (0, 100), (4, 295)],
-                                                al_start=105, al_end=205, ref_start=499, ref_end=599)])
+                                                al_start=105, al_end=205,
+                                                ref_start=499, ref_end=599,
+                                                orig_container='sam_format')])
     
     
-        self.case9 = multiHSP.MAC(read_id='read_name', orig_container='sam_format', fam='unit_te',
+        self.case9 = multiHSP.MAC(read_id='read_name', fam='unit_te',
                          hsp_list=[multiHSP.HSP(cigartuples=[(4, 10), (0, 100), (4, 390)],
-                                                al_start=10, al_end=110, ref_start=399, ref_end=499),
+                                                al_start=10, al_end=110,
+                                                ref_start=399, ref_end=499,
+                                                orig_container='sam_format'),
                                    multiHSP.HSP(cigartuples=[(4, 105), (0, 100), (4, 295)],
-                                                al_start=105, al_end=205, ref_start=494, ref_end=594)])
+                                                al_start=105, al_end=205,
+                                                ref_start=494, ref_end=594,
+                                                orig_container='sam_format')])
         
         
-        self.case10 = multiHSP.MAC(read_id='read_name', orig_container='sam_format', fam='unit_te',
+        self.case10 = multiHSP.MAC(read_id='read_name', fam='unit_te',
                          hsp_list=[multiHSP.HSP(cigartuples=[(0, 100), (4, 400)],
-                                                al_start=0, al_end=100, ref_start=999, ref_end=1099),
+                                                al_start=0, al_end=100,
+                                                ref_start=999, ref_end=1099,
+                                                orig_container='sam_format'),
                                    multiHSP.HSP(cigartuples=[(4, 120), (0, 100), (4, 280)],
-                                                al_start=120, al_end=220, ref_start=1119, ref_end=1219),
+                                                al_start=120, al_end=220,
+                                                ref_start=1119, ref_end=1219,
+                                                orig_container='sam_format'),
                                    multiHSP.HSP(cigartuples=[(4, 240), (0, 100), (4, 160)],
-                                                al_start=240, al_end=340, ref_start=1239, ref_end=1339)])
+                                                al_start=240, al_end=340,
+                                                ref_start=1239, ref_end=1339,
+                                                orig_container='sam_format')])
         
         
     
