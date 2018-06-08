@@ -1,0 +1,465 @@
+#! /usr/bin/env Rscript 
+
+library(ggplot2)
+library(grid)
+library(gridExtra)
+library(argparse)
+library(data.table)
+suppressPackageStartupMessages(suppressWarnings(library(cowplot)))
+
+# input is the table from python script
+# requires ggplot2, grid, gridExtra, argparse, data.table, cowplot
+
+# color palettes
+base_colors <- c('A'='#1b9e77','C'='#d95f02','G'='#7570b3','T'='#e6ab02',
+    'in'='#66a61e','del'='#e7298a', 'X'='grey')
+
+anno_colors <- c('#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d')
+
+
+parser <- ArgumentParser()
+parser$add_argument('--input', required=TRUE, help='input as created by TEplotter')
+parser$add_argument('--output', default='', help='name for the output file')
+parser$add_argument('--free_yaxis', action='store_true',
+    help='flag to free the y-axis e.g. if one sample has much higher coverage than others')
+parser$add_argument('--color_reference', action='store_true')
+args <- parser$parse_args()
+
+
+
+fam_name <- function(df){
+    # returns the TEfamily for a sample
+    return(as.character(df$TEfam[1]))
+}
+
+
+fam_len <- function(df){
+    # return the length of the TEfam from one sample
+    return(nrow(df))
+}
+
+
+non_snp_pos <- function(df){
+    # get non-snp positions
+    snps <- subset(df, snp==TRUE | refsnp==TRUE, sel='pos')
+    snp_pos <- as.numeric(snps$pos) + 1
+    all_pos <- 1:fam_len(df)
+
+    if (length(snp_pos) == 0){return(all_pos)
+    } else {return(all_pos[-snp_pos])}
+}
+
+
+snp_positions <- function(df){
+  # get snp positions
+  snps <- subset(df, snp==TRUE | refsnp==TRUE, sel='pos')
+  snp_pos <- as.numeric(snps$pos) + 1
+  return(snp_pos)
+}
+
+
+ref_allele <- function(snp_index, refbases, len){
+  if (refbases[snp_index] == 'A'){return(snp_index)
+    } else if (refbases[snp_index] == 'C'){return(snp_index + len)
+    } else if (refbases[snp_index] == 'G'){return(snp_index + 2*len)
+    } else {return(snp_index + 3*len)}
+}
+
+
+long_format <- function(df){
+    # ggplot needs the data in long format to color the SNPs
+    # results in a df with 4 * length and 5 cols
+    # concatenate the base coverage and create factor columns
+    l <- fam_len(df)
+    counts_col <- c(df$A, df$C, df$G, df$T)
+    pos_col <- rep(1:l, 4) # changed 1 to 0 here and l to l-1
+    fam_col <- rep(df$TEfam, 4)
+    sample_col <- rep(df$sample_id, 4)
+    base_col <- c(rep('A', l), rep('C', l), rep('G', l), rep('T', l))
+    
+    # get the non snp positions
+    # change those positions to fifth color 'X'
+    non_snps <- non_snp_pos(df)
+    non_snp_indices <- sapply(non_snps, function(n,l){return(c(n,n+l,n+2*l,n+3*l))},l)
+    indices <- sort(as.numeric(non_snp_indices))
+    base_col[indices] <- 'X' #multi-indexing
+    
+    # uncolor reference allele in SNPs
+    if (args$color_reference == FALSE){
+        polys <- snp_positions(df)
+        polys_ref <- sapply(polys, ref_allele, df$refbase, l)
+        polys_indices <- sort(as.numeric(polys_ref))
+        base_col[polys_indices] <- 'X' #multi-indexing
+    }
+    
+    return(data.frame(fam_col, sample_col, base_col, pos_col, counts_col))
+}
+
+
+base_plot <- function(df_long){
+    # creates base plot object
+    famlen <- max(df_long$pos_col)
+    lim <- ceiling(famlen/50)
+    title <- paste(df_long$fam_col[1], df_long$sample_col[1])
+    # order of levels defines the order of stacked bars
+    df_long$base_col <- factor(df_long$base_col, levels=c('X','A','C','G','T'))
+    
+    baseplot <- ggplot(df_long) +
+        geom_bar(aes(x=pos_col, y=counts_col, fill=base_col), stat='identity', width=1) +
+        labs(fill='') +
+        ylab('') +
+        xlab('') +
+        ggtitle(title) +
+        scale_x_continuous(limits=c(-lim, famlen+lim)) +
+        scale_fill_manual(values=base_colors, breaks=c('A','C','G','T', 'in', 'del')) +
+        theme_minimal(base_size=fontsize) +
+        theme(
+            legend.position='none',
+            legend.background=element_blank(),
+            legend.key=element_blank(),
+            plot.title = element_text(hjust = 0.5)
+            )
+
+    # overwrite clipping of annotations
+    #baseplot <- ggplot_gtable(ggplot_build(baseplot))
+    #baseplot$layout$clip[baseplot$layout$name == "panel"] <- "off"
+
+    return(baseplot)
+}
+
+
+make_legend <- function(df_long){
+    # create a fake dataframe to produce a consistent legend for all plots
+    fake_df <- df_long[1:4,]
+    bases <- c('A', 'C', 'G', 'T')
+    counts <- rep(1, 4)
+    fake_df$base_col <- bases
+    fake_df$counts_col <- counts
+
+    legplot <- ggplot(fake_df) +
+        geom_bar(aes(x=pos_col, y=counts_col, fill=base_col), stat='identity', width=1) +
+        labs(fill='') +
+        scale_fill_manual(values=base_colors, breaks=c('A','C','G','T', 'in', 'del')) +
+        # theme_minimal(base_size=fontsize) +
+        theme(legend.position='bottom') +
+        guides(fill = guide_legend(nrow = 1))
+
+    legplot_list <- list(legplot)
+    del <- list(data.frame(x=c(1), xend=c(2), y=c(0), yend=c(1), fam_col='t', sample_col='s', fac='del'))
+    ins <- list(data.frame(x=c(1), xend=c(2), y=c(0), yend=c(1), fam_col='t', sample_col='s', fac='in'))
+    legplot_list <- mapply(add_rect, p=legplot_list, coords=ins)
+    legplot_list <- mapply(add_rect, p=legplot_list, coords=del)
+
+    legend <- get_legend(legplot_list[[1]])
+    return(legend)
+}
+
+
+int_del_data <- function(df){
+    # generate coordinates to plot internal deletions, size ~ counts
+    feat_df <- subset(df, int_del != 'NA', sel=c('TEfam', 'sample_id', 'int_del'))
+    
+    if (nrow(feat_df) == 0){
+        return(data.frame(x=0, xend=1, y=0, yend=0, size=0))
+    }
+
+    # split at those positions that contain multiple features
+    # then split again to get start, end and count
+    feats <- unlist(strsplit(feat_df$int_del, ','))
+    feat_list <- strsplit(feats, ':')
+
+    xsrt <- as.numeric(lapply(feat_list, '[[', 1))
+    xend <- as.numeric(lapply(feat_list, '[[', 2))
+    size <- as.numeric(lapply(feat_list, '[[', 3))
+
+    ysrt <- lapply(xsrt, function(i){if (i>5){
+        mean(df$coverage[(i-5):i])}
+        else {df$coverage[i]} })
+    yend <- lapply(xend, function(i){mean(df$coverage[i:(i+5)])})
+
+    # add factors to plot in correct facet
+    fam <- rep(feat_df$TEfam[1], length(xsrt))
+    sample <- rep(feat_df$sample_id[1], length(xsrt))
+
+    return(data.frame(x=xsrt, y=as.numeric(ysrt), xend=xend, yend=as.numeric(yend),
+     size=size, fam_col=fam, sample_col=sample))
+}
+
+
+insertion_data <- function(df){
+    # coordinates for plotting insertions
+    ins_df <- subset(df, insertion != 'NA', sel=c('TEfam', 'sample_id', 'insertion'))
+
+    if (nrow(ins_df) == 0){
+        return(data.frame(x=0, xend=1, y=0, yend=1, fac=NA))
+    }
+
+    # split multiple insertions at one site
+    ins <- unlist(strsplit(ins_df$insertion, ','))
+    ins_list <- strsplit(ins, ':')
+
+    xsrt <- as.numeric(lapply(ins_list, '[[', 1))
+    xend <- as.numeric(lapply(ins_list, '[[', 2))
+    yend <- as.numeric(lapply(ins_list, '[[', 3))
+    ysrt <- 0
+
+    # add factors to plot in correct facet
+    fam <- rep(ins_df$TEfam[1], length(xsrt))
+    sample <- rep(ins_df$sample_id[1], length(xsrt))
+    fac <- rep('in', length(xsrt))
+
+    return(data.frame(x=xsrt, xend=xend, y=ysrt, yend=yend, fam_col=fam, sample_col=sample, fac=fac))
+}
+
+
+deletion_data <- function(df){
+    # coordinates for plotting deletions
+    del_df <- subset(df, deletion != 'NA', sel=c('TEfam', 'sample_id', 'deletion'))
+
+    if (nrow(del_df) == 0){
+        return(data.frame(x=0, xend=1, y=0, yend=1, fac=NA))
+    }
+
+    # split multiple insertions at one site
+    dels <- unlist(strsplit(del_df$deletion, ','))
+    dels_list <- strsplit(dels, ':')
+
+    xsrt <- as.numeric(lapply(dels_list, '[[', 1))
+    xend <- as.numeric(lapply(dels_list, '[[', 2))
+    yend <- as.numeric(lapply(dels_list, '[[', 3))
+    ysrt <- 0
+
+    # add factors to plot in correct facet
+    fam <- rep(del_df$TEfam[1], length(xsrt))
+    sample <- rep(del_df$sample_id[1], length(xsrt))
+    fac <- rep('del', length(xsrt))
+
+    return(data.frame(x=xsrt, xend=xend, y=ysrt, yend=yend, fam_col=fam, sample_col=sample, fac=fac))
+}
+
+
+truncation_data <- function(df){
+    # generate coordinates to plot truncations
+    tl_df <- subset(df, truncation_left != 0, sel=c('pos', 'TEfam', 'sample_id', 'truncation_left'))
+    tr_df <- subset(df, truncation_right != 0, sel=c('pos', 'TEfam', 'sample_id', 'truncation_right'))
+
+    l_xend <- as.numeric(tl_df$pos)
+    l_xsrt <- l_xend - (fam_len(df)/50)
+    l_yend <- as.numeric(lapply(l_xend, function(i){df$coverage[i]}))
+    l_ysrt <- as.numeric(l_yend) + (max(df$coverage)/5)
+    l_alpha <- as.numeric(tl_df$truncation_left)
+
+    r_xsrt <- as.numeric(tr_df$pos)
+    r_xend <- r_xsrt + (fam_len(df)/50)
+    r_ysrt <- as.numeric(lapply(r_xsrt, function(i){df$coverage[i]}))
+    r_yend <- as.numeric(r_ysrt) + (max(df$coverage)/5)
+    r_alpha <- as.numeric(tr_df$truncation_right)
+
+    left_truncs <- data.frame(x=l_xsrt, xend=l_xend, y=l_ysrt, yend=l_yend, alpha=l_alpha)
+    right_truncs <- data.frame(x=r_xsrt, xend=r_xend, y=r_ysrt, yend=r_yend, alpha=r_alpha)
+    truncs <- rbind(left_truncs, right_truncs)
+    
+    # add factors to plot in correct facet
+    fam_col <- rep(tl_df$TEfam[1], length(truncs$x))
+    sample_col <- rep(tl_df$sample_id[1], length(truncs$x))
+    truncs <- cbind(truncs, fam_col, sample_col)
+
+    return(truncs)
+}
+
+
+add_curve <- function(p, coords){
+    # takes a plot and a frame of int_dels
+    # and adds the curves, need to return the new plot as list
+    q <- p + geom_curve(data=coords, mapping=aes(x=x, y=y, xend=xend, yend=yend, 
+        size=size), curvature=-0.2, ncp=10, show.legend=FALSE) +
+    scale_size(range = sizerange)
+
+    return(list(q))
+}
+
+
+add_rect <- function(p, coords){
+    # takes a plot and frame of coords
+    # plots insertions or deletions
+    q <- p + geom_rect(data=coords, mapping=aes(xmin=x, xmax=xend, 
+        ymin=y, ymax=yend, fill=fac))
+
+    return(list(q))
+}
+
+
+add_segment <- function(p, coords){
+    # takes a plot and frame of truncations
+    # adds the angled segments and alpha as aes
+    q <- p + geom_segment(data=coords, mapping=aes(x=x, y=y, xend=xend, yend=yend, 
+        alpha=alpha), lty='dashed', show.legend=FALSE) +
+    scale_alpha(range = alpharange)
+
+    return(list(q))
+}
+
+
+annotation_data <- function(df){
+    anno_df <- subset(df, annotation != 'NA' | annotation != 'intergenic', sel=c('pos', 'TEfam', 'annotation', 'sample_id'))
+    anno_df <- subset(anno_df, annotation != 'intergenic')
+    y <- rep(1, nrow(anno_df))
+    anno_df <- cbind(anno_df, y)
+
+    return(anno_df)
+}
+
+
+plot_anno <- function(anno_df){
+    famlen <- max(anno_df$pos)
+    lim <- ceiling(famlen/50)
+
+    ann <- ggplot() + 
+        geom_bar(data=anno_df, mapping=aes(x=pos, y=y, fill=annotation), stat='identity', width=1) +
+        scale_fill_grey() + 
+        labs(fill='') +
+        xlab('') +
+        ylab('') +
+        scale_x_continuous(limits=c(-lim, famlen+lim)) +
+        theme_void(base_size=fontsize) +
+        theme(
+            legend.position='bottom',
+            legend.key=element_blank(), 
+            legend.background=element_blank(),
+            axis.text = element_text(size = rel(0.8), colour = 'grey50'),
+            axis.text.x = element_text(color = 'grey50', angle=0),
+            axis.text.y = element_blank(),
+            axis.ticks.x = element_line(color= 'grey50'),
+            axis.line.x = element_line(color='grey50')
+            )
+
+    return(ann)
+}
+
+
+find_max <- function(df_list, var){
+    # returns the maximum of a variable from a list of similar dataframes
+    maxima <- lapply(df_list, function(df){suppressWarnings(max(df[,var]))})
+    # remove -INF if one sample is empty
+    maxima[maxima==-Inf] <- 0
+    maximum <- max(as.numeric(maxima))
+    # if no sample has a count use 1 for norm
+    if (maximum == 0){maximum <- 1}
+    return(maximum)
+}
+
+
+### --- ### --- ###
+
+
+# load full dataframe with fread and name the columns
+frame <- fread(paste('grep -v ^#', args$input), data.table=FALSE,
+ colClasses=list(character=c(1,2,4,12,15,16,17)))
+
+names(frame) <- c('TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T', 'coverage', 'snp', 'refsnp',
+    'int_del', 'truncation_left', 'truncation_right', 'insertion', 'deletion', 'annotation')
+
+frame$TEfam <- as.factor(frame$TEfam)
+frame$sample_id <- as.factor(frame$sample_id)
+frame$annotation <- as.factor(frame$annotation)
+
+nfam <- length(levels(frame$TEfam))
+nsample <- length(levels(frame$sample_id))
+
+
+# parameters to set for plotting ----------------
+sizerange <- c(0.01, 2)
+alpharange <- c(0.01, 1)
+
+base_w <- 60 * nfam
+base_h <- 20 * nsample
+
+# scale fontsize with grid dimension?
+fontsize <- 14
+
+anno_height <- ((1/8)/nsample)
+base_height <- (1 - anno_height) / nsample
+
+plot_heights <- c( rep(base_height, nsample), anno_height )
+
+leg_height <- 0.05 / nsample
+yaxs_width <- 0.01 / nfam
+# parameters to set for plotting ----------------
+
+
+
+# split the whole frame into a list of samples
+# by TE family and by sample_id
+samples <- split(frame, list(frame$TEfam, frame$sample_id))
+
+# generate a frame in long format for each sample
+long_frames <- lapply(samples, long_format)
+
+# generate a list of plots for each sample
+TEplots <- lapply(long_frames, base_plot)
+
+
+# fix y-scale for comparison
+# free axis is FALSE by default
+if (args$free_yaxis == FALSE){
+    max_cov <- find_max(long_frames, 'counts_col')
+
+    TEplots <- lapply(TEplots, function(p){
+        p + scale_y_continuous(limits=c(0, max_cov + 3)) })   
+}
+
+
+# get the plotting coordinates for all features
+int_del_coords <- lapply(samples, int_del_data)
+ins_coords <- lapply(samples, insertion_data)
+del_coords <- lapply(samples, deletion_data)
+trunc_coords <- lapply(samples, truncation_data)
+
+
+# add the features to the plots as geoms
+TEplots <- mapply(add_curve, p=TEplots, coords=int_del_coords)
+TEplots <- mapply(add_rect, p=TEplots, coords=ins_coords)
+TEplots <- mapply(add_rect, p=TEplots, coords=del_coords)
+TEplots <- mapply(add_segment, p=TEplots, coords=trunc_coords)
+
+
+# get coordinates for annotations from the full frame
+# then reduce to one species, since they are the same
+# create a plot if annotation was given
+anno_coords <- lapply(samples, annotation_data)
+anno_coords_list <- anno_coords[1:nfam]
+
+anno_plots <- list(ggplot(data.frame()) + geom_blank())
+if (nrow(anno_coords[[1]]) != 0 ){
+    anno_plots <- lapply(anno_coords_list, plot_anno)
+}
+
+
+
+
+# create a list of all plots
+# and arrange them (without legends)
+plot_list <- append(TEplots, anno_plots)
+
+combo_grob <- plot_grid(plotlist=plot_list, ncol=nfam, nrow=nsample + 1, 
+    align='hv', axis='l', rel_heights=plot_heights, labels='AUTO', label_size=14)
+
+
+# create a legend for the plots
+# and add it to the grid
+legend <- make_legend(long_frames[[1]])
+combo_leg <- plot_grid(legend, combo_grob, ncol = 1, nrow = 2, rel_heights = c(leg_height, 1 - leg_height))
+
+# add a shared y-axis
+# tilted label on an empty background
+yaxis <- ggdraw() + draw_label('Coverage (reads per million sequenced bases)', angle=90)
+combo_y <- plot_grid(yaxis, combo_leg, ncol=2, nrow=1, rel_widths = c(yaxs_width, 1 - yaxs_width))
+
+
+if (args$output == ''){args$output <- paste(args$input, '.pdf', sep='')}
+
+ggsave(file=args$output, plot=combo_y, device='pdf', width=base_w, height=base_h, 
+         units='cm', limitsize=FALSE)
+
+print(paste('plotting completed; written to:', args$output))
+
