@@ -21,5 +21,6 @@ setup(
     		 'bin/deviaTE_plot',
     		 'bin/deviaTE_prep',
              'bin/deviaTE_fuse',
+             'bin/deviaTE_filter_al',
     		 'bin/deviaTE']
 )
