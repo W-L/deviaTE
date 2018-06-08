@@ -1,0 +1,7 @@
+include library/te_library
+include library/te_features.gff
+include README.md
+include CONFIG
+include prog/*
+include library/*
+include doc/*
