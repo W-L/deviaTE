@@ -1,6 +1,11 @@
 .DS_Store
-*.pyc
 prog/._.DS_Store
 prog/._bwa-0.7.17
 prog/._samtools-1.6
 **/._*
+# Compiled python modules.
+*.pyc
+# Setuptools distribution folder.
+/dist/
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info
