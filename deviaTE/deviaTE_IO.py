@@ -40,7 +40,7 @@ class fq_file:
         self.path = inp
         
     def prep(self, lib, qual_tr, min_rl, min_al, read_ty, thr):
-        args = ['deviaTE_prep.sh',
+        args = ['deviaTE_prep',
                 '-i', self.path,
                 '-q', qual_tr,
                 '-r', min_rl,
@@ -64,13 +64,13 @@ class bam_file:
             self.log = self.path.split('.')[0] + '.fastq.log'
             
     def fuse(self):
-        args = ['deviaTE_fuse.py',
+        args = ['deviaTE_fuse',
                 '--input', self.path]
         
         execute(command=' '.join(args))
         
     def analyze(self, lib, fam, sid, out, anno):
-        args = ['deviaTE_analyse.py',
+        args = ['deviaTE_analyse',
                 '--input', self.path,
                 '--family', fam,
                 '--sample_id', sid,
@@ -95,7 +95,7 @@ class analysis_table:
         self.path = inp
     
     def plot(self, out, free_y, col_ref):
-        args = ['deviaTE_plot.R',
+        args = ['deviaTE_plot',
                 '--input', self.path,
                 '--output', out]
         
