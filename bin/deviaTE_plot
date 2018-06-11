@@ -1,5 +1,14 @@
 #! /usr/bin/env Rscript 
 
+# input is table from deviaTE_analyse
+# requires ggplot2, grid, gridExtra, argparse, data.table, cowplot
+
+if (!require(ggplot2)) install.packages('ggplot2')
+if (!require(grid)) install.packages('grid')
+if (!require(gridExtra)) install.packages('gridExtra')
+if (!require(argparse)) install.packages('argparse')
+if (!require(data.table)) install.packages('data.table')
+if (!require(cowplot)) install.packages('cowplot')
 library(ggplot2)
 library(grid)
 library(gridExtra)
@@ -7,13 +16,10 @@ library(argparse)
 library(data.table)
 suppressPackageStartupMessages(suppressWarnings(library(cowplot)))
 
-# input is the table from python script
-# requires ggplot2, grid, gridExtra, argparse, data.table, cowplot
 
 # color palettes
 base_colors <- c('A'='#1b9e77','C'='#d95f02','G'='#7570b3','T'='#e6ab02',
     'in'='#66a61e','del'='#e7298a', 'X'='grey')
-
 anno_colors <- c('#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d')
 
 
@@ -24,7 +30,6 @@ parser$add_argument('--free_yaxis', action='store_true',
     help='flag to free the y-axis e.g. if one sample has much higher coverage than others')
 parser$add_argument('--color_reference', action='store_true')
 args <- parser$parse_args()
-
 
 
 fam_name <- function(df){
