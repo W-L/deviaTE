@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 
 import pysam
-import sys
 import argparse
 import subprocess
-from deviaTE import deviaTE_multiHSP as multiHSP
 from collections import defaultdict
+import deviaTE.deviaTE_multiHSP as multiHSP
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--input', type=str, required=True)
-parser.add_argument('--output', type=str)
+parser.add_argument('--input', required=True)
+parser.add_argument('--output')
 args = parser.parse_args()
 
 if args.output is None:
@@ -18,13 +17,8 @@ if args.output is None:
 
 
 # sort input file by readname first
-deviaTE = '/'.join(sys.argv[0].split('/')[:-2])
-sam = subprocess.Popen('source ' + deviaTE + '/CONFIG', shell=True, stdout=subprocess.PIPE, encoding='utf-8')
-stdout = sam.communicate()
-samtools = stdout[0].split('\n')[0]
-
-sort = [samtools, 'sort', '-n', args.input, '-o', args.input + '.tmp.bam']
-conv_sam = [samtools, 'view', '-h', args.input + '.tmp.bam', '-o', args.input + '.tmp.sam']
+sort = ['samtools', 'sort', '-n', args.input, '-o', args.input + '.tmp.bam']
+conv_sam = ['samtools', 'view', '-h', args.input + '.tmp.bam', '-o', args.input + '.tmp.sam']
 subprocess.run(' '.join(sort), shell=True)
 subprocess.run(' '.join(conv_sam), shell=True)
 
@@ -106,9 +100,9 @@ inpfile.close()
 
 
 # sort and index - after processing
-bam = [samtools, 'view', '-b', args.output, '-o', args.output + '.bam']
-sort = [samtools, 'sort', args.output + '.bam', '-o', args.output + '.sort.bam']
-index = [samtools, 'index', args.output + '.sort.bam', args.output + '.sort.bam.bai']
+bam = ['samtools', 'view', '-b', args.output, '-o', args.output + '.bam']
+sort = ['samtools', 'sort', args.output + '.bam', '-o', args.output + '.sort.bam']
+index = ['samtools', 'index', args.output + '.sort.bam', args.output + '.sort.bam.bai']
     
 subprocess.run(' '.join(bam), shell=True)
 subprocess.run(' '.join(sort), shell=True)

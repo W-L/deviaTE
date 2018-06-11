@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
+
 import subprocess
+import pysam
+import os
+
+
+
+_ROOT = os.path.abspath(os.path.dirname(__file__))
+def get_data(path):
+    return os.path.join(_ROOT, path)
 
 
 def execute(command):
@@ -8,8 +17,24 @@ def execute(command):
     stdout, stderr = running.communicate()
     print(stdout)
     print(stderr)
+    
+    
+def map_bwa(command, outfile):
+    mapping = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                               encoding='utf-8', shell=True)
+    m = open(outfile, 'w')
+
+    while True:
+        chunk = mapping.stdout.read(4096)
+        if len(chunk) is 0:
+            m.close()
+            break
+        else:
+            m.write(chunk)
+
+    print(str(mapping.stderr))
         
-        
+
 class fq_file:
     def __init__(self, inp):
         self.path = inp
@@ -81,4 +106,31 @@ class analysis_table:
         
         execute(command=' '.join(args))    
 
+
+def filter_alignment_length(inp, outp, lim):
+    # remove reads under alignment length limit
+    inpfile = pysam.AlignmentFile(inp, 'r')
+    outfile = pysam.AlignmentFile(outp, 'w', template=inpfile)
+
+    for read in inpfile.fetch():
+        al_len = read.query_alignment_length
+        if al_len >= int(lim):
+            outfile.write(read)
+
+    inpfile.close()
+    outfile.close()
             
+
+def count_total_read_len(file):
+    c = 0
+
+    with open(file) as f:
+        for line in f:
+            if line.startswith('@'):
+                line_len = len(f.readline().rstrip())
+                c += line_len
+
+    return(c)
+
+
+
