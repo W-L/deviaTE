@@ -1,5 +1,8 @@
 #!/usr/bin/env perl
 
+# this script is part of PoPoolation by Robert Kofler et al.
+# https://sourceforge.net/projects/popoolation/
+
 {
     package deviaTE_trim;
     use strict;
