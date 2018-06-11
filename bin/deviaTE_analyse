@@ -1,49 +1,53 @@
 #!/usr/bin/env python3
 
 import argparse
-import sys
 import pysam
 import warnings
-from bin import deviaTE_pileup as pileup
-
-deviaTE = '/'.join(sys.argv[0].split('/')[:-1])
+import deviaTE.deviaTE_pileup as pileup
+from deviaTE.deviaTE_IO import get_data
 
 
 # set up parser and arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('--input', type=str, required=True, dest='bamfile', default=None, help='alignment file to be analyzed')
-parser.add_argument('--family', type=str, required=True, dest='family_sel', default=None, help='TE family to visualize; a header in the reference library')
-parser.add_argument('--library', type=str, dest='te_library', default=deviaTE + '/library/te_library', help='path to reference sequence library')
-parser.add_argument('--output', type=str, default=None, help='name of output table')
-parser.add_argument('--sample_id', type=str, default=None, help='sample identifier')
-parser.add_argument('--annotation', type=str, default=None, help='annotation in gff-format')
-parser.add_argument('--log', type=str, default=None, help='logfile from preparation script')
+parser.add_argument('--input', required=True, help='alignment file to be analysed')
+parser.add_argument('--family', required=True, help='TE family to analyse')
+parser.add_argument('--library', help='path to alternative reference sequence library')
+parser.add_argument('--output', help='name of output table')
+parser.add_argument('--sample_id', help='sample identifier')
+parser.add_argument('--annotation', help='alternative annotation in gff-format')
+parser.add_argument('--log', help='logfile from preparation script')
 args = parser.parse_args()
 
 if args.sample_id is None:
-    args.sample_id = args.bamfile
+    args.sample_id = args.input
     
-# set default output if none given
 if args.output is None:
-    args.output = args.sample_id + '.' + args.family_sel
+    args.output = args.sample_id + '.' + args.family
+    
+if args.library is None:
+    args.library = get_data('lib/te_library')
+    
+if args.annotation is None:
+    args.annotation = get_data('lib/te_features.gff')
+
 
 # look for the refseq of chosen family
-refs = open(args.te_library, 'r')
+refs = open(args.library, 'r')
 refseq = None
 
 for line in refs:
     if line.startswith('>'):
         family = line.replace('>', '').rstrip('\n')
-        if family == args.family_sel:
+        if family == args.family:
             refseq = refs.readline().rstrip('\n')
             refs.close()
             break
 
 if refseq is None:
-    raise ValueError('Selected family is not in references. Typo? ' + args.family_sel)
+    raise ValueError('Selected family is not in references. Typo? ' + args.family)
 else:
     # set family as class variable
-    pileup.Site.name = args.family_sel
+    pileup.Site.name = args.family
 
 
 # get annotation for the selected family
@@ -52,12 +56,12 @@ if args.annotation is not None:
     anno = open(args.annotation, 'r')
 
     for line in anno:
-        if line.startswith(args.family_sel):
+        if line.startswith(args.family):
             entry = line.split('\t')
             fam_anno.append(tuple(entry[2:5]))
 
     if len(fam_anno) is 0:
-        warnings.warn('no annotaions found for: ' + args.family_sel)
+        warnings.warn('no annotaions found for: ' + args.family)
 
     anno.close()
 
@@ -79,12 +83,12 @@ if args.log is not None:
 sites = []
 c = 0
 for base in refseq:
-    sites.append(pileup.Site(pos=c, refbase=base, sid=args.sample_id, fam=args.family_sel))
+    sites.append(pileup.Site(pos=c, refbase=base, sid=args.sample_id, fam=args.family))
     c += 1
 
 
 # open the alignment file for data extraction
-bamfile_op = pysam.AlignmentFile(args.bamfile, 'rb')
+bamfile_op = pysam.AlignmentFile(args.input, 'rb')
 
 pileup.perform_pileup(sitelist=sites, bam=bamfile_op, min_int_del_len=20,
                       min_trunc_len=10, min_indel_len=2)
