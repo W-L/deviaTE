@@ -8,3 +8,5 @@
 /*.egg-info
 # setuptools build folder
 /build/
+# symlink to modules from bin
+/bin/deviaTE

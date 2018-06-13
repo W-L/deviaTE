@@ -41,15 +41,15 @@ class fq_file:
         
     def prep(self, lib, qual_tr, min_rl, min_al, read_ty, thr):
         args = ['deviaTE_prep',
-                '-i', self.path,
-                '-q', qual_tr,
-                '-r', min_rl,
-                '-a', min_al,
-                '-y', read_ty,
-                '-t', thr]
+                '--input', self.path,
+                '--qual_threshold', qual_tr,
+                '--min_read_length', min_rl,
+                '--min_alignment_length', min_al,
+                '--quality_encoding', read_ty,
+                '--threads', thr]
 
         if lib:
-            args.append('-l')
+            args.append('--library')
             args.append(lib)
 
         execute(command=' '.join(args))
