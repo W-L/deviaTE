@@ -56,12 +56,13 @@ class fq_file:
     
         
 class bam_file:
-    def __init__(self, inp, from_fq):
+    def __init__(self, inp, from_fq, orig_name=None):
         self.path = inp
         self.from_fq = from_fq
+        self.orig_name = orig_name
         
         if from_fq:
-            self.log = self.path.split('.')[0] + '.fastq.log'
+            self.log = self.orig_name + '.log'
             
     def fuse(self):
         args = ['deviaTE_fuse',

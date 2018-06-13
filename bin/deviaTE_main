@@ -37,7 +37,7 @@ def process_fq(file):
     fq.prep(lib=args.library, qual_tr=args.quality_threshold, min_rl=args.min_read_len,
             min_al=args.min_alignment_len, read_ty=args.read_type, thr=args.threads)
     
-    prep_bam = IO.bam_file(inp=fq.path + '.fused.sort.bam', from_fq=True)    
+    prep_bam = IO.bam_file(inp=fq.path + '.fused.sort.bam', from_fq=True, orig_name=file)    
     prep_bam.analyze(lib=args.library, fam=args.family, sid=sample_id,
                      out=output_table, anno=args.annotation)
     
@@ -70,17 +70,19 @@ elif args.input_bam:
 elif args.input_fq_dir:
     print('Directory of fastq files provided: preparing for alignment')
     fq_list = glob.glob('*.fastq') #+ glob.glob('*.fq') fq not yet implemented
-    print(fq_list)
+    #print(fq_list)
     
     for f in fq_list:
+        print(f)
         process_fq(file=f)
         
 elif args.input_bam_dir:
     print('Directory of bam-files provided: skipping preparation')    
     bam_list = glob.glob('*.bam')
-    print(bam_list)
+    #print(bam_list)
     
     for b in bam_list:
+        print(b)
         process_bam(bam=b)
         
 else:
