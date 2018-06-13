@@ -3,18 +3,18 @@
 # input is table from deviaTE_analyse
 # requires ggplot2, grid, gridExtra, argparse, data.table, cowplot
 
-if (!require(ggplot2)) install.packages('ggplot2')
-if (!require(grid)) install.packages('grid')
-if (!require(gridExtra)) install.packages('gridExtra')
-if (!require(argparse)) install.packages('argparse')
-if (!require(data.table)) install.packages('data.table')
-if (!require(cowplot)) install.packages('cowplot')
-suppressMessages(library(ggplot2))
-suppressMessages(library(grid))
-suppressMessages(library(gridExtra))
-suppressMessages(library(argparse))
-suppressMessages(library(data.table))
-suppressPackageStartupMessages(suppressWarnings(library(cowplot, warn.conflicts = FALSE)))
+if (!suppressMessages(require(ggplot2))) install.packages('ggplot2')
+if (!suppressMessages(require(grid))) install.packages('grid')
+if (!suppressMessages(require(gridExtra))) install.packages('gridExtra')
+if (!suppressMessages(require(argparse))) install.packages('argparse')
+if (!suppressMessages(require(data.table))) install.packages('data.table')
+if (!suppressMessages(require(cowplot))) install.packages('cowplot')
+library(ggplot2)
+library(grid)
+library(gridExtra)
+library(argparse)
+library(data.table)
+suppressPackageStartupMessages(suppressWarnings(library(cowplot)))
 
 
 # color palettes
