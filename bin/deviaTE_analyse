@@ -2,7 +2,6 @@
 
 import argparse
 import pysam
-import warnings
 import deviaTE.deviaTE_pileup as pileup
 from deviaTE.deviaTE_IO import get_data
 
@@ -61,7 +60,7 @@ if args.annotation is not None:
             fam_anno.append(tuple(entry[2:5]))
 
     if len(fam_anno) is 0:
-        warnings.warn('no annotaions found for: ' + args.family)
+        print('no annotaions found for: ' + args.family)
 
     anno.close()
 
