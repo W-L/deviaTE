@@ -10,7 +10,7 @@ DELETION = 2
 REF_SKIP = 3
 SOFT_CLIP = 4
 
-cig_dict = {0: 'M', 1: 'I', 2: 'D', 3: 'N', 4: 'S'}
+cig_dict = {0: 'M', 1: 'I', 2: 'D', 3: 'N', 4: 'S', 5: 'S'}
 
 class Multihit:
 
