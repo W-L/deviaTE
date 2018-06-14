@@ -1,7 +1,5 @@
 #! /usr/bin/env Rscript 
-
 # input is table from deviaTE_analyse
-# requires ggplot2, grid, gridExtra, argparse, data.table, cowplot
 
 if (!suppressMessages(require(ggplot2))) install.packages('ggplot2')
 if (!suppressMessages(require(grid))) install.packages('grid')
@@ -16,20 +14,18 @@ library(argparse)
 library(data.table)
 suppressPackageStartupMessages(suppressWarnings(library(cowplot)))
 
-
-# color palettes
-base_colors <- c('A'='#1b9e77','C'='#d95f02','G'='#7570b3','T'='#e6ab02',
-    'in'='#66a61e','del'='#e7298a', 'X'='grey')
-anno_colors <- c('#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d')
-
-
 parser <- ArgumentParser()
 parser$add_argument('--input', required=TRUE, help='input as created by TEplotter')
 parser$add_argument('--output', default='', help='name for the output file')
-parser$add_argument('--free_yaxis', action='store_true',
-    help='flag to free the y-axis e.g. if one sample has much higher coverage than others')
+parser$add_argument('--free_yaxis', action='store_true', help='free y-axis e.g. if one sample has much higher cov')
 parser$add_argument('--color_reference', action='store_true')
 args <- parser$parse_args()
+
+
+# color palettes
+base_colors <- c('A'='#1b9e77','C'='#d95f02','G'='#7570b3','T'='#e6ab02',
+                 'in'='#66a61e','del'='#e7298a', 'X'='grey')
+anno_colors <- c('#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d')
 
 
 fam_name <- function(df){
@@ -71,7 +67,7 @@ ref_allele <- function(snp_index, refbases, len){
 }
 
 
-long_format <- function(df){
+long_format <- function(df, col_ref){
     # ggplot needs the data in long format to color the SNPs
     # results in a df with 4 * length and 5 cols
     # concatenate the base coverage and create factor columns
@@ -90,7 +86,7 @@ long_format <- function(df){
     base_col[indices] <- 'X' #multi-indexing
     
     # uncolor reference allele in SNPs
-    if (args$color_reference == FALSE){
+    if (col_ref == FALSE){
         polys <- snp_positions(df)
         polys_ref <- sapply(polys, ref_allele, df$refbase, l)
         polys_indices <- sort(as.numeric(polys_ref))
@@ -310,34 +306,36 @@ annotation_data <- function(df){
     anno_df <- subset(anno_df, annotation != 'intergenic')
     y <- rep(1, nrow(anno_df))
     anno_df <- cbind(anno_df, y)
-
     return(anno_df)
 }
 
 
-plot_anno <- function(anno_df){
-    famlen <- max(anno_df$pos)
+plot_anno <- function(df){
+    famlen <- max(df$pos)
     lim <- ceiling(famlen/50)
 
-    ann <- ggplot() + 
-        geom_bar(data=anno_df, mapping=aes(x=pos, y=y, fill=annotation), stat='identity', width=1) +
-        scale_fill_grey() + 
-        labs(fill='') +
-        xlab('') +
-        ylab('') +
-        scale_x_continuous(limits=c(-lim, famlen+lim)) +
-        theme_void(base_size=fontsize) +
-        theme(
-            legend.position='bottom',
-            legend.key=element_blank(), 
-            legend.background=element_blank(),
-            axis.text = element_text(size = rel(0.8), colour = 'grey50'),
-            axis.text.x = element_text(color = 'grey50', angle=0),
-            axis.text.y = element_blank(),
-            axis.ticks.x = element_line(color= 'grey50'),
-            axis.line.x = element_line(color='grey50')
-            )
-
+    anno_df <- annotation_data(df)
+    if (nrow(anno_df) != 0 ){
+    
+      ann <- ggplot() + 
+          geom_bar(data=anno_df, mapping=aes(x=pos, y=y, fill=annotation), stat='identity', width=1) +
+          scale_fill_grey() + 
+          labs(fill='') +
+          xlab('') +
+          ylab('') +
+          scale_x_continuous(limits=c(-lim, famlen+lim)) +
+          theme_void(base_size=fontsize) +
+          theme(
+              legend.position='bottom',
+              legend.key=element_blank(), 
+              legend.background=element_blank(),
+              axis.text = element_text(size = rel(0.8), colour = 'grey50'),
+              axis.text.x = element_text(color = 'grey50', angle=0),
+              axis.text.y = element_blank(),
+              axis.ticks.x = element_line(color= 'grey50'),
+              axis.line.x = element_line(color='grey50')
+              )
+    } else {ann <- ggplot(data.frame()) + geom_blank()}
     return(ann)
 }
 
@@ -356,9 +354,20 @@ find_max <- function(df_list, var){
 
 ### --- ### --- ###
 
+inp_arg <- args$input
+out_arg <- args$output
+col_arg <- args$color_reference
+axis_arg <- args$free_yaxis
+
+# replace commandline arguments for debugging
+inp_arg <- 'dmel_dsim_dvir_4fam'
+out_arg <- ''
+col_arg <- FALSE
+axis_arg <- FALSE
+
 
 # load full dataframe with fread and name the columns
-frame <- fread(paste('grep -v ^#', args$input), data.table=FALSE,
+frame <- fread(paste('grep -v ^#', inp_arg), data.table=FALSE,
  colClasses=list(character=c(1,2,4,12,15,16,17)))
 
 names(frame) <- c('TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T', 'coverage', 'snp', 'refsnp',
@@ -398,7 +407,7 @@ yaxs_width <- 0.01 / nfam
 samples <- split(frame, list(frame$TEfam, frame$sample_id))
 
 # generate a frame in long format for each sample
-long_frames <- lapply(samples, long_format)
+long_frames <- lapply(samples, long_format, col_ref=col_arg)
 
 # generate a list of plots for each sample
 TEplots <- lapply(long_frames, base_plot)
@@ -406,7 +415,7 @@ TEplots <- lapply(long_frames, base_plot)
 
 # fix y-scale for comparison
 # free axis is FALSE by default
-if (args$free_yaxis == FALSE){
+if (axis_arg == FALSE){
     max_cov <- find_max(long_frames, 'counts_col')
 
     TEplots <- lapply(TEplots, function(p){
@@ -428,17 +437,12 @@ TEplots <- mapply(add_rect, p=TEplots, coords=del_coords)
 TEplots <- mapply(add_segment, p=TEplots, coords=trunc_coords)
 
 
+
 # get coordinates for annotations from the full frame
 # then reduce to one species, since they are the same
 # create a plot if annotation was given
-anno_coords <- lapply(samples, annotation_data)
-anno_coords_list <- anno_coords[1:nfam]
-
 anno_plots <- list(ggplot(data.frame()) + geom_blank())
-if (nrow(anno_coords[[1]]) != 0 ){
-    anno_plots <- lapply(anno_coords_list, plot_anno)
-}
-
+anno_plots <- lapply(samples[1:nfam], plot_anno)
 
 
 
@@ -461,10 +465,10 @@ yaxis <- ggdraw() + draw_label('Coverage (reads per million sequenced bases)', a
 combo_y <- plot_grid(yaxis, combo_leg, ncol=2, nrow=1, rel_widths = c(yaxs_width, 1 - yaxs_width))
 
 
-if (args$output == ''){args$output <- paste(args$input, '.pdf', sep='')}
+if (out_arg == ''){out_arg <- paste(inp_arg, '.pdf', sep='')}
 
-ggsave(file=args$output, plot=combo_y, device='pdf', width=base_w, height=base_h, 
+ggsave(file=out_arg, plot=combo_y, device='pdf', width=base_w, height=base_h, 
          units='cm', limitsize=FALSE)
 
-print(paste('plotting completed; written to:', args$output))
+print(paste('plotting completed; written to:', out_arg))
 
