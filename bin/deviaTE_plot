@@ -360,10 +360,10 @@ col_arg <- args$color_reference
 axis_arg <- args$free_yaxis
 
 # replace commandline arguments for debugging
-inp_arg <- 'dmel_dsim_dvir_4fam'
-out_arg <- ''
-col_arg <- FALSE
-axis_arg <- FALSE
+# inp_arg <- ''
+# out_arg <- ''
+# col_arg <- FALSE
+# axis_arg <- FALSE
 
 
 # load full dataframe with fread and name the columns
