@@ -64,7 +64,19 @@ else:
 
 # fusing
 fusing = ['deviaTE_fuse', '--input', filtered, '--output', fused]
+# fusing = ['mv', filtered, fused] # for skipping fusing
 IO.execute(command=' '.join(fusing))
+
+# this part is only to skip fusing
+# bam = ['samtools', 'view', '-b', fused, '-o', fused + '.bam']
+# sort = ['samtools', 'sort', fused + '.bam', '-o', fused + '.sort.bam']
+# index = ['samtools', 'index', fused + '.sort.bam', fused + '.sort.bam.bai']
+#     
+# subprocess.run(' '.join(bam), shell=True)
+# subprocess.run(' '.join(sort), shell=True)
+# subprocess.run(' '.join(index), shell=True)
+# ---------
+
 
 # clean-up
 cleaning = ['rm', trimmed, filtered, mapped, trimmed + '.params']
