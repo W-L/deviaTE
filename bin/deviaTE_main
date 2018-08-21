@@ -14,7 +14,7 @@ parser.add_argument('--quality_threshold', default='15')
 parser.add_argument('--min_alignment_len', default='1')
 parser.add_argument('--threads', default='1')
 # args for analysis
-parser.add_argument('--family', required=True)
+parser.add_argument('--families', required=True)
 parser.add_argument('--annotation', help='alternative annotation in gff-format')
 # args for plotting
 parser.add_argument('--free_yaxis', action='store_true', help='flag to free the y-axis; for highly differential coverage')
@@ -28,44 +28,50 @@ inp_group.add_argument('--input_bam_dir', action='store_true', help='directory o
 args = parser.parse_args()
 
 
-def process_fq(file):
-    sample_id = file
-    output_table = sample_id + '.' + args.family
-    output_plot = output_table + '.pdf'
-    
+def process_fq(file, families):
     fq = IO.fq_file(inp=file)
     fq.prep(lib=args.library, qual_tr=args.quality_threshold, min_rl=args.min_read_len,
             min_al=args.min_alignment_len, read_ty=args.read_type, thr=args.threads)
     
-    prep_bam = IO.bam_file(inp=fq.path + '.fused.sort.bam', from_fq=True, orig_name=file)    
-    prep_bam.analyze(lib=args.library, fam=args.family, sid=sample_id,
-                     out=output_table, anno=args.annotation)
+    for f in families:
+        sample_id = file
+        output_table = sample_id + '.' + f
+        output_plot = output_table + '.pdf'
     
-    table = IO.analysis_table(inp=output_table)
-    table.plot(out=output_plot, free_y=args.free_yaxis, col_ref=args.color_reference)
+        prep_bam = IO.bam_file(inp=fq.path + '.fused.sort.bam', from_fq=True, orig_name=file)    
+        prep_bam.analyze(lib=args.library, fam=f, sid=sample_id,
+                         out=output_table, anno=args.annotation)
     
-def process_bam(bam):
-    sample_id = bam
-    output_table = sample_id + '.' + args.family
-    output_plot = output_table + '.pdf'
+        table = IO.analysis_table(inp=output_table)
+        table.plot(out=output_plot, free_y=args.free_yaxis, col_ref=args.color_reference)
     
+def process_bam(bam, families):
     prep_bam = IO.bam_file(inp=bam, from_fq=False)
     prep_bam.fuse()
-    fused_bam = IO.bam_file(inp=bam + '.fused.sort.bam', from_fq=False)
-    fused_bam.analyze(lib=args.library, fam=args.family, sid=sample_id,
-                      out=output_table, anno=args.annotation)
-        
-    table = IO.analysis_table(inp=output_table)
-    table.plot(out=output_plot, free_y=args.free_yaxis, col_ref=args.color_reference)
     
+    for f in families:
+        sample_id = bam
+        output_table = sample_id + '.' + f
+        output_plot = output_table + '.pdf'
+    
+        fused_bam = IO.bam_file(inp=bam + '.fused.sort.bam', from_fq=False)
+        fused_bam.analyze(lib=args.library, fam=f, sid=sample_id,
+                          out=output_table, anno=args.annotation)
+        
+        table = IO.analysis_table(inp=output_table)
+        table.plot(out=output_plot, free_y=args.free_yaxis, col_ref=args.color_reference)
+    
+    
+    
+fams = args.families.split(',')
 
 if args.input_fq:
     print('Fastq provided: preparing for alignment')
-    process_fq(file=args.input_fq)
+    process_fq(file=args.input_fq, families=fams)
     
 elif args.input_bam:
     print('Alignment file provided: skipping preparation')
-    process_bam(bam=args.input_bam)
+    process_bam(bam=args.input_bam, families=fams)
     
 elif args.input_fq_dir:
     print('Directory of fastq files provided: preparing for alignment')
@@ -74,7 +80,7 @@ elif args.input_fq_dir:
     
     for f in fq_list:
         print(f)
-        process_fq(file=f)
+        process_fq(file=f, families=fams)
         
 elif args.input_bam_dir:
     print('Directory of bam-files provided: skipping preparation')    
@@ -83,7 +89,7 @@ elif args.input_bam_dir:
     
     for b in bam_list:
         print(b)
-        process_bam(bam=b)
+        process_bam(bam=b, families=fams)
         
 else:
     sys.exit('No input provided')
