@@ -244,10 +244,14 @@ truncation_data <- function(df){
     tl_df <- subset(df, truncation_left != 0, sel=c('pos', 'TEfam', 'sample_id', 'truncation_left'))
     tr_df <- subset(df, truncation_right != 0, sel=c('pos', 'TEfam', 'sample_id', 'truncation_right'))
     
-    # remove truncs at pos 0 and end
-    if (tl_df[1,]$pos == 0){tl_df <- tl_df[-1,]}
-    if (tr_df[nrow(tr_df),]$pos == nrow(df) - 1){tr_df <- tr_df[-nrow(tr_df),]}
-
+    # remove truncs at pos 0 and end, only if trunc frame is not empty
+    if (nrow(tl_df) != 0){
+      if (tl_df[1,]$pos == 0){tl_df <- tl_df[-1,]}
+    }
+    if (nrow(tr_df) != 0){
+      if (tr_df[nrow(tr_df),]$pos == nrow(df) - 1){tr_df <- tr_df[-nrow(tr_df),]}
+    }
+    
     l_xend <- as.numeric(tl_df$pos) + 1
     l_xsrt <- l_xend - (fam_len(df)/50)
     l_yend <- as.numeric(lapply(l_xend, function(i){df$coverage[i+1]}))
@@ -364,8 +368,8 @@ col_arg <- args$color_reference
 axis_arg <- args$free_yaxis
 
 # replace commandline arguments for debugging
-# inp_arg <- ''
-# out_arg <- ''
+# inp_arg <- '0p12_1.fastq.DOC5'
+# out_arg <- 'test.pdf'
 # col_arg <- FALSE
 # axis_arg <- FALSE
 
