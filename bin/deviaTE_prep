@@ -17,10 +17,9 @@ parser.add_argument('--threads', default='1')
 parser.add_argument('--quality_encoding', default='sanger')
 args = parser.parse_args()
 
-#set resource file names and tmp files
+# set resource file names and tmp files
 if args.library is None:
     args.library = IO.get_data('lib/te_library')
-
 
 
 log = args.input + '.log'
@@ -42,7 +41,7 @@ trl = IO.count_total_read_len(trimmed)
 with open(log, 'w') as l:
     m = '#total_read_length: ' + str(trl) + '\n'
     l.write(m)
-    
+
 # # index reference
 # index = [args.bwa, 'index', args.library]
 # IO.execute(command=' '.join(index))
@@ -63,15 +62,15 @@ else:
     IO.execute(command=' '.join(mv))
 
 # fusing
-fusing = ['deviaTE_fuse', '--input', filtered, '--output', fused]
-# fusing = ['mv', filtered, fused] # for skipping fusing
+fusing = ['deviaTE_fuse', '--input', filtered, '--output', fused] # no skip
+# fusing = ['mv', filtered, fused]  # for skipping fusing
 IO.execute(command=' '.join(fusing))
 
-# this part is only to skip fusing
+# # this part is only to skip fusing
 # bam = ['samtools', 'view', '-b', fused, '-o', fused + '.bam']
 # sort = ['samtools', 'sort', fused + '.bam', '-o', fused + '.sort.bam']
 # index = ['samtools', 'index', fused + '.sort.bam', fused + '.sort.bam.bai']
-#     
+
 # subprocess.run(' '.join(bam), shell=True)
 # subprocess.run(' '.join(sort), shell=True)
 # subprocess.run(' '.join(index), shell=True)
