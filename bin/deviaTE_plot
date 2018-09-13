@@ -67,8 +67,7 @@ ref_allele <- function(snp_index, refbases, len){
 }
 
 
-long_format <- function(df, col_ref){
-    # ggplot needs the data in long format to color the SNPs
+snp_frame <- function(df, col_ref){
     # results in a df with 4 * length and 5 cols
     # concatenate the base coverage and create factor columns
     l <- fam_len(df)
@@ -77,40 +76,46 @@ long_format <- function(df, col_ref){
     fam_col <- rep(df$TEfam, 4)
     sample_col <- rep(df$sample_id, 4)
     base_col <- c(rep('A', l), rep('C', l), rep('G', l), rep('T', l))
+    polys <- snp_positions(df)
     
-    # get the non snp positions
-    # change those positions to fifth color 'X'
-    non_snps <- non_snp_pos(df)
-    non_snp_indices <- sapply(non_snps, function(n,l){return(c(n,n+l,n+2*l,n+3*l))},l)
-    indices <- sort(as.numeric(non_snp_indices))
-    base_col[indices] <- 'X' #multi-indexing
-    
+    # # get the non snp positions
+    # # change those positions to fifth color 'X'
+    # non_snps <- non_snp_pos(df)
+    # non_snp_indices <- sapply(non_snps, function(n,l){return(c(n,n+l,n+2*l,n+3*l))},l)
+    # indices <- sort(as.numeric(non_snp_indices))
+    # base_col[indices] <- 'X' #multi-indexing
+   
     # uncolor reference allele in SNPs
     if (col_ref == FALSE){
-        polys <- snp_positions(df)
-        polys_ref <- sapply(polys, ref_allele, df$refbase, l)
-        polys_indices <- sort(as.numeric(polys_ref))
-        base_col[polys_indices] <- 'X' #multi-indexing
+        
+        polys_ref_indices <- sapply(polys, ref_allele, df$refbase, l)
+        polys_ref_indices_sorted <- sort(as.numeric(polys_ref_indices))
+        base_col[polys_ref_indices_sorted] <- 'X' #multi-indexing
     }
-    
-    return(data.frame(fam_col, sample_col, base_col, pos_col, counts_col))
+    lf <- data.frame(fam_col, sample_col, base_col, pos_col, counts_col)
+    snps <- subset(lf, pos_col %in% polys)
+    return(snps)
 }
 
 
-base_plot <- function(df_long){
+base_plot <- function(snps, sample){
     # creates base plot object
-    famlen <- max(df_long$pos_col)
+    famlen <- max(sample$pos) + 1
     lim <- ceiling(famlen/50)
-    title <- paste(df_long$fam_col[1], df_long$sample_col[1])
-    # order of levels defines the order of stacked bars
-    df_long$base_col <- factor(df_long$base_col, levels=c('X','A','C','G','T'))
+    plot_title <- paste(sample$TEfam[1], sample$sample_id[1])
+    # order of levels defines the order of stacked bars; ref at bottom for snps
+    snps$base_col <- factor(snps$base_col, levels=c('X','A','C','G','T'))
     
-    baseplot <- ggplot(df_long) +
-        geom_bar(aes(x=pos_col, y=counts_col, fill=base_col), stat='identity', width=1) +
+    pg <- data.table(px=c(sample$pos, rev(sample$pos)), 
+                     py=c(sample$coverage, rep(0,length(sample$coverage)))) # polygon data
+    
+    baseplot <- ggplot() +
+        geom_polygon(data=pg, aes(x=px, y=py), fill='grey', color='grey') +
+        geom_bar(data=snps, aes(x=pos_col, y=counts_col, fill=base_col), stat='identity', width=3) +
         labs(fill='') +
         ylab('') +
         xlab('') +
-        ggtitle(title) +
+        ggtitle(plot_title) +
         scale_x_continuous(limits=c(-lim, famlen+lim)) +
         scale_fill_manual(values=base_colors, breaks=c('A','C','G','T', 'in', 'del')) +
         theme_minimal(base_size=fontsize) +
@@ -129,13 +134,9 @@ base_plot <- function(df_long){
 }
 
 
-make_legend <- function(df_long){
+make_legend <- function(){
     # create a fake dataframe to produce a consistent legend for all plots
-    fake_df <- df_long[1:4,]
-    bases <- c('A', 'C', 'G', 'T')
-    counts <- rep(1, 4)
-    fake_df$base_col <- bases
-    fake_df$counts_col <- counts
+    fake_df <- data.table(base_col=c('A', 'C', 'G', 'T'), counts_col=rep(1, 4), pos_col=1:4)
 
     legplot <- ggplot(fake_df) +
         geom_bar(aes(x=pos_col, y=counts_col, fill=base_col), stat='identity', width=1) +
@@ -368,7 +369,7 @@ col_arg <- args$color_reference
 axis_arg <- args$free_yaxis
 
 # replace commandline arguments for debugging
-# inp_arg <- '0p12_1.fastq.DOC5'
+# inp_arg <- 'hot-r3-g60.fastq.PPI251'
 # out_arg <- 'test.pdf'
 # col_arg <- FALSE
 # axis_arg <- FALSE
@@ -410,21 +411,23 @@ yaxs_width <- 0.01 / nfam
 
 
 
-# split the whole frame into a list of samples
-# by TE family and by sample_id
+# split the whole frame into a list of samples; by TE family and by sample_id
 samples <- split(frame, list(frame$TEfam, frame$sample_id))
 
-# generate a frame in long format for each sample
-long_frames <- lapply(samples, long_format, col_ref=col_arg)
+# generate a frame of snps for each sample
+snp_frames <- lapply(samples, snp_frame, col_ref=col_arg)
 
 # generate a list of plots for each sample
-TEplots <- lapply(long_frames, base_plot)
+TEplots <- c()
+for (i in 1:length(samples)){
+  TEplots <- c(TEplots, list(base_plot(snps=snp_frames[[i]], sample=samples[[i]])))
+}
 
 
 # fix y-scale for comparison
 # free axis is FALSE by default
 if (axis_arg == FALSE){
-    max_cov <- find_max(long_frames, 'counts_col')
+    max_cov <- find_max(samples, 'coverage')
 
     TEplots <- lapply(TEplots, function(p){
         p + scale_y_continuous(limits=c(0, max_cov + 3)) })   
@@ -437,22 +440,17 @@ ins_coords <- lapply(samples, insertion_data)
 del_coords <- lapply(samples, deletion_data)
 trunc_coords <- lapply(samples, truncation_data)
 
-
 # add the features to the plots as geoms
 TEplots <- mapply(add_curve, p=TEplots, coords=int_del_coords)
 TEplots <- mapply(add_rect, p=TEplots, coords=ins_coords)
 TEplots <- mapply(add_rect, p=TEplots, coords=del_coords)
 TEplots <- mapply(add_segment, p=TEplots, coords=trunc_coords)
 
-
-
 # get coordinates for annotations from the full frame
 # then reduce to one species, since they are the same
 # create a plot if annotation was given
 anno_plots <- list(ggplot(data.frame()) + geom_blank())
 anno_plots <- lapply(samples[1:nfam], plot_anno)
-
-
 
 # create a list of all plots
 # and arrange them (without legends)
@@ -464,7 +462,7 @@ combo_grob <- plot_grid(plotlist=plot_list, ncol=nfam, nrow=nsample + 1,
 
 # create a legend for the plots
 # and add it to the grid
-legend <- make_legend(long_frames[[1]])
+legend <- make_legend()
 combo_leg <- plot_grid(legend, combo_grob, ncol = 1, nrow = 2, rel_heights = c(leg_height, 1 - leg_height))
 
 # add a shared y-axis
