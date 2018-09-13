@@ -40,17 +40,6 @@ fam_len <- function(df){
 }
 
 
-non_snp_pos <- function(df){
-    # get non-snp positions
-    snps <- subset(df, snp==TRUE | refsnp==TRUE, sel='pos')
-    snp_pos <- as.numeric(snps$pos) + 1
-    all_pos <- 1:fam_len(df)
-
-    if (length(snp_pos) == 0){return(all_pos)
-    } else {return(all_pos[-snp_pos])}
-}
-
-
 snp_positions <- function(df){
   # get snp positions
   snps <- subset(df, snp==TRUE | refsnp==TRUE, sel='pos')
@@ -77,14 +66,7 @@ snp_frame <- function(df, col_ref){
     sample_col <- rep(df$sample_id, 4)
     base_col <- c(rep('A', l), rep('C', l), rep('G', l), rep('T', l))
     polys <- snp_positions(df)
-    
-    # # get the non snp positions
-    # # change those positions to fifth color 'X'
-    # non_snps <- non_snp_pos(df)
-    # non_snp_indices <- sapply(non_snps, function(n,l){return(c(n,n+l,n+2*l,n+3*l))},l)
-    # indices <- sort(as.numeric(non_snp_indices))
-    # base_col[indices] <- 'X' #multi-indexing
-   
+
     # uncolor reference allele in SNPs
     if (col_ref == FALSE){
         
