@@ -75,8 +75,7 @@ elif args.input_bam:
     
 elif args.input_fq_dir:
     print('Directory of fastq files provided: preparing for alignment')
-    fq_list = glob.glob('*.fastq') #+ glob.glob('*.fq') fq not yet implemented
-    #print(fq_list)
+    fq_list = glob.glob('*.fastq') 
     
     for f in fq_list:
         print(f)
@@ -85,7 +84,6 @@ elif args.input_fq_dir:
 elif args.input_bam_dir:
     print('Directory of bam-files provided: skipping preparation')    
     bam_list = glob.glob('*.bam')
-    #print(bam_list)
     
     for b in bam_list:
         print(b)
