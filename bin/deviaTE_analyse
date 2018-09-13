@@ -19,13 +19,13 @@ args = parser.parse_args()
 
 if args.sample_id is None:
     args.sample_id = args.input
-    
+
 if args.output is None:
     args.output = args.sample_id + '.' + args.family
-    
+
 if args.library is None:
     args.library = get_data('lib/te_library')
-    
+
 if args.annotation is None:
     args.annotation = get_data('lib/te_features.gff')
 
