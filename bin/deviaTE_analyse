@@ -31,22 +31,12 @@ if args.annotation is None:
 
 
 # look for the refseq of chosen family
-refs = open(args.library, 'r')
-refseq = None
-
-for line in refs:
-    if line.startswith('>'):
-        family = line.replace('>', '').rstrip('\n')
-        if family == args.family:
-            refseq = refs.readline().rstrip('\n')
-            refs.close()
-            break
+refseq = get_ref(lib=args,library, fam=arrgs.family)
 
 if refseq is None:
     raise ValueError('Selected family is not in references. Typo? ' + args.family)
 else:
-    # set family as class variable
-    pileup.Site.name = args.family
+    pileup.Site.name = args.family # fam as class variable
 
 
 # get annotation for the selected family

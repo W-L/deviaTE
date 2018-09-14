@@ -134,4 +134,17 @@ def count_total_read_len(file):
     return(c)
 
 
+def get_ref(lib, fam):
+    refs = open(lib, 'r')
+    refseq = None
+
+    for line in refs:
+        if line.startswith('>'):
+            family = line.replace('>', '').rstrip('\n')
+            if family == fam:
+                refseq = refs.readline().rstrip('\n')
+                refs.close()
+                break
+    return(refseq)
+
 
