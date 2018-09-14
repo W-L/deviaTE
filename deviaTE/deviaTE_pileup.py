@@ -22,6 +22,7 @@ class Sample:
     def __init__(self, name, fam, lib, anno, log, bam):
         self.name = name
         self.sites = list()
+        self.int_dels = list()
         self.fam = fam
         self.lib = lib
         self.anno = anno
@@ -100,7 +101,6 @@ class Sample:
                         warnings.warn('ignoring unknown base in read: ' + ntu)
     
                 # internal deletions
-                # extract cigarstring of read to check if spliced
                 read_cigar = pileupread.alignment.cigarstring
                 read_name = pileupread.alignment.query_name
     
@@ -117,7 +117,6 @@ class Sample:
                         site.int_del = curr
     
                 # truncations/soft clips
-                # similar to above
                 if 'S' in read_cigar and (read_name not in readdump_trunc):
                     readdump_trunc.add(read_name)
                     read_tuple = pileupread.alignment.cigartuples
@@ -154,7 +153,54 @@ class Sample:
                             site.ins = curr
         
         bamfile_op.close()
+        
+        
+    def collect_int_dels(self):
+        for s in self.sites:
+            if s.int_del is not 'NA':
+                if ',' in s.int_del:
+                    multi_csd = s.int_del.split(',')
+                    for csd in multi_csd:
+                        j = csd.split(':')
+                        self.int_dels.append(Int_del(start=int(j[0]), end=int(j[1]), abundance=float(j[2])))
+                else:
+                    j = s.int_del.split(':')
+                    self.int_dels.append(Int_del(start=int(j[0]), end=int(j[1]), abundance=float(j[2])))
 
+
+    def calc_phys_cov(self):
+        # add abundance of deletion to any spanned site
+        for site in self.sites:
+            for int_del in self.int_dels:
+                if site.pos in int_del.range:
+                    site.phys_cov += int_del.abundance
+    
+    
+    def average_cov(self, start, end):
+        # returns mean cov in specified region
+        sum_cov = 0
+        region = self.sites[start:end + 1]
+        for s in region:
+            sum_cov = sum_cov + s.cov + s.phys_cov
+        return(sum_cov / len(region))
+    
+                
+    def est_freq(self):
+        # estimate frequency as abundance div by average coverage spanned
+        self.n_intdel = len(self.int_dels)
+        for int_del in self.int_dels:
+            mean_cov = self.average_cov(start=int_del.start + 1, end=int_del.end - 1)
+            int_del.freq = int_del.abundance / mean_cov
+            
+            
+    def write_freqs(self):
+        for int_del in self.int_dels:
+            id_site = self.sites[int_del.start]
+            if id_site.int_del_freq == 'NA':
+                id_site.int_del_freq = str(int_del.start) + ':' + str(int_del.end) + ':' + str(int_del.freq)
+            else:
+                id_site.int_del_freq = id_site.int_del_freq + ',' + str(int_del.start) + ':' + str(int_del.end) + ':' + str(int_del.freq)
+        
         
     def write_frame(self, out):
         # create a list of all object instances
@@ -164,7 +210,7 @@ class Sample:
 
         # order the columns, introduce hash and print
         fr = fr[['TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T', 'cov', 'snp', 'refsnp',
-                 'int_del', 'trunc_left', 'trunc_right', 'ins', 'delet', 'annotation']]
+                 'int_del', 'int_del_freq', 'trunc_left', 'trunc_right', 'ins', 'delet', 'annotation']]
         fr = fr.rename(columns={'TEfam': '#TEfam'})
         fr.to_csv(out, index=False, sep=' ', mode='w')
 
@@ -188,6 +234,7 @@ class Site:
         self.snp = False
         self.refsnp = False
         self.int_del = []
+        self.int_del_freq = 'NA'
         self.ins = []
         self.delet = []
         self.trunc_left = 0
@@ -289,6 +336,17 @@ class Site:
             r = r + str(i[0][0]) + ':' + str(i[0][1]) + ':' + str(i[1] / norm_factor) + ','
 
         return r[:-1]
+
+
+class Int_del:
+
+    def __init__(self, start, end, abundance):
+        self.start = start
+        self.end = end
+        self.pos = (start, end)
+        self.abundance = abundance
+        self.range = range(start + 1, end)
+
 
 
 

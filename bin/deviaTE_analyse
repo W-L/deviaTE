@@ -66,6 +66,18 @@ for s in sample.sites:
     s.check_annotation(anno=sample.fam_anno)
     if sample.norm_fac is not 1:
         s.normalize(norm_factor=sample.norm_fac)
+        
+# collect int dels
+sample.collect_int_dels()
+
+# calculate physical coverage
+sample.calc_phys_cov()
+
+# estimate freqs.
+sample.est_freq()
+
+# write frequencies to a new column
+sample.write_freqs()
 
 # write results
 sample.write_frame(out=args.output)
