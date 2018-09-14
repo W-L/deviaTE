@@ -3,7 +3,7 @@
 import argparse
 import pysam
 import deviaTE.deviaTE_pileup as pileup
-from deviaTE.deviaTE_IO import get_data
+from deviaTE.deviaTE_IO import get_data, get_ref, get_anno
 
 
 # set up parser and arguments
@@ -31,7 +31,7 @@ if args.annotation is None:
 
 
 # look for the refseq of chosen family
-refseq = get_ref(lib=args,library, fam=arrgs.family)
+refseq = get_ref(lib=args.library, fam=args.family)
 
 if refseq is None:
     raise ValueError('Selected family is not in references. Typo? ' + args.family)
@@ -40,20 +40,12 @@ else:
 
 
 # get annotation for the selected family
-fam_anno = []
-if args.annotation is not None:
-    anno = open(args.annotation, 'r')
+fam_anno = get_anno(annotations=args.annotation, fam=args.family)
 
-    for line in anno:
-        if line.startswith(args.family):
-            entry = line.split('\t')
-            fam_anno.append(tuple(entry[2:5]))
+if len(fam_anno) is 0:
+    print('no annotaions found for: ' + args.family)
 
-    if len(fam_anno) is 0:
-        print('no annotaions found for: ' + args.family)
-
-    anno.close()
-
+    
 # search the logfile, if provided, for normalization factor
 norm_fac = 1
 if args.log is not None:

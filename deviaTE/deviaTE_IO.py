@@ -148,3 +148,14 @@ def get_ref(lib, fam):
     return(refseq)
 
 
+def get_anno(annotations, fam):
+    fam_anno = []
+    anno = open(annotations, 'r')
+
+    for line in anno:
+        if line.startswith(fam):
+            entry = line.split('\t')
+            fam_anno.append(tuple(entry[2:5]))
+
+    anno.close()
+    return(fam_anno)
