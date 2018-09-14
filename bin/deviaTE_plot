@@ -307,7 +307,7 @@ polygons <- function(a, fam_len){
 plot_anno <- function(df){
     famlen <- max(df$pos) + 1
     lim <- ceiling(famlen/50)
-    anno_df <- subset(df, !(annotation %in% c('NA', 'intergenic')), sel=c('pos', 'annotation'))
+    anno_df <- subset(df, !(annotation %in% c(NA, 'intergenic')), sel=c('pos', 'annotation'))
     
     if (nrow(anno_df) != 0 ){
       
@@ -360,7 +360,7 @@ fontsize <- as.numeric(args$fontsize)
 out_format <- args$out_format
 
 # replace commandline arguments for debugging
-# inp_arg <- 'hot-r3-g60.fastq.PPI251'
+# inp_arg <- 'kepler.fastq.KEPLER'
 # out_arg <- 'test.pdf'
 # col_arg <- FALSE
 # axis_arg <- FALSE
@@ -370,14 +370,14 @@ out_format <- args$out_format
 
 # load full dataframe with fread and name the columns
 frame <- fread(paste('grep -v ^#', inp_arg), data.table=FALSE,
- colClasses=list(character=c(1,2,4,12,15,16,17)))
+ colClasses=list(character=c(1,2,4,12,13,16,17,18)))
 
 names(frame) <- c('TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T', 'coverage', 'snp', 'refsnp',
-    'int_del', 'truncation_left', 'truncation_right', 'insertion', 'deletion', 'annotation')
+    'int_del', 'int_del_freq', 'truncation_left', 'truncation_right', 'insertion', 'deletion', 'annotation')
 
 frame$TEfam <- as.factor(frame$TEfam)
 frame$sample_id <- as.factor(frame$sample_id)
-frame$annotation <- as.factor(frame$annotation)
+#frame$annotation <- as.factor(frame$annotation)
 
 nfam <- length(levels(frame$TEfam))
 nsample <- length(levels(frame$sample_id))
