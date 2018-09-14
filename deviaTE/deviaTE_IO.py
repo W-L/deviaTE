@@ -134,42 +134,4 @@ def count_total_read_len(file):
     return(c)
 
 
-def get_ref(lib, fam):
-    refs = open(lib, 'r')
-    refseq = None
 
-    for line in refs:
-        if line.startswith('>'):
-            family = line.replace('>', '').rstrip('\n')
-            if family == fam:
-                refseq = refs.readline().rstrip('\n')
-                refs.close()
-                break
-    return(refseq)
-
-
-def get_anno(annotations, fam):
-    fam_anno = []
-    anno = open(annotations, 'r')
-
-    for line in anno:
-        if line.startswith(fam):
-            entry = line.split('\t')
-            fam_anno.append(tuple(entry[2:5]))
-
-    anno.close()
-    return(fam_anno)
-
-
-def get_norm_fac(log):
-    norm_fac = 1
-    if log is not None:
-        logfile = open(log, 'r')
-
-        for line in logfile:
-            if '#total_read_length:' in line:
-                norm_fac = int(line.rstrip('\n').split(' ')[-1])
-                norm_fac = norm_fac / (10 ** 6)
-                break
-        log.close()
-    return(norm_fac)

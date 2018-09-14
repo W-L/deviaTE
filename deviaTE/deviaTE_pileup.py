@@ -2,6 +2,7 @@
 
 import warnings
 import pandas
+import pysam
 from collections import Counter
 
 # set up constants
@@ -14,6 +15,158 @@ EQUAL = 7
 
 uniq_nuc = {'A', 'C', 'G', 'T'}
 ambig_nuc = {'V', 'Y', 'H', 'D', 'N'}
+
+
+class Sample:
+    
+    def __init__(self, name, fam, lib, anno, log, bam):
+        self.name = name
+        self.sites = list()
+        self.fam = fam
+        self.lib = lib
+        self.anno = anno
+        self.log = log
+        self.bam = bam
+        
+        
+    def get_ref(self):
+        refs = open(self.lib, 'r')
+        self.refseq = None
+    
+        for line in refs:
+            if line.startswith('>'):
+                family = line.replace('>', '').rstrip('\n')
+                if family == self.fam:
+                    refseq = refs.readline().rstrip('\n')
+                    refs.close()
+                    self.refseq = refseq
+                    break
+        
+
+    def get_anno(self):
+        self.fam_anno = []
+        anno_file = open(self.anno, 'r')
+    
+        for line in anno_file:
+            if line.startswith(self.fam):
+                entry = line.split('\t')
+                self.fam_anno.append(tuple(entry[2:5]))
+        anno_file.close()
+
+
+    def get_norm_fac(self):
+        self.norm_fac = 1
+        if self.log is not None:
+            logfile = open(self.log, 'r')
+    
+            for line in logfile:
+                if '#total_read_length:' in line:
+                    norm_fac = int(line.rstrip('\n').split(' ')[-1])
+                    norm_fac = norm_fac / (10 ** 6)
+                    logfile.close()
+                    self.norm_fac = norm_fac
+                    break
+
+
+    def perform_pileup(self, min_int_del_len, min_trunc_len, min_indel_len):
+        # initiate lookup sets
+        readdump_int_del = set()
+        readdump_trunc = set()
+        readdump_indels = set()
+        
+        bamfile_op = pysam.AlignmentFile(self.bam, 'rb')
+    
+        # for all covered positions in the reference
+        for pileupcolumn in bamfile_op.pileup(self.fam, truncate=True): 
+            # for each read at this pos
+            for pileupread in pileupcolumn.pileups:
+    
+                # coverage and bases
+                # only get nucleotides if no deletion or splice
+                if (pileupread.is_del == 0) and (pileupread.is_refskip == 0):
+    
+                    # count the base at the queryposition of this read
+                    nt = pileupread.alignment.query_sequence[pileupread.query_position]
+                    ntu = nt.upper()
+    
+                    if ntu in ambig_nuc:
+                        # warnings.warn('ignoring ambiguous base in read: ' + ntu)
+                        pass
+                    elif ntu in uniq_nuc:
+                        site = self.sites[pileupcolumn.pos]
+                        setattr(site, ntu, getattr(site, ntu) + 1)
+    
+                    else:
+                        warnings.warn('ignoring unknown base in read: ' + ntu)
+    
+                # internal deletions
+                # extract cigarstring of read to check if spliced
+                read_cigar = pileupread.alignment.cigarstring
+                read_name = pileupread.alignment.query_name
+    
+                if ('N' in read_cigar or 'D' in read_cigar) and (read_name not in readdump_int_del):
+                    readdump_int_del.add(read_name)
+                    read_tuple = pileupread.alignment.cigartuples
+                    read_start = pileupread.alignment.reference_start
+                    new_int_del = eval_cigartuple_int_del(read_tuple, read_start, min_int_del_len)
+                    # for every int_del detected in this read
+                    for i in new_int_del:
+                        site = self.sites[i[0]]
+                        curr = site.int_del
+                        curr.append(i)
+                        site.int_del = curr
+    
+                # truncations/soft clips
+                # similar to above
+                if 'S' in read_cigar and (read_name not in readdump_trunc):
+                    readdump_trunc.add(read_name)
+                    read_tuple = pileupread.alignment.cigartuples
+                    read_start = pileupread.alignment.reference_start
+                    read_end = pileupread.alignment.reference_end - 1
+                    new_truncs = eval_cigartuple_trunc(read_tuple, read_start, read_end, min_trunc_len)
+                    # for every trunc in this read increment directional counter
+                    for i in new_truncs:
+                        if i[1] is 'l':
+                            site = self.sites[i[0]]
+                            site.trunc_left = site.trunc_left + 1
+    
+                        if i[1] is 'r':
+                            site = self.sites[i[0]]
+                            site.trunc_right = site.trunc_right + 1
+    
+                # indels
+                if ('I' in read_cigar or 'D' in read_cigar) and (read_name not in readdump_indels):
+                    readdump_indels.add(read_name)
+                    read_tuple = pileupread.alignment.cigartuples
+                    read_start = pileupread.alignment.reference_start - 1
+                    new_indels = eval_cigartuple_indel(read_tuple, read_start, min_indel_len, min_int_del_len)
+                    for i in new_indels:
+                        if i[-1] is 'D':
+                            site = self.sites[i[0] - 1]
+                            curr = site.delet
+                            curr.append((i[0], i[1]))
+                            site.delet = curr
+    
+                        if i[-1] is 'I':
+                            site = self.sites[i[0] - 1]
+                            curr = site.ins
+                            curr.append((i[0], i[1]))
+                            site.ins = curr
+        
+        bamfile_op.close()
+
+        
+    def write_frame(self, out):
+        # create a list of all object instances
+        # and turn into a pandas frame
+        site_list = [x.__dict__ for x in self.sites]
+        fr = pandas.DataFrame(site_list)
+
+        # order the columns, introduce hash and print
+        fr = fr[['TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T', 'cov', 'snp', 'refsnp',
+                 'int_del', 'trunc_left', 'trunc_right', 'ins', 'delet', 'annotation']]
+        fr = fr.rename(columns={'TEfam': '#TEfam'})
+        fr.to_csv(out, index=False, sep=' ', mode='w')
 
 class Site:
 
@@ -31,6 +184,7 @@ class Site:
         self.G = 0
         self.T = 0
         self.cov = 0
+        self.phys_cov = 0
         self.snp = False
         self.refsnp = False
         self.int_del = []
@@ -125,20 +279,6 @@ class Site:
         if self.trunc_right is not 'NA':
             self.trunc_right = self.trunc_right / norm_factor
 
-    @staticmethod
-    def write_frame(sites, out):
-        # create a list of all object instances
-        # and turn into a pandas frame
-        site_list = [x.__dict__ for x in sites]
-        fr = pandas.DataFrame(site_list)
-
-        # order the columns, introduce hash and print
-        fr = fr[['TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T', 'cov', 'snp', 'refsnp',
-                 'int_del', 'trunc_left', 'trunc_right', 'ins', 'delet', 'annotation']]
-
-        fr = fr.rename(columns={'TEfam': '#TEfam'})
-
-        fr.to_csv(out, index=False, sep=' ', mode='w')
 
     @staticmethod
     def reformat_tuple(tup, norm_factor):
@@ -151,88 +291,6 @@ class Site:
         return r[:-1]
 
 
-def perform_pileup(sitelist, bam, min_int_del_len, min_trunc_len, min_indel_len):
-    # initiate lookup sets
-    readdump_int_del = set()
-    readdump_trunc = set()
-    readdump_indels = set()
-
-    # for all covered positions in the reference
-    for pileupcolumn in bam.pileup(Site.name, truncate=True): 
-        # for each read at this pos
-        for pileupread in pileupcolumn.pileups:
-
-            # coverage and bases
-            # only get nucleotides if no deletion or splice
-            if (pileupread.is_del == 0) and (pileupread.is_refskip == 0):
-
-                # count the base at the queryposition of this read
-                nt = pileupread.alignment.query_sequence[pileupread.query_position]
-                ntu = nt.upper()
-
-                if ntu in ambig_nuc:
-                    # warnings.warn('ignoring ambiguous base in read: ' + ntu)
-                    pass
-                elif ntu in uniq_nuc:
-                    site = sitelist[pileupcolumn.pos]
-                    setattr(site, ntu, getattr(site, ntu) + 1)
-
-                else:
-                    warnings.warn('ignoring unknown base in read: ' + ntu)
-
-            # internal deletions
-            # extract cigarstring of read to check if spliced
-            read_cigar = pileupread.alignment.cigarstring
-            read_name = pileupread.alignment.query_name
-
-            if ('N' in read_cigar or 'D' in read_cigar) and (read_name not in readdump_int_del):
-                readdump_int_del.add(read_name)
-                read_tuple = pileupread.alignment.cigartuples
-                read_start = pileupread.alignment.reference_start
-                new_int_del = eval_cigartuple_int_del(read_tuple, read_start, min_int_del_len)
-                # for every int_del detected in this read
-                for i in new_int_del:
-                    site = sitelist[i[0]]
-                    curr = site.int_del
-                    curr.append(i)
-                    site.int_del = curr
-
-            # truncations/soft clips
-            # similar to above
-            if 'S' in read_cigar and (read_name not in readdump_trunc):
-                readdump_trunc.add(read_name)
-                read_tuple = pileupread.alignment.cigartuples
-                read_start = pileupread.alignment.reference_start
-                read_end = pileupread.alignment.reference_end - 1
-                new_truncs = eval_cigartuple_trunc(read_tuple, read_start, read_end, min_trunc_len)
-                # for every trunc in this read increment directional counter
-                for i in new_truncs:
-                    if i[1] is 'l':
-                        site = sitelist[i[0]]
-                        site.trunc_left = site.trunc_left + 1
-
-                    if i[1] is 'r':
-                        site = sitelist[i[0]]
-                        site.trunc_right = site.trunc_right + 1
-
-            # indels
-            if ('I' in read_cigar or 'D' in read_cigar) and (read_name not in readdump_indels):
-                readdump_indels.add(read_name)
-                read_tuple = pileupread.alignment.cigartuples
-                read_start = pileupread.alignment.reference_start - 1
-                new_indels = eval_cigartuple_indel(read_tuple, read_start, min_indel_len, min_int_del_len)
-                for i in new_indels:
-                    if i[-1] is 'D':
-                        site = sitelist[i[0] - 1]
-                        curr = site.delet
-                        curr.append((i[0], i[1]))
-                        site.delet = curr
-
-                    if i[-1] is 'I':
-                        site = sitelist[i[0] - 1]
-                        curr = site.ins
-                        curr.append((i[0], i[1]))
-                        site.ins = curr
 
 
 def eval_cigartuple_int_del(cigartuple, read_start, min_int_del_len):

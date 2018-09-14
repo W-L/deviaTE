@@ -3,7 +3,7 @@
 import argparse
 import pysam
 import deviaTE.deviaTE_pileup as pileup
-from deviaTE.deviaTE_IO import get_data, get_ref, get_anno, get_norm_fac
+from deviaTE.deviaTE_IO import get_data
 
 
 # set up parser and arguments
@@ -29,55 +29,44 @@ if args.library is None:
 if args.annotation is None:
     args.annotation = get_data('lib/te_features.gff')
 
+sample = pileup.Sample(name=args.sample_id, fam=args.family, lib=args.library,
+                       anno=args.annotation, log=args.log, bam=args.input)
+# get reference of family
+sample.get_ref()
 
-# look for the refseq of chosen family
-refseq = get_ref(lib=args.library, fam=args.family)
-
-if refseq is None:
+if sample.refseq is None:
     raise ValueError('Selected family is not in references. Typo? ' + args.family)
-else:
-    pileup.Site.name = args.family # fam as class variable
 
+# get annotation for family
+sample.get_anno()
 
-# get annotation for the selected family
-fam_anno = get_anno(annotations=args.annotation, fam=args.family)
-
-if len(fam_anno) is 0:
+if len(sample.fam_anno) is 0:
     print('no annotaions found for: ' + args.family)
 
-    
-# search the logfile, if provided, for normalization factor
-norm_fac = get_norm_fac(log=args.log)
+# search logfile for normalization factor
+sample.get_norm_fac()
 
-
-# create a list of Site instances
-sites = []
+# fill sites of sample
 c = 0
-for base in refseq:
-    sites.append(pileup.Site(pos=c, refbase=base, sid=args.sample_id, fam=args.family))
+for base in sample.refseq:
+    sample.sites.append(pileup.Site(pos=c, refbase=base, sid=args.sample_id, fam=args.family))
     c += 1
 
+# perform pileup
+sample.perform_pileup(min_int_del_len=20, min_trunc_len=10, min_indel_len=2)
 
-# open the alignment file for data extraction
-bamfile_op = pysam.AlignmentFile(args.input, 'rb')
+# process extracted data
+for s in sample.sites:
+    s.sum_coverage()
+    s.is_snp(min_count=5, min_freq=0.05, A=s.A, C=s.C, G=s.G, T=s.T, cov=s.cov)
+    s.filter_IND(att='int_del', min_count=3, norm_fac=sample.norm_fac)
+    s.filter_IND(att='ins', min_count=5, norm_fac=sample.norm_fac)
+    s.filter_IND(att='delet', min_count=5, norm_fac=sample.norm_fac)
+    s.filter_trunc(min_trunc_count=3)
+    s.check_annotation(anno=sample.fam_anno)
+    if sample.norm_fac is not 1:
+        s.normalize(norm_factor=sample.norm_fac)
 
-pileup.perform_pileup(sitelist=sites, bam=bamfile_op, min_int_del_len=20,
-                      min_trunc_len=10, min_indel_len=2)
-
-bamfile_op.close()
-
-# process the extracted data
-for site in sites:
-    site.sum_coverage()
-    site.is_snp(min_count=5, min_freq=0.05, A=site.A, C=site.C, G=site.G, T=site.T, cov=site.cov)
-    site.filter_IND(att='int_del', min_count=3, norm_fac=norm_fac)
-    site.filter_IND(att='ins', min_count=5, norm_fac=norm_fac)
-    site.filter_IND(att='delet', min_count=5, norm_fac=norm_fac)
-    site.filter_trunc(min_trunc_count=3)
-    site.check_annotation(anno=fam_anno)
-    if norm_fac is not 1:
-        site.normalize(norm_factor=norm_fac)
-
-# write the results
-pileup.Site.write_frame(sites=sites, out=args.output)
+# write results
+sample.write_frame(out=args.output)
 print('analysis completed; table written to: ' + args.output)
