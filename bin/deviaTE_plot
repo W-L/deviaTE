@@ -20,6 +20,7 @@ parser$add_argument('--output', default='', help='name for the output file')
 parser$add_argument('--free_yaxis', action='store_true', help='free y-axis e.g. if one sample has much higher cov')
 parser$add_argument('--color_reference', action='store_true')
 parser$add_argument('--fontsize', default=as.numeric(14))
+parser$add_argument('--out_format', default='pdf', help='format of output, either pdf or eps')
 args <- parser$parse_args()
 
 
@@ -351,6 +352,7 @@ out_arg <- args$output
 col_arg <- args$color_reference
 axis_arg <- args$free_yaxis
 fontsize <- as.numeric(args$fontsize)
+out_format <- args$out_format
 
 # replace commandline arguments for debugging
 # inp_arg <- 'hot-r3-g60.fastq.PPI251'
@@ -453,10 +455,20 @@ yaxis <- ggdraw() + draw_label('Coverage (reads per million sequenced bases)', a
 combo_y <- plot_grid(yaxis, combo_leg, ncol=2, nrow=1, rel_widths = c(yaxs_width, 1 - yaxs_width))
 
 
-if (out_arg == ''){out_arg <- paste(inp_arg, '.pdf', sep='')}
+if (out_format == 'pdf'){
+  if (out_arg == ''){out_arg <- paste(inp_arg, '.pdf', sep='')}
 
-ggsave(file=out_arg, plot=combo_y, device='pdf', width=base_w, height=base_h, 
+  ggsave(file=out_arg, plot=combo_y, device='pdf', width=base_w, height=base_h, 
          units='cm', limitsize=FALSE)
+} else if (out_format == 'eps'){
+  if (out_arg == ''){out_arg <- paste(inp_arg, '.eps', sep='')}
+  
+  cairo_ps(filename=out_arg, width=base_w/2, height=base_h/2, fallback_resolution=300)
+  print(combo_y)
+  dev.off()
+}
+
+
 
 print(paste('plotting completed; written to:', out_arg))
 
