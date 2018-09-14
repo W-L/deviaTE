@@ -86,7 +86,7 @@ base_plot <- function(snps, sample){
     famlen <- max(sample$pos) + 1
     lim <- ceiling(famlen/50)
     plot_title <- paste(sample$TEfam[1], sample$sample_id[1])
-    # order of levels defines the order of stacked bars; ref at bottom for snps
+    # order of levels defines the order of stacked bars; snp at bottom
     snps$base_col <- factor(snps$base_col, levels=c('X','A','C','G','T'))
     
     pg <- data.table(px=c(sample$pos, rev(sample$pos)), 
