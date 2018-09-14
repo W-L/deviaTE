@@ -27,7 +27,6 @@ args <- parser$parse_args()
 # color palettes
 base_colors <- c('A'='#1b9e77','C'='#d95f02','G'='#7570b3','T'='#e6ab02',
                  'in'='#66a61e','del'='#e7298a', 'X'='grey')
-anno_colors <- c('#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d')
 
 
 fam_name <- function(df){
@@ -114,7 +113,7 @@ base_plot <- function(snps, sample){
     #baseplot <- ggplot_gtable(ggplot_build(baseplot))
     #baseplot$layout$clip[baseplot$layout$name == "panel"] <- "off"
 
-    return(baseplot)
+    return(list(baseplot))
 }
 
 
@@ -294,24 +293,30 @@ add_segment <- function(p, coords){
 }
 
 
-annotation_data <- function(df){
-    anno_df <- subset(df, annotation != 'NA' | annotation != 'intergenic', sel=c('pos', 'TEfam', 'annotation', 'sample_id'))
-    anno_df <- subset(anno_df, annotation != 'intergenic')
-    y <- rep(1, nrow(anno_df))
-    anno_df <- cbind(anno_df, y)
-    return(anno_df)
+polygons <- function(a, fam_len){
+  f <- 0:fam_len
+  px <- c(f, rev(f))
+  py <- rep(0, length(f))
+  py[a$pos] <- 1
+  py <- c(py, rep(0, length(f)))
+  rects <- data.table(px=px, py=py, group=rep(a$annotation[1], length(px)))
+  return(rects)
 }
 
 
 plot_anno <- function(df){
-    famlen <- max(df$pos)
+    famlen <- max(df$pos) + 1
     lim <- ceiling(famlen/50)
-
-    anno_df <- annotation_data(df)
+    anno_df <- subset(df, !(annotation %in% c('NA', 'intergenic')), sel=c('pos', 'annotation'))
+    
     if (nrow(anno_df) != 0 ){
+      
+      anno_df$annotation <- as.character(anno_df$annotation) # cast vector to string
+      annos <- split(anno_df, f=anno_df$annotation) # split by annotation type
+      annotation_polygons <- do.call(rbind, lapply(annos, polygons, fam_len=famlen)) # call polygons and fuse to one frame
     
       ann <- ggplot() + 
-          geom_bar(data=anno_df, mapping=aes(x=pos, y=y, fill=annotation), stat='identity', width=1) +
+          geom_polygon(data=annotation_polygons, aes(x=px, y=py, fill=group)) +
           scale_fill_grey() + 
           labs(fill='') +
           xlab('') +
@@ -360,6 +365,7 @@ out_format <- args$out_format
 # col_arg <- FALSE
 # axis_arg <- FALSE
 # fontsize <- 14
+# out_format <- 'pdf'
 
 
 # load full dataframe with fread and name the columns
@@ -384,7 +390,7 @@ alpharange <- c(0.01, 1)
 base_w <- 60 * nfam
 base_h <- 20 * nsample
 
-anno_height <- ((1/8)/nsample)
+anno_height <- ((1/10)/nsample)
 base_height <- (1 - anno_height) / nsample
 
 plot_heights <- c( rep(base_height, nsample), anno_height )
@@ -402,11 +408,7 @@ samples <- split(frame, list(frame$TEfam, frame$sample_id))
 snp_frames <- lapply(samples, snp_frame, col_ref=col_arg)
 
 # generate a list of plots for each sample
-TEplots <- c()
-for (i in 1:length(samples)){
-  TEplots <- c(TEplots, list(base_plot(snps=snp_frames[[i]], sample=samples[[i]])))
-}
-
+TEplots <- mapply(base_plot, snps=snp_frames, sample=samples)
 
 # fix y-scale for comparison
 # free axis is FALSE by default
@@ -467,8 +469,6 @@ if (out_format == 'pdf'){
   print(combo_y)
   dev.off()
 }
-
-
 
 print(paste('plotting completed; written to:', out_arg))
 
