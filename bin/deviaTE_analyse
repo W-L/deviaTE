@@ -3,7 +3,7 @@
 import argparse
 import pysam
 import deviaTE.deviaTE_pileup as pileup
-from deviaTE.deviaTE_IO import get_data, get_ref, get_anno
+from deviaTE.deviaTE_IO import get_data, get_ref, get_anno, get_norm_fac
 
 
 # set up parser and arguments
@@ -47,17 +47,7 @@ if len(fam_anno) is 0:
 
     
 # search the logfile, if provided, for normalization factor
-norm_fac = 1
-if args.log is not None:
-    log = open(args.log, 'r')
-
-    for line in log:
-        if '#total_read_length:' in line:
-            norm_fac = int(line.rstrip('\n').split(' ')[-1])
-            norm_fac = norm_fac / (10 ** 6)
-            break
-
-    log.close()
+norm_fac = get_norm_fac(log=args.log)
 
 
 # create a list of Site instances

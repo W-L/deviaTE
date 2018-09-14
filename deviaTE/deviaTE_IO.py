@@ -159,3 +159,17 @@ def get_anno(annotations, fam):
 
     anno.close()
     return(fam_anno)
+
+
+def get_norm_fac(log):
+    norm_fac = 1
+    if log is not None:
+        logfile = open(log, 'r')
+
+        for line in logfile:
+            if '#total_read_length:' in line:
+                norm_fac = int(line.rstrip('\n').split(' ')[-1])
+                norm_fac = norm_fac / (10 ** 6)
+                break
+        log.close()
+    return(norm_fac)
