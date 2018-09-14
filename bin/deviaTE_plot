@@ -19,6 +19,7 @@ parser$add_argument('--input', required=TRUE, help='input as created by TEplotte
 parser$add_argument('--output', default='', help='name for the output file')
 parser$add_argument('--free_yaxis', action='store_true', help='free y-axis e.g. if one sample has much higher cov')
 parser$add_argument('--color_reference', action='store_true')
+parser$add_argument('--fontsize', default=as.numeric(14))
 args <- parser$parse_args()
 
 
@@ -349,12 +350,14 @@ inp_arg <- args$input
 out_arg <- args$output
 col_arg <- args$color_reference
 axis_arg <- args$free_yaxis
+fontsize <- as.numeric(args$fontsize)
 
 # replace commandline arguments for debugging
 # inp_arg <- 'hot-r3-g60.fastq.PPI251'
 # out_arg <- 'test.pdf'
 # col_arg <- FALSE
 # axis_arg <- FALSE
+# fontsize <- 14
 
 
 # load full dataframe with fread and name the columns
@@ -378,9 +381,6 @@ alpharange <- c(0.01, 1)
 
 base_w <- 60 * nfam
 base_h <- 20 * nsample
-
-# scale fontsize with grid dimension?
-fontsize <- 14
 
 anno_height <- ((1/8)/nsample)
 base_height <- (1 - anno_height) / nsample
@@ -449,7 +449,7 @@ combo_leg <- plot_grid(legend, combo_grob, ncol = 1, nrow = 2, rel_heights = c(l
 
 # add a shared y-axis
 # tilted label on an empty background
-yaxis <- ggdraw() + draw_label('Coverage (reads per million sequenced bases)', angle=90)
+yaxis <- ggdraw() + draw_label('Coverage (reads per million sequenced bases)', angle=90, size=fontsize)
 combo_y <- plot_grid(yaxis, combo_leg, ncol=2, nrow=1, rel_widths = c(yaxs_width, 1 - yaxs_width))
 
 
