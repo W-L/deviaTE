@@ -175,32 +175,6 @@ class Sample:
                 if site.pos in int_del.range:
                     site.phys_cov += int_del.abundance
     
-    
-    def average_cov(self, start, end):
-        # returns mean cov in specified region
-        sum_cov = 0
-        region = self.sites[start:end + 1]
-        for s in region:
-            sum_cov = sum_cov + s.cov + s.phys_cov
-        return(sum_cov / len(region))
-    
-                
-    def est_freq(self):
-        # estimate frequency as abundance div by average coverage spanned
-        self.n_intdel = len(self.int_dels)
-        for int_del in self.int_dels:
-            mean_cov = self.average_cov(start=int_del.start + 1, end=int_del.end - 1)
-            int_del.freq = int_del.abundance / mean_cov
-            
-            
-    def write_freqs(self):
-        for int_del in self.int_dels:
-            id_site = self.sites[int_del.start]
-            if id_site.int_del_freq == 'NA':
-                id_site.int_del_freq = str(int_del.start) + ':' + str(int_del.end) + ':' + str(int_del.freq)
-            else:
-                id_site.int_del_freq = id_site.int_del_freq + ',' + str(int_del.start) + ':' + str(int_del.end) + ':' + str(int_del.freq)
-        
         
     def write_frame(self, out):
         # create a list of all object instances
@@ -213,6 +187,7 @@ class Sample:
                  'int_del', 'int_del_freq', 'trunc_left', 'trunc_right', 'ins', 'delet', 'annotation']]
         fr = fr.rename(columns={'TEfam': '#TEfam'})
         fr.to_csv(out, index=False, sep=' ', mode='w')
+
 
 class Site:
 
@@ -347,7 +322,20 @@ class Int_del:
         self.abundance = abundance
         self.range = range(start + 1, end)
 
-
+    
+    def est_freq(self, sites):
+        # estimate frequency as abundance div by average coverage spanned
+        mean_cov = average_cov(sitelist=sites, start=self.start + 1, end=self.end - 1)
+        self.freq = self.abundance / mean_cov
+        
+        
+    def write_freq(self, sites):
+        # parse new column at start of int del
+        id_site = sites[self.start]
+        if id_site.int_del_freq == 'NA':
+            id_site.int_del_freq = str(self.start) + ':' + str(self.end) + ':' + str(self.freq)
+        else:
+            id_site.int_del_freq = id_site.int_del_freq + ',' + str(self.start) + ':' + str(self.end) + ':' + str(self.freq)
 
 
 
@@ -423,3 +411,12 @@ def eval_cigartuple_indel(cigartuple, read_start, min_indel_len, min_int_del_len
             raise ValueError('Cigarstring contains unusual symbol: ' + cig_id)
 
     return indels_read
+
+
+def average_cov(sitelist, start, end):
+        # returns mean cov in specified region
+        sum_cov = 0
+        region = sitelist[start:end + 1]
+        for s in region:
+            sum_cov = sum_cov + s.cov + s.phys_cov
+        return(sum_cov / len(region))

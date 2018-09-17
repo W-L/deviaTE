@@ -67,17 +67,15 @@ for s in sample.sites:
     if sample.norm_fac is not 1:
         s.normalize(norm_factor=sample.norm_fac)
         
-# collect int dels
+# collect int dels and use to calc phys cov
 sample.collect_int_dels()
-
-# calculate physical coverage
 sample.calc_phys_cov()
 
-# estimate freqs.
-sample.est_freq()
+# estimate freqs. and parse new col
+for int_del in sample.int_dels:
+    int_del.est_freq(sites=sample.sites)
+    int_del.write_freq(sites=sample.sites)
 
-# write frequencies to a new column
-sample.write_freqs()
 
 # write results
 sample.write_frame(out=args.output)
