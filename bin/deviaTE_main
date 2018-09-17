@@ -16,6 +16,7 @@ parser.add_argument('--threads', default='1')
 # args for analysis
 parser.add_argument('--families', required=True)
 parser.add_argument('--annotation', help='alternative annotation in gff-format')
+parser.add_argument('--no_freq_corr', action='store_true', help='deactivate frequency correction for internal deletions')
 # args for plotting
 parser.add_argument('--free_yaxis', action='store_true', help='flag to free the y-axis; for highly differential coverage')
 parser.add_argument('--color_reference', action='store_true', help='color ref in snps')
@@ -40,7 +41,7 @@ def process_fq(file, families):
     
         prep_bam = IO.bam_file(inp=fq.path + '.fused.sort.bam', from_fq=True, orig_name=file)    
         prep_bam.analyze(lib=args.library, fam=f, sid=sample_id,
-                         out=output_table, anno=args.annotation)
+                         out=output_table, anno=args.annotation, corr=args.no_freq_corr)
     
         table = IO.analysis_table(inp=output_table)
         table.plot(out=output_plot, free_y=args.free_yaxis, col_ref=args.color_reference)
@@ -56,7 +57,7 @@ def process_bam(bam, families):
     
         fused_bam = IO.bam_file(inp=bam + '.fused.sort.bam', from_fq=False)
         fused_bam.analyze(lib=args.library, fam=f, sid=sample_id,
-                          out=output_table, anno=args.annotation)
+                          out=output_table, anno=args.annotation, corr=args.no_freq_corr)
         
         table = IO.analysis_table(inp=output_table)
         table.plot(out=output_plot, free_y=args.free_yaxis, col_ref=args.color_reference)

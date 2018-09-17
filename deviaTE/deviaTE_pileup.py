@@ -155,6 +155,17 @@ class Sample:
         bamfile_op.close()
         
         
+    def mean_read_length(self):
+        bamfile_op = pysam.AlignmentFile(self.bam, 'rb')
+        read_lengths = 0
+        c = 0
+        for read in bamfile_op:
+            read_lengths = read_lengths + read.query_length
+            c += 1
+        bamfile_op.close()
+        self.read_len = (read_lengths / c)
+            
+        
     def collect_int_dels(self):
         for s in self.sites:
             if s.int_del is not 'NA':
@@ -323,10 +334,10 @@ class Int_del:
         self.range = range(start + 1, end)
 
     
-    def est_freq(self, sites):
+    def est_freq(self, sites, corr_factor):
         # estimate frequency as abundance div by average coverage spanned
         mean_cov = average_cov(sitelist=sites, start=self.start + 1, end=self.end - 1)
-        self.freq = self.abundance / mean_cov
+        self.freq = (self.abundance / mean_cov) ** corr_factor
         
         
     def write_freq(self, sites):
@@ -420,3 +431,18 @@ def average_cov(sitelist, start, end):
         for s in region:
             sum_cov = sum_cov + s.cov + s.phys_cov
         return(sum_cov / len(region))
+    
+    
+def correction_factor(x):
+    # coefficients from model in R
+    coefs = [2.198139e-01, 4.182264e-03, -7.480947e-06, 4.379848e-09]
+    y = coefs[3] * (x ** 3) + coefs[2] * (x ** 2) + coefs[1] * x + coefs[0]
+    return(y)
+    
+    
+    
+    
+    
+    
+    
+    

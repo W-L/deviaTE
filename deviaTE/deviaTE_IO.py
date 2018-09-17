@@ -70,7 +70,7 @@ class bam_file:
         
         execute(command=' '.join(args))
         
-    def analyze(self, lib, fam, sid, out, anno):
+    def analyze(self, lib, fam, sid, out, anno, corr):
         args = ['deviaTE_analyse',
                 '--input', self.path,
                 '--family', fam,
@@ -86,6 +86,8 @@ class bam_file:
         if self.from_fq:
             args.append('--log')
             args.append(self.log)
+        if corr:
+            args.append('--no_freq_corr')
         
         execute(command=' '.join(args))    
         

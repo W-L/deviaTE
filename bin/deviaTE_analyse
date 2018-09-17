@@ -15,6 +15,7 @@ parser.add_argument('--output', help='name of output table')
 parser.add_argument('--sample_id', help='sample identifier')
 parser.add_argument('--annotation', help='alternative annotation in gff-format')
 parser.add_argument('--log', help='logfile from preparation script')
+parser.add_argument('--no_freq_corr', action='store_true', help='deactivate frequency correction for internal deletions')
 args = parser.parse_args()
 
 if args.sample_id is None:
@@ -71,9 +72,15 @@ for s in sample.sites:
 sample.collect_int_dels()
 sample.calc_phys_cov()
 
-# estimate freqs. and parse new col
+    
+# estimate freqs., correct and parse new col
 for int_del in sample.int_dels:
-    int_del.est_freq(sites=sample.sites)
+    if args.no_freq_corr == False:
+        sample.mean_read_length()
+        cf = pileup.correction_factor(sample.read_len)
+        int_del.est_freq(sites=sample.sites, corr_factor=cf)
+    else:
+        int_del.est_freq(sites=sample.sites, corr_factor=1)
     int_del.write_freq(sites=sample.sites)
 
 
