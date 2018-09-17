@@ -194,7 +194,7 @@ class Sample:
         fr = pandas.DataFrame(site_list)
 
         # order the columns, introduce hash and print
-        fr = fr[['TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T', 'cov', 'snp', 'refsnp',
+        fr = fr[['TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T', 'cov', 'phys_cov', 'snp', 'refsnp',
                  'int_del', 'int_del_freq', 'trunc_left', 'trunc_right', 'ins', 'delet', 'annotation']]
         fr = fr.rename(columns={'TEfam': '#TEfam'})
         fr.to_csv(out, index=False, sep=' ', mode='w')

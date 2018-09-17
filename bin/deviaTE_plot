@@ -368,11 +368,11 @@ out_format <- args$out_format
 # out_format <- 'pdf'
 
 
-# load full dataframe with fread and name the columns
+# load full dataframe with fread and name the columns - 19 cols
 frame <- fread(paste('grep -v ^#', inp_arg), data.table=FALSE,
- colClasses=list(character=c(1,2,4,12,13,16,17,18)))
+ colClasses=list(character=c(1,2,4,13,14,17,18,19)))
 
-names(frame) <- c('TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T', 'coverage', 'snp', 'refsnp',
+names(frame) <- c('TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T', 'coverage', 'phys_coverage', 'snp', 'refsnp',
     'int_del', 'int_del_freq', 'truncation_left', 'truncation_right', 'insertion', 'deletion', 'annotation')
 
 frame$TEfam <- as.factor(frame$TEfam)
