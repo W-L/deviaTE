@@ -82,76 +82,34 @@ class Sample:
             # for each read at this pos
             for pileupread in pileupcolumn.pileups:
     
-                # coverage and bases
-                # only get nucleotides if no deletion or splice
-                if (pileupread.is_del == 0) and (pileupread.is_refskip == 0):
-    
-                    # count the base at the queryposition of this read
-                    nt = pileupread.alignment.query_sequence[pileupread.query_position]
-                    ntu = nt.upper()
-    
-                    if ntu in ambig_nuc:
-                        # warnings.warn('ignoring ambiguous base in read: ' + ntu)
-                        pass
-                    elif ntu in uniq_nuc:
-                        site = self.sites[pileupcolumn.pos]
-                        setattr(site, ntu, getattr(site, ntu) + 1)
-    
-                    else:
-                        warnings.warn('ignoring unknown base in read: ' + ntu)
+                pr = Pileupread(isdel=pileupread.is_del, isref=pileupread.is_refskip,
+                                qseq = pileupread.alignment.query_sequence, qpos = pileupread.query_position,
+                                colpos = pileupcolumn.pos, cig_string = pileupread.alignment.cigarstring,
+                                qname = pileupread.alignment.query_name, cig_tuples = pileupread.alignment.cigartuples,
+                                ref_start = pileupread.alignment.reference_start, ref_end = pileupread.alignment.reference_end)
+                
+                # base
+                if (pr.is_del == 0) and (pr.is_refskip == 0):
+                    pr.count_nucleotide(sample_sites = self.sites)
     
                 # internal deletions
-                read_cigar = pileupread.alignment.cigarstring
-                read_name = pileupread.alignment.query_name
-    
-                if ('N' in read_cigar or 'D' in read_cigar) and (read_name not in readdump_int_del):
-                    readdump_int_del.add(read_name)
-                    read_tuple = pileupread.alignment.cigartuples
-                    read_start = pileupread.alignment.reference_start
-                    new_int_del = eval_cigartuple_int_del(read_tuple, read_start, min_int_del_len)
-                    # for every int_del detected in this read
-                    for i in new_int_del:
-                        site = self.sites[i[0]]
-                        curr = site.int_del
-                        curr.append(i)
-                        site.int_del = curr
-    
-                # truncations/soft clips
-                if 'S' in read_cigar and (read_name not in readdump_trunc):
-                    readdump_trunc.add(read_name)
-                    read_tuple = pileupread.alignment.cigartuples
-                    read_start = pileupread.alignment.reference_start
-                    read_end = pileupread.alignment.reference_end - 1
-                    new_truncs = eval_cigartuple_trunc(read_tuple, read_start, read_end, min_trunc_len)
-                    # for every trunc in this read increment directional counter
-                    for i in new_truncs:
-                        if i[1] is 'l':
-                            site = self.sites[i[0]]
-                            site.trunc_left = site.trunc_left + 1
-    
-                        if i[1] is 'r':
-                            site = self.sites[i[0]]
-                            site.trunc_right = site.trunc_right + 1
-    
-                # indels
-                if ('I' in read_cigar or 'D' in read_cigar) and (read_name not in readdump_indels):
-                    readdump_indels.add(read_name)
-                    read_tuple = pileupread.alignment.cigartuples
-                    read_start = pileupread.alignment.reference_start - 1
-                    new_indels = eval_cigartuple_indel(read_tuple, read_start, min_indel_len, min_int_del_len)
-                    for i in new_indels:
-                        if i[-1] is 'D':
-                            site = self.sites[i[0] - 1]
-                            curr = site.delet
-                            curr.append((i[0], i[1]))
-                            site.delet = curr
-    
-                        if i[-1] is 'I':
-                            site = self.sites[i[0] - 1]
-                            curr = site.ins
-                            curr.append((i[0], i[1]))
-                            site.ins = curr
+                if ('N' in pr.cigar_string or 'D' in pr.cigar_string):
+                    if pr.query_name not in readdump_int_del:
+                        readdump_int_del.add(pr.query_name)
+                        pr.eval_int_del(sample_sites = self.sites)
+                        
+                # truncations
+                if 'S' in pr.cigar_string:
+                    if pr.query_name not in readdump_trunc:
+                        readdump_trunc.add(pr.query_name)
+                        pr.eval_trunc(sample_sites = self.sites)
         
+                # indels
+                if ('I' in pr.cigar_string or 'D' in pr.cigar_string):
+                    if pr.query_name not in readdump_indels:
+                        readdump_indels.add(pr.query_name)
+                        pr.eval_indel(sample_sites = self.sites)
+                        
         bamfile_op.close()
         
         
@@ -349,80 +307,111 @@ class Int_del:
             id_site.int_del_freq = id_site.int_del_freq + ',' + str(self.start) + ':' + str(self.end) + ':' + str(self.freq)
 
 
+class Pileupread:
+    
+    def __init__(self, isdel, isref, qseq, qpos, colpos, cig_string, qname, cig_tuples, ref_start, ref_end):
+        self.is_del = isdel
+        self.is_refskip = isref
+        self.query_seq = qseq
+        self.query_pos = qpos
+        self.column_pos = colpos
+        self.cigar_string = cig_string
+        self.query_name = qname
+        self.cigar_tuple = cig_tuples
+        self.ref_start = ref_start
+        self.ref_end = ref_end
+        
+        
+    def count_nucleotide(self, sample_sites):
+        # count the base at the queryposition of this read
+        # increase counter of nucleotide at column pos
+        nt = self.query_seq[self.query_pos].upper()
 
-def eval_cigartuple_int_del(cigartuple, read_start, min_int_del_len):
-    int_del_shift = 0
-    int_dels = []
+        if nt in ambig_nuc:
+            # warnings.warn('ignoring ambiguous base in read: ' + nt)
+            pass
+        elif nt in uniq_nuc:
+            site = sample_sites[self.column_pos]
+            setattr(site, nt, getattr(site, nt) + 1)
 
-    for cig_id, length in cigartuple:
-        if cig_id == DELETION or cig_id == REF_SKIP:
-            int_del_start = read_start + int_del_shift
-            int_del_end = int_del_start + int(length)
-
-            if length >= min_int_del_len:
-                int_dels.append((int_del_start, int_del_end))
-
-            int_del_shift += length
-
-        elif cig_id == SOFT_CLIP or cig_id == INSERTION:
-            continue
-        elif cig_id == MATCH or cig_id == EQUAL:
-            int_del_shift += length
         else:
-            raise ValueError('Cigarstring contains unusual symbol: ' + cig_id)
-
-    return int_dels
+            warnings.warn('ignoring unknown base in read: ' + nt)
 
 
-def eval_cigartuple_trunc(cigartuple, read_start, read_end, min_trunc_len):
-    truncs = []
+    def eval_int_del(self, sample_sites):
+        int_del_shift = 0
+    
+        for cig_id, length in self.cigar_tuple:
+            if cig_id == DELETION or cig_id == REF_SKIP:
+                int_del_start = self.ref_start + int_del_shift
+                int_del_end = int_del_start + int(length)
+    
+                if length >= 20:
+                    site = sample_sites[int_del_start]
+                    curr = site.int_del
+                    curr.append((int_del_start, int_del_end)) # append tuples of (start, end)
+                    site.int_del = curr
+    
+                int_del_shift += length
+    
+            elif cig_id == SOFT_CLIP or cig_id == INSERTION:
+                continue
+            elif cig_id == MATCH or cig_id == EQUAL:
+                int_del_shift += length
+            else:
+                raise ValueError('Cigarstring contains unusual symbol: ' + cig_id)
+                    
 
-    left_id = cigartuple[0][0]
-    left_len = cigartuple[0][1]
-    right_id = cigartuple[-1][0]
-    right_len = cigartuple[-1][1]
-
-    if left_id is SOFT_CLIP and left_len >= min_trunc_len:
-        truncs.append((read_start, 'l'))
-
-    if right_id is SOFT_CLIP and right_len >= min_trunc_len:
-        truncs.append((read_end, 'r'))
-
-    return truncs
-
-
-def eval_cigartuple_indel(cigartuple, read_start, min_indel_len, min_int_del_len):
-    indel_shift = 0
-    indels_read = []
-
-    for cig_id, length in cigartuple:
-        if cig_id == DELETION:
-            del_start = read_start + indel_shift
-            del_end = del_start + int(length)
-
-            if (length >= min_indel_len) and (length < min_int_del_len):
-                indels_read.append((del_start, del_end, 'D'))
+    def eval_trunc(self, sample_sites):
+        truncs = []
+        left_id = self.cigar_tuple[0][0]
+        left_len = self.cigar_tuple[0][1]
+        right_id = self.cigar_tuple[-1][0]
+        right_len = self.cigar_tuple[-1][1]
+    
+        if left_id is SOFT_CLIP and left_len >= 10:
+            site = sample_sites[self.ref_start]
+            site.trunc_left = site.trunc_left + 1
             
-            indel_shift += length
+        if right_id is SOFT_CLIP and right_len >= 10:
+            site = sample_sites[self.ref_end - 1]
+            site.trunc_right = site.trunc_right + 1
+            
 
-        elif cig_id == INSERTION:
-            ins_start = read_start + indel_shift
-            ins_end = ins_start + int(length)
-
-            if (length >= min_indel_len):
-                indels_read.append((ins_start, ins_end, 'I'))
-
-
-        elif cig_id == SOFT_CLIP or cig_id == REF_SKIP:
-            continue
-        elif cig_id == MATCH or cig_id == EQUAL:
-            indel_shift += length
-        else:
-            print(cig_id)
-            raise ValueError('Cigarstring contains unusual symbol: ' + cig_id)
-
-    return indels_read
-
+    def eval_indel(self, sample_sites):
+        indel_shift = 0
+        indels_read = []
+    
+        for cig_id, length in self.cigar_tuple:
+            if cig_id == DELETION:
+                del_start = self.ref_start - 1 + indel_shift
+                del_end = del_start + int(length)
+    
+                if (length >= 2) and (length < 20):
+                    site = sample_sites[del_start - 1]
+                    curr = site.delet
+                    curr.append((del_start, del_end))
+                    site.delet = curr
+                    
+                indel_shift += length
+    
+            elif cig_id == INSERTION:
+                ins_start = self.ref_start - 1 + indel_shift
+                ins_end = ins_start + int(length)
+    
+                if (length >= 2):
+                    site = sample_sites[ins_start - 1]
+                    curr = site.ins
+                    curr.append((ins_start, ins_end))
+                    site.ins = curr
+    
+            elif cig_id == SOFT_CLIP or cig_id == REF_SKIP:
+                continue
+            elif cig_id == MATCH or cig_id == EQUAL:
+                indel_shift += length
+            else:
+                raise ValueError('Cigarstring contains unusual symbol: ' + cig_id)
+    
 
 def average_cov(sitelist, start, end):
         # returns mean cov in specified region

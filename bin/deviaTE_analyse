@@ -34,13 +34,11 @@ sample = pileup.Sample(name=args.sample_id, fam=args.family, lib=args.library,
                        anno=args.annotation, log=args.log, bam=args.input)
 # get reference of family
 sample.get_ref()
-
 if sample.refseq is None:
     raise ValueError('Selected family is not in references. Typo? ' + args.family)
 
 # get annotation for family
 sample.get_anno()
-
 if len(sample.fam_anno) is 0:
     print('no annotaions found for: ' + args.family)
 
