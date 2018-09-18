@@ -63,7 +63,7 @@ cov_list = [s.cov for s in sample.sites]
 mean_cov = sum(cov_list) / len(cov_list)
 
 for s in sample.sites:
-    s.is_snp(min_freq=0.05, A=s.A, C=s.C, G=s.G, T=s.T, cov=s.cov)
+    s.is_snp(min_count=mean_cov * 0.02, min_freq=0.05, A=s.A, C=s.C, G=s.G, T=s.T, cov=s.cov)
     s.filter_IND(att='int_del', min_count=mean_cov * 0.02, norm_fac=sample.norm_fac)
     s.filter_IND(att='ins', min_count=mean_cov * 0.05, norm_fac=sample.norm_fac)
     s.filter_IND(att='delet', min_count=mean_cov * 0.05, norm_fac=sample.norm_fac)

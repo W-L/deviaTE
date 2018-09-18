@@ -188,19 +188,19 @@ class Site:
     def sum_coverage(self):
         self.cov = self.A + self.C + self.G + self.T
 
-    def is_snp(self, min_freq, A, C, G, T, cov):
+    def is_snp(self, min_count, min_freq, A, C, G, T, cov):
         # sets self.snp of self.refsnp to True
         # awkward args for unit test
         nuc = {'A' : A, 'C' : C, 'G' : G, 'T' : T}
 
         # polymorphic SNP = coverage is higher than most abundant base
         if cov > max(nuc.values()):
-            #alt_counts = {base : count for base, count in nuc.items() if base is not self.refbase}
+            alt_counts = {base : count for base, count in nuc.items() if base is not self.refbase}
             alt_freqs = {base : (count / cov) for base, count in alt_counts.items()}
 
-            #if any(x >= min_count for x in alt_counts.values()):
-            if any(x >= min_freq for x in alt_freqs.values()):
-                self.snp = True
+            if any(x >= min_count for x in alt_counts.values()):
+                if any(x >= min_freq for x in alt_freqs.values()):
+                    self.snp = True
 
         # reference snp = 0 at ref nuc, and coverage equal to most abundant base, but not 0
         if self.refbase in uniq_nuc:
