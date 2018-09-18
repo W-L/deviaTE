@@ -350,6 +350,12 @@ find_max <- function(df_list, var){
 }
 
 
+test.int <- function(x){
+  test <- all.equal(x, as.integer(x), check.attributes = FALSE)
+  isTRUE(test)
+}
+
+
 ### --- ### --- ###
 
 inp_arg <- args$input
@@ -360,7 +366,7 @@ fontsize <- as.numeric(args$fontsize)
 out_format <- args$out_format
 
 # replace commandline arguments for debugging
-# inp_arg <- 'kepler.fastq.KEPLER'
+# inp_arg <- 'chasis100k.fasta.5.pgd.fa1.fastq.DOC5'
 # out_arg <- 'test.pdf'
 # col_arg <- FALSE
 # axis_arg <- FALSE
@@ -451,9 +457,13 @@ combo_grob <- plot_grid(plotlist=plot_list, ncol=nfam, nrow=nsample + 1,
 legend <- make_legend()
 combo_leg <- plot_grid(legend, combo_grob, ncol = 1, nrow = 2, rel_heights = c(leg_height, 1 - leg_height))
 
-# add a shared y-axis
-# tilted label on an empty background
-yaxis <- ggdraw() + draw_label('Coverage (reads per million sequenced bases)', angle=90, size=fontsize)
+# add a shared y-axis, tilted label on an empty background
+# if coverage col is integer -> no normalization -> different y-axis
+if (test.int(samples[[1]]$coverage) == TRUE){
+  yaxis <- ggdraw() + draw_label('Coverage', angle=90, size=fontsize)
+} else{
+  yaxis <- ggdraw() + draw_label('Coverage (reads per million sequenced bases)', angle=90, size=fontsize)
+}
 combo_y <- plot_grid(yaxis, combo_leg, ncol=2, nrow=1, rel_widths = c(yaxs_width, 1 - yaxs_width))
 
 
