@@ -52,20 +52,25 @@ for base in sample.refseq:
     c += 1
 
 # perform pileup
-sample.perform_pileup(min_int_del_len=20, min_trunc_len=10, min_indel_len=2)
+sample.perform_pileup()
 
-# process extracted data
+# normalize and get coverage
 for s in sample.sites:
-    s.sum_coverage()
-    s.is_snp(min_count=5, min_freq=0.05, A=s.A, C=s.C, G=s.G, T=s.T, cov=s.cov)
-    s.filter_IND(att='int_del', min_count=3, norm_fac=sample.norm_fac)
-    s.filter_IND(att='ins', min_count=5, norm_fac=sample.norm_fac)
-    s.filter_IND(att='delet', min_count=5, norm_fac=sample.norm_fac)
-    s.filter_trunc(min_trunc_count=3)
-    s.check_annotation(anno=sample.fam_anno)
     if sample.norm_fac is not 1:
         s.normalize(norm_factor=sample.norm_fac)
-        
+    s.sum_coverage()
+cov_list = [s.cov for s in sample.sites]
+mean_cov = sum(cov_list) / len(cov_list)
+
+for s in sample.sites:
+    s.is_snp(min_freq=0.05, A=s.A, C=s.C, G=s.G, T=s.T, cov=s.cov)
+    s.filter_IND(att='int_del', min_count=mean_cov * 0.02, norm_fac=sample.norm_fac)
+    s.filter_IND(att='ins', min_count=mean_cov * 0.05, norm_fac=sample.norm_fac)
+    s.filter_IND(att='delet', min_count=mean_cov * 0.05, norm_fac=sample.norm_fac)
+    s.filter_trunc(min_trunc_count=mean_cov * 0.02)
+    s.check_annotation(anno=sample.fam_anno)
+    
+
 # collect int dels and use to calc phys cov
 sample.collect_int_dels()
 sample.calc_phys_cov()

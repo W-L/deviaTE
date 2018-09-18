@@ -69,7 +69,7 @@ class Sample:
                     break
 
 
-    def perform_pileup(self, min_int_del_len, min_trunc_len, min_indel_len):
+    def perform_pileup(self):
         # initiate lookup sets
         readdump_int_del = set()
         readdump_trunc = set()
@@ -188,27 +188,23 @@ class Site:
     def sum_coverage(self):
         self.cov = self.A + self.C + self.G + self.T
 
-    def is_snp(self, min_count, min_freq, A, C, G, T, cov):
-
+    def is_snp(self, min_freq, A, C, G, T, cov):
+        # sets self.snp of self.refsnp to True
+        # awkward args for unit test
         nuc = {'A' : A, 'C' : C, 'G' : G, 'T' : T}
 
-        # check if site is a polymorphic SNP
-        # only if coverage is higher than most abundant base
+        # polymorphic SNP = coverage is higher than most abundant base
         if cov > max(nuc.values()):
-            # check counts
-            alt_counts = {base : count for base, count in nuc.items() if base is not self.refbase}
+            #alt_counts = {base : count for base, count in nuc.items() if base is not self.refbase}
             alt_freqs = {base : (count / cov) for base, count in alt_counts.items()}
 
-            if any(x >= min_count for x in alt_counts.values()):
-                if any(x >= min_freq for x in alt_freqs.values()):
-                    self.snp = True
+            #if any(x >= min_count for x in alt_counts.values()):
+            if any(x >= min_freq for x in alt_freqs.values()):
+                self.snp = True
 
-        # check if site is reference snp
-        # needs 0 at ref, and coverage equal to most abundant base, but ne 0
+        # reference snp = 0 at ref nuc, and coverage equal to most abundant base, but not 0
         if self.refbase in uniq_nuc:
-            #ref_count = getattr(self, self.refbase)
-            ref_count = nuc[self.refbase]
-            if ref_count == 0:
+            if nuc[self.refbase] == 0:
                 if cov is not 0:
                     if cov == max(nuc.values()):
                         self.refsnp = True
@@ -222,7 +218,7 @@ class Site:
 
         if len(attr) is not 0:
             cnt = Counter(attr)
-            feat = list(cnt.items())
+            feat = list(cnt.items()) # list of tuples, ((start, end), count)
             keep = []
 
             for i in feat:
@@ -232,7 +228,7 @@ class Site:
             if len(keep) is 0:
                 setattr(self, att, 'NA')
             else:
-                upt = Site.reformat_tuple(keep, norm_factor=norm_fac)
+                upt = reformat_tuple(keep, norm_factor=norm_fac)
                 setattr(self, att, upt)
         else:
             setattr(self, att, 'NA')
@@ -244,8 +240,6 @@ class Site:
             self.trunc_right = 'NA'
 
     def check_annotation(self, anno):
-        # if no annotation was provided
-        # or no elements found for this family
         if len(anno) is 0:
             self.annotation = 'NA'
         else:
@@ -253,7 +247,7 @@ class Site:
                 if self.pos >= int(i[1]) - 1 and self.pos <= int(i[2]) - 1:
                     self.annotation = i[0]
 
-        # if there were annotations, but site is not in one
+        # if site is not in annotation
         if len(self.annotation) is 0:
             self.annotation = 'intergenic'
 
@@ -263,23 +257,8 @@ class Site:
         self.C = self.C / norm_factor
         self.G = self.G / norm_factor
         self.T = self.T / norm_factor
-        self.cov = self.cov / norm_factor
-
-        if self.trunc_left is not 'NA':
-            self.trunc_left = self.trunc_left / norm_factor
-        if self.trunc_right is not 'NA':
-            self.trunc_right = self.trunc_right / norm_factor
-
-
-    @staticmethod
-    def reformat_tuple(tup, norm_factor):
-        # takes a list of tuples
-        # returns reformatted string for printing in tsv
-        r = ''
-        for i in tup:
-            r = r + str(i[0][0]) + ':' + str(i[0][1]) + ':' + str(i[1] / norm_factor) + ','
-
-        return r[:-1]
+        self.trunc_left = self.trunc_left / norm_factor
+        self.trunc_right = self.trunc_right / norm_factor
 
 
 class Int_del:
@@ -412,6 +391,15 @@ class Pileupread:
             else:
                 raise ValueError('Cigarstring contains unusual symbol: ' + cig_id)
     
+    
+def reformat_tuple(tup, norm_factor):
+    # takes a list of tuples
+    # returns reformatted string for printing in tsv
+    r = ''
+    for i in tup:
+        r = r + str(i[0][0]) + ':' + str(i[0][1]) + ':' + str(i[1] / norm_factor) + ','
+    return r[:-1]    
+
 
 def average_cov(sitelist, start, end):
         # returns mean cov in specified region
