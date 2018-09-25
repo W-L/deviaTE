@@ -1,6 +1,6 @@
 include bin/*
 include deviaTE/*
 include deviaTE/tests/*
-include deviaTE/bin/*
+include deviaTE/lib/*
 include README.md
 include LICENSE
