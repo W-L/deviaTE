@@ -1,7 +1,6 @@
-include library/te_library
-include library/te_features.gff
+include bin/*
+include deviaTE/*
+include deviaTE/tests/*
+include deviaTE/lib/*
 include README.md
-include CONFIG
-include prog/*
-include library/*
-include doc/*
+include LICENSE
