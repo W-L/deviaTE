@@ -33,65 +33,65 @@ def process_fq(file, families):
     fq = IO.fq_file(inp=file)
     fq.prep(lib=args.library, qual_tr=args.quality_threshold, min_rl=args.min_read_len,
             min_al=args.min_alignment_len, read_ty=args.read_type, thr=args.threads)
-    
+
     for f in families:
         sample_id = file
         output_table = sample_id + '.' + f
         output_plot = output_table + '.pdf'
-    
-        prep_bam = IO.bam_file(inp=fq.path + '.fused.sort.bam', from_fq=True, orig_name=file)    
+
+        prep_bam = IO.bam_file(inp=fq.path + '.fused.sort.bam', from_fq=True, orig_name=file)
         prep_bam.analyze(lib=args.library, fam=f, sid=sample_id,
                          out=output_table, anno=args.annotation, corr=args.no_freq_corr)
-    
+
         table = IO.analysis_table(inp=output_table)
         table.plot(out=output_plot, free_y=args.free_yaxis, col_ref=args.color_reference)
-    
+
+
 def process_bam(bam, families):
     prep_bam = IO.bam_file(inp=bam, from_fq=False)
     prep_bam.fuse()
-    
+
     for f in families:
         sample_id = bam
         output_table = sample_id + '.' + f
         output_plot = output_table + '.pdf'
-    
+
         fused_bam = IO.bam_file(inp=bam + '.fused.sort.bam', from_fq=False)
         fused_bam.analyze(lib=args.library, fam=f, sid=sample_id,
                           out=output_table, anno=args.annotation, corr=args.no_freq_corr)
-        
+
         table = IO.analysis_table(inp=output_table)
         table.plot(out=output_plot, free_y=args.free_yaxis, col_ref=args.color_reference)
-    
-    
-    
+
+
 fams = args.families.split(',')
 
 if args.input_fq:
     print('Fastq provided: preparing for alignment')
     process_fq(file=args.input_fq, families=fams)
-    
+
 elif args.input_bam:
     print('Alignment file provided: skipping preparation')
     process_bam(bam=args.input_bam, families=fams)
-    
+
 elif args.input_fq_dir:
     print('Directory of fastq files provided: preparing for alignment')
-    fq_list = glob.glob('*.fastq') 
-    
+    fq_list = glob.glob('*.fastq')
+
     for f in fq_list:
         print(f)
         process_fq(file=f, families=fams)
-        
+
 elif args.input_bam_dir:
-    print('Directory of bam-files provided: skipping preparation')    
+    print('Directory of bam-files provided: skipping preparation')
     bam_list = glob.glob('*.bam')
-    
+
     for b in bam_list:
         print(b)
         process_bam(bam=b, families=fams)
-        
+
 else:
     sys.exit('No input provided')
-    
+
 print('done')
 
