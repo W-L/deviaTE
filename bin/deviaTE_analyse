@@ -32,6 +32,7 @@ if args.annotation is None:
 
 sample = pileup.Sample(name=args.sample_id, fam=args.family, lib=args.library,
                        anno=args.annotation, log=args.log, bam=args.input)
+
 # get reference of family
 sample.get_ref()
 if sample.refseq is None:
@@ -63,19 +64,19 @@ cov_list = [s.cov for s in sample.sites]
 mean_cov = sum(cov_list) / len(cov_list)
 
 for s in sample.sites:
-    s.is_snp(min_count=mean_cov * 0.02, min_freq=0.05, A=s.A, C=s.C, G=s.G, T=s.T, cov=s.cov)
+    s.is_snp(min_count=mean_cov * 0.1, min_freq=0.1, A=s.A, C=s.C, G=s.G, T=s.T, cov=s.cov)
     s.filter_IND(att='int_del', min_count=mean_cov * 0.02, norm_fac=sample.norm_fac)
-    s.filter_IND(att='ins', min_count=mean_cov * 0.05, norm_fac=sample.norm_fac)
-    s.filter_IND(att='delet', min_count=mean_cov * 0.05, norm_fac=sample.norm_fac)
-    s.filter_trunc(min_trunc_count=mean_cov * 0.02)
+    s.filter_IND(att='ins', min_count=mean_cov * 0.1, norm_fac=sample.norm_fac)
+    s.filter_IND(att='delet', min_count=mean_cov * 0.1, norm_fac=sample.norm_fac)
+    s.filter_trunc(min_trunc_count=mean_cov * 0.05)
     s.check_annotation(anno=sample.fam_anno)
-    
+
 
 # collect int dels and use to calc phys cov
 sample.collect_int_dels()
 sample.calc_phys_cov()
 
-    
+
 # estimate freqs., correct and parse new col
 for int_del in sample.int_dels:
     if args.no_freq_corr == False:
