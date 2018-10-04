@@ -43,7 +43,7 @@ with open(log, 'w') as l:
     l.write(m)
 
 # # index reference
-# index = [args.bwa, 'index', args.library]
+# index = ['bwa', 'index', args.library]
 # IO.execute(command=' '.join(index))
 
 # mapping

@@ -50,6 +50,10 @@ for read in inpfile:
             
         else:
             # more than one segment in list: process
+            if len(seg_list) > 15:
+                seg_list = [read]
+                continue
+                        
             Multihit_list = []
             fams = defaultdict(list)
             
