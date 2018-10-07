@@ -47,7 +47,7 @@ with open(log, 'w') as l:
 # IO.execute(command=' '.join(index))
 
 # mapping
-mapping = ['bwa', 'bwasw', '-t', args.threads, args.library, trimmed]
+mapping = ['bwa', 'bwasw', '-M', '-t', args.threads, args.library, trimmed]
 IO.map_bwa(command=' '.join(mapping), outfile=mapped)
 
 # filtering

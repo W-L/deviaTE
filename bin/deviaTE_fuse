@@ -51,6 +51,12 @@ for read in inpfile:
         else:
             # more than one segment in list: process
             if len(seg_list) > 15:
+                prim = [s for s in seg_list if s.is_secondary is False and s.is_supplementary is False]
+                if len(prim) != 1:
+                    raise ValueError('more than one primary alignment')
+                else:
+                    read_out = prim[0].tostring(inpfile)
+                    outfile.write(read_out + '\n')
                 seg_list = [read]
                 continue
                         
