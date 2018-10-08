@@ -42,10 +42,6 @@ with open(log, 'w') as l:
     m = '#total_read_length: ' + str(trl) + '\n'
     l.write(m)
 
-# # index reference
-# index = ['bwa', 'index', args.library]
-# IO.execute(command=' '.join(index))
-
 # mapping
 mapping = ['bwa', 'bwasw', '-M', '-t', args.threads, args.library, trimmed]
 IO.map_bwa(command=' '.join(mapping), outfile=mapped)
@@ -62,7 +58,7 @@ else:
     IO.execute(command=' '.join(mv))
 
 # fusing
-fusing = ['deviaTE_fuse', '--input', filtered, '--output', fused] # no skip
+fusing = ['deviaTE_fuse', '--input', filtered, '--output', fused]  # no skip
 # fusing = ['mv', filtered, fused]  # for skipping fusing
 IO.execute(command=' '.join(fusing))
 
