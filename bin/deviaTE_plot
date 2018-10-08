@@ -368,7 +368,7 @@ fontsize <- as.numeric(args$fontsize)
 out_format <- args$out_format
 
 # replace commandline arguments for debugging
-# inp_arg <- 'SRR3585407.allte.sort.bam.fused.sort.bam.PPI251'
+# inp_arg <- 'hot-r3-g10.fastq.fused.sort.bam.PPI251'
 # out_arg <- 'test.pdf'
 # axis_arg <- FALSE
 # fontsize <- 14
@@ -377,7 +377,7 @@ out_format <- args$out_format
 
 # load full dataframe with fread and name the columns - 19 cols
 frame <- fread(paste('grep -v ^#', inp_arg), data.table=FALSE,
- colClasses=list(character=c(1,2,4,13,14,17,18,19)))
+ colClasses=list(character=c(1,2,4,14,15,18,19,20)))
 
 
 names(frame) <- c('TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T',
