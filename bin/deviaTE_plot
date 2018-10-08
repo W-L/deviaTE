@@ -18,15 +18,13 @@ parser <- ArgumentParser()
 parser$add_argument('--input', required=TRUE, help='input as created by TEplotter')
 parser$add_argument('--output', default='', help='name for the output file')
 parser$add_argument('--free_yaxis', action='store_true', help='free y-axis e.g. if one sample has much higher cov')
-parser$add_argument('--color_reference', action='store_true')
 parser$add_argument('--fontsize', default=as.numeric(14))
 parser$add_argument('--out_format', default='pdf', help='format of output, either pdf or eps')
 args <- parser$parse_args()
 
 
 # color palettes
-base_colors <- c('A'='#1b9e77','C'='#d95f02','G'='#7570b3','T'='#e6ab02',
-                 'in'='#66a61e','del'='#e7298a', 'X'='grey')
+base_colors <- c('A'='#1b9e77','C'='#d95f02','G'='#7570b3','T'='#e6ab02', 'in'='#66a61e','del'='#e7298a')
 
 
 fam_name <- function(df){
@@ -57,27 +55,26 @@ ref_allele <- function(snp_index, refbases, len){
 }
 
 
-snp_frame <- function(df, col_ref){
+snp_frame <- function(df){
     # results in a df with 4 * length and 5 cols
     # concatenate the base coverage and create factor columns
     l <- fam_len(df)
     counts_col <- c(df$A, df$C, df$G, df$T)
-    pos_col <- rep(1:l, 4) # changed 1 to 0 here and l to l-1
+    pos_col <- rep(1:l, 4) # change 1 to 0 and l to l-1
     fam_col <- rep(df$TEfam, 4)
     sample_col <- rep(df$sample_id, 4)
     base_col <- c(rep('A', l), rep('C', l), rep('G', l), rep('T', l))
     polys <- snp_positions(df)
 
-    # uncolor reference allele in SNPs
-    if (col_ref == FALSE){
+    # remove reference allele from SNPs
+    polys_ref_indices <- sapply(polys, ref_allele, df$refbase, l)
+    polys_ref_indices_sorted <- sort(as.numeric(polys_ref_indices))
+    base_col[polys_ref_indices_sorted] <- 'X' #multi-indexing
         
-        polys_ref_indices <- sapply(polys, ref_allele, df$refbase, l)
-        polys_ref_indices_sorted <- sort(as.numeric(polys_ref_indices))
-        base_col[polys_ref_indices_sorted] <- 'X' #multi-indexing
-    }
     lf <- data.frame(fam_col, sample_col, base_col, pos_col, counts_col)
     snps <- subset(lf, pos_col %in% polys)
-    return(snps)
+    snps_noref <- subset(snps, base_col != 'X')
+    return(snps_noref)
 }
 
 
@@ -87,13 +84,19 @@ base_plot <- function(snps, sample){
     lim <- ceiling(famlen/50)
     plot_title <- paste(sample$TEfam[1], sample$sample_id[1])
     # order of levels defines the order of stacked bars; snp at bottom
-    snps$base_col <- factor(snps$base_col, levels=c('X','A','C','G','T'))
+    snps$base_col <- factor(snps$base_col, levels=c('A','C','G','T'))
     
+    # polygon total coverage
     pg <- data.table(px=c(sample$pos, rev(sample$pos)), 
-                     py=c(sample$coverage, rep(0,length(sample$coverage)))) # polygon data
+                     py=c(sample$coverage, rep(0,length(sample$coverage)))) 
+    
+    # polygon hq coverage
+    pg_hq <- data.table(px=c(sample$pos, rev(sample$pos)), 
+                        py=c(sample$hq_coverage, rep(0,length(sample$hq_coverage)))) 
     
     baseplot <- ggplot() +
-        geom_polygon(data=pg, aes(x=px, y=py), fill='grey', color='grey') +
+        geom_polygon(data=pg, aes(x=px, y=py), fill='lightgrey', color='lightgrey') +
+        geom_polygon(data=pg_hq, aes(x=px, y=py), fill='grey', color='grey') +
         geom_bar(data=snps, aes(x=pos_col, y=counts_col, fill=base_col), stat='identity', width=3) +
         labs(fill='') +
         ylab('') +
@@ -360,15 +363,13 @@ test.int <- function(x){
 
 inp_arg <- args$input
 out_arg <- args$output
-col_arg <- args$color_reference
 axis_arg <- args$free_yaxis
 fontsize <- as.numeric(args$fontsize)
 out_format <- args$out_format
 
 # replace commandline arguments for debugging
-# inp_arg <- 'chasis100k.fasta.5.pgd.fa1.fastq.DOC5'
+# inp_arg <- 'SRR3585407.allte.sort.bam.fused.sort.bam.PPI251'
 # out_arg <- 'test.pdf'
-# col_arg <- FALSE
 # axis_arg <- FALSE
 # fontsize <- 14
 # out_format <- 'pdf'
@@ -378,8 +379,10 @@ out_format <- args$out_format
 frame <- fread(paste('grep -v ^#', inp_arg), data.table=FALSE,
  colClasses=list(character=c(1,2,4,13,14,17,18,19)))
 
-names(frame) <- c('TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T', 'coverage', 'phys_coverage', 'snp', 'refsnp',
-    'int_del', 'int_del_freq', 'truncation_left', 'truncation_right', 'insertion', 'deletion', 'annotation')
+
+names(frame) <- c('TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T',
+                  'coverage', 'phys_coverage', 'hq_coverage', 'snp', 'refsnp', 'int_del', 'int_del_freq',
+                  'truncation_left', 'truncation_right', 'insertion', 'deletion', 'annotation')
 
 frame$TEfam <- as.factor(frame$TEfam)
 frame$sample_id <- as.factor(frame$sample_id)
@@ -406,12 +409,11 @@ yaxs_width <- 0.01 / nfam
 # parameters to set for plotting ----------------
 
 
-
 # split the whole frame into a list of samples; by TE family and by sample_id
 samples <- split(frame, list(frame$TEfam, frame$sample_id))
 
 # generate a frame of snps for each sample
-snp_frames <- lapply(samples, snp_frame, col_ref=col_arg)
+snp_frames <- lapply(samples, snp_frame)
 
 # generate a list of plots for each sample
 TEplots <- mapply(base_plot, snps=snp_frames, sample=samples)

@@ -70,12 +70,13 @@ class bam_file:
         
         execute(command=' '.join(args))
         
-    def analyze(self, lib, fam, sid, out, anno, corr):
+    def analyze(self, lib, fam, sid, out, anno, corr, hqt):
         args = ['deviaTE_analyse',
                 '--input', self.path,
                 '--family', fam,
                 '--sample_id', sid,
-                '--output', out]
+                '--output', out,
+                '--hq_threshold', hqt]
         
         if lib:
             args.append('--library')
@@ -97,15 +98,13 @@ class analysis_table:
     def __init__(self, inp):
         self.path = inp
     
-    def plot(self, out, free_y, col_ref):
+    def plot(self, out, free_y):
         args = ['deviaTE_plot',
                 '--input', self.path,
                 '--output', out]
         
         if free_y:
             args.append('--free_yaxis')
-        if col_ref:
-            args.append('--color_reference')
         
         execute(command=' '.join(args))    
 

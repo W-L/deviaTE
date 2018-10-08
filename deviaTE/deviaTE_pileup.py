@@ -65,7 +65,7 @@ class Sample:
                     self.norm_fac = norm_fac
                     break
 
-    def perform_pileup(self):
+    def perform_pileup(self, hq_threshold):
         # initiate lookup sets
         readdump_int_del = set()
         readdump_trunc = set()
@@ -82,11 +82,13 @@ class Sample:
                                 qseq=pileupread.alignment.query_sequence, qpos=pileupread.query_position,
                                 colpos=pileupcolumn.pos, cig_string=pileupread.alignment.cigarstring,
                                 qname=pileupread.alignment.query_name, cig_tuples=pileupread.alignment.cigartuples,
-                                ref_start=pileupread.alignment.reference_start, ref_end=pileupread.alignment.reference_end)
+                                ref_start=pileupread.alignment.reference_start, ref_end=pileupread.alignment.reference_end,
+                                mapq=pileupread.alignment.mapping_quality)
 
                 # base
                 if (pr.is_del == 0) and (pr.is_refskip == 0):
                     pr.count_nucleotide(sample_sites=self.sites)
+                    pr.count_hq_coverage(sample_sites=self.sites, hqt=hq_threshold)
 
                 # internal deletions
                 if ('N' in pr.cigar_string or 'D' in pr.cigar_string):
@@ -144,8 +146,9 @@ class Sample:
         fr = pandas.DataFrame(site_list)
 
         # order the columns, introduce hash and print
-        fr = fr[['TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T', 'cov', 'phys_cov', 'snp', 'refsnp',
-                 'int_del', 'int_del_freq', 'trunc_left', 'trunc_right', 'ins', 'delet', 'annotation']]
+        fr = fr[['TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T', 'cov',
+                 'phys_cov', 'hq_cov', 'snp', 'refsnp', 'int_del', 'int_del_freq',
+                 'trunc_left', 'trunc_right', 'ins', 'delet', 'annotation']]
         fr = fr.rename(columns={'TEfam': '#TEfam'})
         fr.to_csv(out, index=False, sep=' ', mode='w')
 
@@ -167,6 +170,7 @@ class Site:
         self.T = 0
         self.cov = 0
         self.phys_cov = 0
+        self.hq_cov = 0
         self.snp = False
         self.refsnp = False
         self.int_del = []
@@ -278,7 +282,7 @@ class Int_del:
 
 class Pileupread:
 
-    def __init__(self, isdel, isref, qseq, qpos, colpos, cig_string, qname, cig_tuples, ref_start, ref_end):
+    def __init__(self, isdel, isref, qseq, qpos, colpos, cig_string, qname, cig_tuples, ref_start, ref_end, mapq):
         self.is_del = isdel
         self.is_refskip = isref
         self.query_seq = qseq
@@ -289,6 +293,7 @@ class Pileupread:
         self.cigar_tuple = cig_tuples
         self.ref_start = ref_start
         self.ref_end = ref_end
+        self.mapq = mapq
 
     def count_nucleotide(self, sample_sites):
         # count the base at the queryposition of this read
@@ -304,6 +309,16 @@ class Pileupread:
 
         else:
             warnings.warn('ignoring unknown base in read: ' + nt)
+            
+    def count_hq_coverage(self, sample_sites, hqt):
+        # count coverage only above threshold
+        site = sample_sites[self.column_pos]
+        mapping_qual = site.hq_cov
+        
+        if self.mapq >= hqt:
+            site.hq_cov = site.hq_cov + 1
+        else:
+            pass
 
     def eval_int_del(self, sample_sites):
         int_del_shift = 0

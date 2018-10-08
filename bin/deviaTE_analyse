@@ -16,6 +16,7 @@ parser.add_argument('--sample_id', help='sample identifier')
 parser.add_argument('--annotation', help='alternative annotation in gff-format')
 parser.add_argument('--log', help='logfile from preparation script')
 parser.add_argument('--no_freq_corr', action='store_true', help='deactivate frequency correction for internal deletions')
+parser.add_argument('--hq_threshold', help='mapping quality threshold to consider as high quality', type=int, default=20)
 args = parser.parse_args()
 
 if args.sample_id is None:
@@ -53,7 +54,7 @@ for base in sample.refseq:
     c += 1
 
 # perform pileup
-sample.perform_pileup()
+sample.perform_pileup(hq_threshold=args.hq_threshold)
 
 # normalize and get coverage
 for s in sample.sites:
