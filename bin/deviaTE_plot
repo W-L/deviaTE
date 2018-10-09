@@ -22,8 +22,7 @@ parser$add_argument('--fontsize', default=as.numeric(14))
 parser$add_argument('--out_format', default='pdf', help='format of output, either pdf or eps')
 args <- parser$parse_args()
 
-
-# color palettes
+# color palette
 base_colors <- c('A'='#1b9e77','C'='#d95f02','G'='#7570b3','T'='#e6ab02', 'in'='#66a61e','del'='#e7298a')
 
 
@@ -341,15 +340,16 @@ plot_anno <- function(df){
 }
 
 
-find_max <- function(df_list, var){
-    # returns the maximum of a variable from a list of similar dataframes
-    maxima <- lapply(df_list, function(df){suppressWarnings(max(df[,var]))})
+find_max <- function(df_list, var, ff){
+    # returns the maximum coverage per family
+    maxima <- sapply(df_list, function(df){suppressWarnings(max(df[,var]))})
     # remove -INF if one sample is empty
     maxima[maxima==-Inf] <- 0
-    maximum <- max(as.numeric(maxima))
-    # if no sample has a count use 1 for norm
-    if (maximum == 0){maximum <- 1}
-    return(maximum)
+    # make a frame with maxima and family factor, split by factor
+    maxima_list <- split(data.table(maxima, ff), ff)
+    max_per_fam <- as.numeric(lapply(maxima_list, function(df){max(df$maxima)}))
+    max_per_fam[max_per_fam==0] <- 1
+    return(max_per_fam)
 }
 
 
@@ -368,17 +368,17 @@ fontsize <- as.numeric(args$fontsize)
 out_format <- args$out_format
 
 # replace commandline arguments for debugging
-# inp_arg <- 'hot-r3-g10.fastq.fused.sort.bam.PPI251'
+# inp_arg <- 'comp_fig'
 # out_arg <- 'test.pdf'
 # axis_arg <- FALSE
 # fontsize <- 14
 # out_format <- 'pdf'
 
 
-# load full dataframe with fread and name the columns - 19 cols
+# load full dataframe with fread and name the columns - 20 cols
+print(paste('Loading data:', inp_arg, '; creating plot'))
 frame <- fread(paste('grep -v ^#', inp_arg), data.table=FALSE,
  colClasses=list(character=c(1,2,4,14,15,18,19,20)))
-
 
 names(frame) <- c('TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T',
                   'coverage', 'phys_coverage', 'hq_coverage', 'snp', 'refsnp', 'int_del', 'int_del_freq',
@@ -386,7 +386,6 @@ names(frame) <- c('TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T',
 
 frame$TEfam <- as.factor(frame$TEfam)
 frame$sample_id <- as.factor(frame$sample_id)
-#frame$annotation <- as.factor(frame$annotation)
 
 nfam <- length(levels(frame$TEfam))
 nsample <- length(levels(frame$sample_id))
@@ -418,15 +417,18 @@ snp_frames <- lapply(samples, snp_frame)
 # generate a list of plots for each sample
 TEplots <- mapply(base_plot, snps=snp_frames, sample=samples)
 
-# fix y-scale for comparison
-# free axis is FALSE by default
+# fix y-scale for comparison, free axis FALSE by default
 if (axis_arg == FALSE){
-    max_cov <- find_max(samples, 'coverage')
+  fam_fac <- factor(unlist(lapply(samples, function(s){s[1,'TEfam']})))
+  max_cov <- find_max(samples, 'coverage', fam_fac)
 
-    TEplots <- lapply(TEplots, function(p){
-        p + scale_y_continuous(limits=c(0, max_cov + 3)) })   
+  # apply y-axis limit for each family
+  for (i in 1:nfam){
+    ind <- as.numeric(fam_fac) == i
+    TEplots[ind] <- lapply(TEplots[ind], function(p){
+      p + scale_y_continuous(limits=c(0, max_cov[i] + 3)) })   
+  }
 }
-
 
 # get the plotting coordinates for all features
 int_del_coords <- lapply(samples, int_del_data)
