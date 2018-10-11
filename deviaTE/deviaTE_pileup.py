@@ -253,6 +253,7 @@ class Site:
         self.C = self.C / norm_factor
         self.G = self.G / norm_factor
         self.T = self.T / norm_factor
+        self.hq_cov = self.hq_cov / norm_factor
         self.trunc_left = self.trunc_left / norm_factor
         self.trunc_right = self.trunc_right / norm_factor
 
