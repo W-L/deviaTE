@@ -20,8 +20,8 @@ deviaTE is a python tool for the analysis and visualization of mobile genetic el
 
 A manual and a walkthrough with examples using publicly available data can be found here:
 
-* [Manual](https://github.com/W-L/deviaTE/blob/master/MANUAL.md) 
-* [Walkthrough](https://github.com/W-L/deviaTE/blob/master/WALKTHROUGH.md) 
+* [Manual](https://github.com/W-L/deviaTE/blob/master/doc/MANUAL.md) 
+* [Walkthrough](https://github.com/W-L/deviaTE/blob/master/doc/WALKTHROUGH.md) 
 
 
 ## Quick start guide
@@ -36,7 +36,7 @@ DeviaTE can also be applied to multiple files in a folder using:
 
 ```deviaTE_main --input_fq_dir --families TEfamily1,TEfamily2,...```
 
-Other available arguments can be seen with ```deviaTE_main -h``` and are documented in the [Manual](https://github.com/W-L/deviaTE/blob/master/MANUAL.md) 
+Other available arguments can be seen with ```deviaTE_main -h``` and are documented in the [Manual](https://github.com/W-L/deviaTE/blob/master/doc/MANUAL.md) 
 
 
 ## Bug reports
