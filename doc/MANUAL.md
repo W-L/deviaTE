@@ -6,6 +6,8 @@ This tool is executed by running `deviaTE_main`, which is a convenient wrapper f
 
 
 
+![Architecture](https://github.com/W-L/deviaTE/blob/master/doc/workflow_new.pdf "Architecture of deviaTE")
+
 
 
 ## `deviaTE_main` 
