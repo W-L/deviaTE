@@ -37,3 +37,12 @@ DeviaTE can also be applied to multiple files in a folder using:
 ```deviaTE_main --input_fq_dir --families TEfamily1,TEfamily2,...```
 
 Other available arguments can be seen with ```deviaTE_main -h``` and are documented in the [Manual](https://github.com/W-L/deviaTE/blob/master/MANUAL.md) 
+
+
+## Bug reports
+If you find any problems please use the issue tracker on this repository
+
+
+## License
+deviaTE is licensed under the GPLv3 License, see LICENSE.
+
