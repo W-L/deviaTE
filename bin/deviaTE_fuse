@@ -32,6 +32,9 @@ outfile = open(args.output, 'a+')
 # iterate over samfile
 c = 0
 for read in inpfile:
+    if read.is_unmapped is True:
+        outfile.write(read.tostring(inpfile) + '\n')
+        continue
     while c == 0:
         seg_list = [read]
         c += 1

@@ -22,39 +22,35 @@ if args.library is None:
     args.library = IO.get_data('lib/te_library')
 
 
-log = args.input + '.log'
 trimmed = args.input + '.trim.tmp'
 mapped = args.input + '.sam.tmp'
 filtered = args.input + '.filt.tmp'
 fused = args.input + '.fused'
 
-print('Starting preparation of ' + args.input)
-
+print('Starting preparation: ' + args.input)
+print('Trimming reads: ' + args.input)
 # trimming
 trimming = ['deviaTE_trim.pl', '--input1', args.input, '--output', trimmed,
             '--quality-threshold', args.qual_threshold, '--min-length', args.min_read_length,
             '--fastq-type', args.quality_encoding]
 IO.execute(command=' '.join(trimming))
 
-# count total read length for normalization
-trl = IO.count_total_read_len(trimmed)
-with open(log, 'w') as l:
-    m = '#total_read_length: ' + str(trl) + '\n'
-    l.write(m)
+# # count total read length for normalization
+# trl = IO.count_total_read_len(trimmed)
+# with open(log, 'w') as l:
+#     m = '#total_read_length: ' + str(trl) + '\n'
+#     l.write(m)
 
+print('Mapping reads: ' + args.input)
 # mapping
 mapping = ['bwa', 'bwasw', '-M', '-t', args.threads, args.library, trimmed]
 IO.map_bwa(command=' '.join(mapping), outfile=mapped)
 
 # filtering
-filtering = ['samtools', 'view', '-h', mapped, '-o', 'tmp', '-@', args.threads,
-             '-F', '0x4', '-F 0x400', '-F', '0x200']
-IO.execute(command=' '.join(filtering))
-
 if args.min_alignment_length != '1':
-    IO.filter_alignment_length(inp='tmp', outp=filtered, lim=args.min_alignment_length)
+    IO.filter_alignment_length(inp=mapped, outp=filtered, lim=args.min_alignment_length)
 else:
-    mv = ['mv', 'tmp', filtered]
+    mv = ['cp', mapped, filtered]
     IO.execute(command=' '.join(mv))
 
 # fusing
@@ -62,7 +58,7 @@ fusing = ['deviaTE_fuse', '--input', filtered, '--output', fused]  # no skip
 # fusing = ['mv', filtered, fused]  # for skipping fusing
 IO.execute(command=' '.join(fusing))
 
-# # this part is only to skip fusing
+# # part to skip fusing
 # bam = ['samtools', 'view', '-b', fused, '-o', fused + '.bam']
 # sort = ['samtools', 'sort', fused + '.bam', '-o', fused + '.sort.bam']
 # index = ['samtools', 'index', fused + '.sort.bam', fused + '.sort.bam.bai']

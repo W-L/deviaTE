@@ -126,16 +126,6 @@ def filter_alignment_length(inp, outp, lim):
     outfile.close()
             
 
-def count_total_read_len(file):
-    c = 0
-
-    with open(file) as f:
-        for line in f:
-            if line.startswith('@'):
-                line_len = len(f.readline().rstrip())
-                c += line_len
-
-    return(c)
 
 
 
