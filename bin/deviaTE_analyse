@@ -17,6 +17,7 @@ parser.add_argument('--annotation', help='alternative annotation in gff-format')
 parser.add_argument('--log', help='logfile from preparation script')
 parser.add_argument('--no_freq_corr', action='store_true', help='deactivate frequency correction for internal deletions')
 parser.add_argument('--hq_threshold', help='mapping quality threshold to consider as high quality', type=int, default=20)
+parser.add_argument('--single_copy_gene', help='name of single-copy gene in references for insertion number estimation')
 args = parser.parse_args()
 
 if args.sample_id is None:
@@ -87,6 +88,13 @@ for int_del in sample.int_dels:
     else:
         int_del.est_freq(sites=sample.sites, corr_factor=1)
     int_del.write_freq(sites=sample.sites)
+
+
+# estimate insertion copy number
+if args.single_copy_gene is not None:
+    if sample.norm_fac is not 1:
+        ihat = sample.estimate_insertions(scg=args.single_copy_gene)
+        
 
 
 # write results

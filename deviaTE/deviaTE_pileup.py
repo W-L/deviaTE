@@ -74,10 +74,10 @@ class Sample:
         bamfile_op = pysam.AlignmentFile(self.bam, 'rb')
 
         # for all covered positions in the reference
-        for pileupcolumn in bamfile_op.pileup(self.fam, truncate=True, max_depth=1000000):
+        for pileupcolumn in bamfile_op.pileup(contig=self.fam, truncate=True, max_depth=1000000):
             # for each read at this pos
             for pileupread in pileupcolumn.pileups:
-
+                
                 pr = Pileupread(isdel=pileupread.is_del, isref=pileupread.is_refskip,
                                 qseq=pileupread.alignment.query_sequence, qpos=pileupread.query_position,
                                 colpos=pileupcolumn.pos, cig_string=pileupread.alignment.cigarstring,
@@ -138,7 +138,27 @@ class Sample:
             for int_del in self.int_dels:
                 if site.pos in int_del.range:
                     site.phys_cov += int_del.abundance
-
+                    
+    def estimate_insertions(self, scg):
+        bamfile_op = pysam.AlignmentFile(self.bam, 'rb')
+        # dict of refs and their len
+        ref_dict = dict(zip(bamfile_op.references,bamfile_op.lengths))
+        # calc total cov of single copy gene
+        sum_cov = sum([len(pileupcolumn.pileups) for pileupcolumn in bamfile_op.pileup(contig=scg, truncate=True)])
+        # average cov of single copy gene
+        scg_av_cov = sum_cov / ref_dict[scg]
+        # average across multiple genes
+        
+        # norm by million reads
+        rpm = scg_av_cov / self.norm_fac
+        
+        # average cov of TE
+        av_cov = average_cov(sitelist=self.sites, start=1, end=len(self.sites))
+        # normalize with single copy gene to obtain copy number per haploid
+        ihat = av_cov / rpm
+        bamfile_op.close()
+        return(ihat * 2)
+        
     def write_frame(self, out):
         # create a list of all object instances
         # and turn into a pandas frame
@@ -404,7 +424,7 @@ def reformat_tuple(tup, norm_factor):
 
 
 def average_cov(sitelist, start, end):
-        # returns mean cov in specified region
+    # returns mean cov in specified region
     sum_cov = 0
     region = sitelist[start:end + 1]
     for s in region:
