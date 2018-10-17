@@ -5,9 +5,7 @@ DeviaTE is a command-line program that analyzes and visualizes the diversity mob
 This tool is executed by running `deviaTE_main`, which is a convenient wrapper for the three tiers, `deviaTE_prep`, `deviaTE_analyse` and `deviaTE_plot` to produce a visualization of a transposon (see Fig.). These scripts are also included and can be called individually. Available arguments for all tools can be viewed by adding `-h`
 
 
-
-![Architecture](https://github.com/W-L/deviaTE/blob/master/doc/architecture.png "Architecture of deviaTE")
-
+<img src="https://github.com/W-L/deviaTE/blob/master/doc/architecture.png" alt="Architecture of deviaTE" width="200"/>
 
 
 ## `deviaTE_main` 
