@@ -3,6 +3,7 @@
 import sys
 import argparse
 import subprocess
+import os.path
 from pkg_resources import resource_stream
 import deviaTE.deviaTE_IO as IO
 
@@ -28,18 +29,18 @@ filtered = args.input + '.filt.tmp'
 fused = args.input + '.fused'
 
 print('Starting preparation: ' + args.input)
+
+# check for index of library
+index = os.path.isfile(args.library + '.bwt')
+if index is False:
+    raise ValueError('No index found for: ' + str(args.library) + '  Please use bwa index ' +  str(args.library))
+
 print('Trimming reads: ' + args.input)
 # trimming
 trimming = ['deviaTE_trim.pl', '--input1', args.input, '--output', trimmed,
             '--quality-threshold', args.qual_threshold, '--min-length', args.min_read_length,
             '--fastq-type', args.quality_encoding]
 IO.execute(command=' '.join(trimming))
-
-# # count total read length for normalization
-# trl = IO.count_total_read_len(trimmed)
-# with open(log, 'w') as l:
-#     m = '#total_read_length: ' + str(trl) + '\n'
-#     l.write(m)
 
 print('Mapping reads: ' + args.input)
 # mapping
