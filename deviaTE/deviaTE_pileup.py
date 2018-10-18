@@ -144,7 +144,8 @@ class Sample:
         for g in genes:
             # calc average cov of single copy gene
             sum_cov = sum([len(pileupcolumn.pileups) for pileupcolumn in bamfile_op.pileup(contig=g, truncate=True)])
-            av_cov_genes.append(sum_cov / ref_dict[g])
+            if sum_cov > 0:
+                av_cov_genes.append(sum_cov / ref_dict[g])
         
         # average across multiple genes
         norm_fac = sum(av_cov_genes) / len(av_cov_genes)
