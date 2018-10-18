@@ -16,6 +16,7 @@ parser.add_argument('--min_read_length', default='1')
 parser.add_argument('--min_alignment_length', default='1')
 parser.add_argument('--threads', default='1')
 parser.add_argument('--quality_encoding', default='sanger')
+parser.add_argument('--nofuse', action='store_true', help='dev switch')
 args = parser.parse_args()
 
 # set resource file names and tmp files
@@ -55,19 +56,20 @@ else:
     IO.execute(command=' '.join(mv))
 
 # fusing
-fusing = ['deviaTE_fuse', '--input', filtered, '--output', fused]  # no skip
-# fusing = ['mv', filtered, fused]  # for skipping fusing
-IO.execute(command=' '.join(fusing))
+if args.nofuse == False:
+    fusing = ['deviaTE_fuse', '--input', filtered, '--output', fused]
+    IO.execute(command=' '.join(fusing))
+else:
+    fusing = ['mv', filtered, fused]
+    IO.execute(command=' '.join(fusing))
 
-# # part to skip fusing
-# bam = ['samtools', 'view', '-b', fused, '-o', fused + '.bam']
-# sort = ['samtools', 'sort', fused + '.bam', '-o', fused + '.sort.bam']
-# index = ['samtools', 'index', fused + '.sort.bam', fused + '.sort.bam.bai']
-
-# subprocess.run(' '.join(bam), shell=True)
-# subprocess.run(' '.join(sort), shell=True)
-# subprocess.run(' '.join(index), shell=True)
-# ---------
+    bam = ['samtools', 'view', '-b', fused, '-o', fused + '.bam']
+    sort = ['samtools', 'sort', fused + '.bam', '-o', fused + '.sort.bam']
+    index = ['samtools', 'index', fused + '.sort.bam', fused + '.sort.bam.bai'] 
+    subprocess.run(' '.join(bam), shell=True)
+    subprocess.run(' '.join(sort), shell=True)
+    subprocess.run(' '.join(index), shell=True)
+    
 
 
 # clean-up
