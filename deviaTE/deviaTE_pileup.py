@@ -157,7 +157,7 @@ class Sample:
         av_cov = average_cov(sitelist=self.sites, start=1, end=len(self.sites))
         # normalize with single copy gene to obtain copy number per haploid
         ihat = av_cov / norm_factor
-        return(ihat * 2)
+        return(ihat)
         
     def write_frame(self, out, insertions, command, t, norm):
         # create a list of all object instances
@@ -173,7 +173,7 @@ class Sample:
         # add a line with the insertions
         with open(out, 'w') as outfile: 
             outfile.write('# ' + t + ', command: ' + command + ', norm: ' + norm + '\n')
-            outfile.write('# insertions: ' + str(insertions) + '\n') 
+            outfile.write('# insertions/haploid: ' + str(insertions) + '\n') 
         fr.to_csv(out, index=False, sep=' ', mode='a')
 
 
