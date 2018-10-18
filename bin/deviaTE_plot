@@ -353,12 +353,6 @@ find_max <- function(df_list, var, ff){
 }
 
 
-test.int <- function(x){
-  test <- all.equal(x, as.integer(x), check.attributes = FALSE)
-  isTRUE(test)
-}
-
-
 ### --- ### --- ###
 
 inp_arg <- args$input
@@ -368,7 +362,7 @@ fontsize <- as.numeric(args$fontsize)
 out_format <- args$out_format
 
 # replace commandline arguments for debugging
-# inp_arg <- 'comp_fig'
+# inp_arg <- 'PPI_diffnorm'
 # out_arg <- 'test.pdf'
 # axis_arg <- FALSE
 # fontsize <- 14
@@ -377,8 +371,11 @@ out_format <- args$out_format
 
 # load full dataframe with fread and name the columns - 20 cols
 print(paste('Loading data:', inp_arg, '; creating plot'))
-frame <- fread(paste('grep -v ^#', inp_arg), data.table=FALSE,
+frame <- fread(paste('grep -v ^#', inp_arg), data.table=FALSE, header=FALSE,
  colClasses=list(character=c(1,2,4,14,15,18,19,20)))
+
+norm <- names(fread(paste('grep ", norm:"', inp_arg), sep=','))
+norm_meth <- norm[length(norm)]
 
 names(frame) <- c('TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T',
                   'coverage', 'phys_coverage', 'hq_coverage', 'snp', 'refsnp', 'int_del', 'int_del_freq',
@@ -462,12 +459,18 @@ legend <- make_legend()
 combo_leg <- plot_grid(legend, combo_grob, ncol = 1, nrow = 2, rel_heights = c(leg_height, 1 - leg_height))
 
 # add a shared y-axis, tilted label on an empty background
-# if coverage col is integer -> no normalization -> different y-axis
-if (test.int(samples[[1]]$coverage) == TRUE){
-  yaxis <- ggdraw() + draw_label('Coverage', angle=90, size=fontsize)
-} else{
-  yaxis <- ggdraw() + draw_label('Coverage (reads per million sequenced bases)', angle=90, size=fontsize)
+if (norm_meth == 'norm: raw'){
+  yaxis <- ggdraw() + draw_label('coverage [raw]', angle=90, size=fontsize)
+} else if (norm_meth == 'norm: rpm') {
+  yaxis <- ggdraw() + draw_label('coverage [reads per million]', angle=90, size=fontsize)
+} else if (norm_meth == 'norm: scg') {
+  yaxis <- ggdraw() + draw_label('coverage [single copy genes]', angle=90, size=fontsize)
+} else {
+  print('could not identify normalization method')
 }
+if (nsample > 1) {
+  yaxis <- ggdraw() + draw_label('coverage', angle=90, size=fontsize)
+} 
 combo_y <- plot_grid(yaxis, combo_leg, ncol=2, nrow=1, rel_widths = c(yaxs_width, 1 - yaxs_width))
 
 

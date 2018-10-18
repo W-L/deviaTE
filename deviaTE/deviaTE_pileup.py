@@ -19,14 +19,13 @@ ambig_nuc = {'V', 'Y', 'H', 'D', 'N'}
 
 class Sample:
 
-    def __init__(self, name, fam, lib, anno, log, bam):
+    def __init__(self, name, fam, lib, anno, bam):
         self.name = name
         self.sites = list()
         self.int_dels = list()
         self.fam = fam
         self.lib = lib
         self.anno = anno
-        self.log = log
         self.bam = bam
 
     def get_ref(self):
@@ -51,19 +50,14 @@ class Sample:
                 entry = line.split('\t')
                 self.fam_anno.append(tuple(entry[2:5]))
         anno_file.close()
-
-    def get_norm_fac(self):
-        self.norm_fac = 1
-        if self.log is not None:
-            logfile = open(self.log, 'r')
-
-            for line in logfile:
-                if '#total_read_length:' in line:
-                    norm_fac = int(line.rstrip('\n').split(' ')[-1])
-                    norm_fac = norm_fac / (10 ** 6)
-                    logfile.close()
-                    self.norm_fac = norm_fac
-                    break
+            
+    def get_norm_fac_rpm(self):
+        # count number of reads
+        bamfile_op = pysam.AlignmentFile(self.bam, 'rb')
+        c = bamfile_op.mapped + bamfile_op.unmapped
+        bamfile_op.close()
+        return(c / (10**6))
+        
 
     def perform_pileup(self, hq_threshold):
         # initiate lookup sets
@@ -115,10 +109,11 @@ class Sample:
         read_lengths = 0
         c = 0
         for read in bamfile_op:
-            read_lengths = read_lengths + read.query_length
-            c += 1
+            if read.is_unmapped is False:
+                read_lengths += read.query_length
+                c += 1
         bamfile_op.close()
-        self.read_len = (read_lengths / c)
+        return(read_lengths / c)
 
     def collect_int_dels(self):
         for s in self.sites:
@@ -139,38 +134,46 @@ class Sample:
                 if site.pos in int_del.range:
                     site.phys_cov += int_del.abundance
                     
-    def estimate_insertions(self, scg):
+    def get_norm_fac_scg(self, genes):
         bamfile_op = pysam.AlignmentFile(self.bam, 'rb')
         # dict of refs and their len
         ref_dict = dict(zip(bamfile_op.references,bamfile_op.lengths))
-        # calc total cov of single copy gene
-        sum_cov = sum([len(pileupcolumn.pileups) for pileupcolumn in bamfile_op.pileup(contig=scg, truncate=True)])
-        # average cov of single copy gene
-        scg_av_cov = sum_cov / ref_dict[scg]
+        
+        genes = genes.split(',')
+        av_cov_genes = list()
+        for g in genes:
+            # calc average cov of single copy gene
+            sum_cov = sum([len(pileupcolumn.pileups) for pileupcolumn in bamfile_op.pileup(contig=g, truncate=True)])
+            av_cov_genes.append(sum_cov / ref_dict[g])
+        
         # average across multiple genes
+        norm_fac = sum(av_cov_genes) / len(av_cov_genes)
+        bamfile_op.close()
+        return(norm_fac)
         
-        # norm by million reads
-        rpm = scg_av_cov / self.norm_fac
-        
+    def estimate_insertions(self, norm_factor):
         # average cov of TE
         av_cov = average_cov(sitelist=self.sites, start=1, end=len(self.sites))
         # normalize with single copy gene to obtain copy number per haploid
-        ihat = av_cov / rpm
-        bamfile_op.close()
+        ihat = av_cov / norm_factor
         return(ihat * 2)
         
-    def write_frame(self, out):
+    def write_frame(self, out, insertions, command, t, norm):
         # create a list of all object instances
         # and turn into a pandas frame
         site_list = [x.__dict__ for x in self.sites]
         fr = pandas.DataFrame(site_list)
 
-        # order the columns, introduce hash and print
+        # order the columns, add hash and print
         fr = fr[['TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T', 'cov',
                  'phys_cov', 'hq_cov', 'snp', 'refsnp', 'int_del', 'int_del_freq',
                  'trunc_left', 'trunc_right', 'ins', 'delet', 'annotation']]
         fr = fr.rename(columns={'TEfam': '#TEfam'})
-        fr.to_csv(out, index=False, sep=' ', mode='w')
+        # add a line with the insertions
+        with open(out, 'w') as outfile: 
+            outfile.write('# ' + t + ', command: ' + command + ', norm: ' + norm + '\n')
+            outfile.write('# insertions: ' + str(insertions) + '\n') 
+        fr.to_csv(out, index=False, sep=' ', mode='a')
 
 
 class Site:
@@ -221,14 +224,14 @@ class Site:
         # reference snp = 0 at ref nuc, and coverage equal to most abundant base, but not 0
         if self.refbase in uniq_nuc:
             if nuc[self.refbase] == 0:
-                if cov is not 0:
+                if cov is not 0 and cov is not 0.0:
                     if cov == max(nuc.values()):
                         self.refsnp = True
 
         # return val for unit test
         return (self.snp, self.refsnp)
 
-    def filter_IND(self, att, min_count, norm_fac):
+    def filter_IND(self, att, min_count):
         # grab attribute to filter
         attr = getattr(self, att)
 
@@ -244,7 +247,7 @@ class Site:
             if len(keep) is 0:
                 setattr(self, att, 'NA')
             else:
-                upt = reformat_tuple(keep, norm_factor=norm_fac)
+                upt = reformat_tuple(keep)
                 setattr(self, att, upt)
         else:
             setattr(self, att, 'NA')
@@ -269,13 +272,37 @@ class Site:
 
     def normalize(self, norm_factor):
         # normalizes all counts for sequencing depth
-        self.A = self.A / norm_factor
-        self.C = self.C / norm_factor
-        self.G = self.G / norm_factor
-        self.T = self.T / norm_factor
-        self.hq_cov = self.hq_cov / norm_factor
-        self.trunc_left = self.trunc_left / norm_factor
-        self.trunc_right = self.trunc_right / norm_factor
+        # int_del abundance, ins, del
+        self.A = round(self.A / norm_factor, 3)
+        self.C = round(self.C / norm_factor, 3)
+        self.G = round(self.G / norm_factor, 3)
+        self.T = round(self.T / norm_factor, 3)
+        self.cov = round(self.cov / norm_factor, 3)
+        self.phys_cov = round(self.phys_cov / norm_factor, 3)
+        self.hq_cov = round(self.hq_cov / norm_factor, 3)
+        if self.trunc_left is not 'NA':
+            self.trunc_left = round(self.trunc_left / norm_factor, 3)
+        if self.trunc_right is not 'NA':
+            self.trunc_right = round(self.trunc_right / norm_factor, 3)
+            
+        self.norm_feature(attr='int_del', norm_factor=norm_factor)
+        self.norm_feature(attr='ins', norm_factor=norm_factor)
+        self.norm_feature(attr='delet', norm_factor=norm_factor)
+        
+    def norm_feature(self, attr, norm_factor):
+        feat = getattr(self, attr)
+        if feat is not 'NA':
+            feat_new = ''
+            if ',' in feat:
+                multi_csd = feat.split(',')
+                for csd in multi_csd:
+                    j = csd.split(':')
+                    feat_new = str(feat_new) + str(j[0]) + ':' + str(j[1]) + ':' + str(round((float(j[2]) / float(norm_factor)), 3)) + ','
+                setattr(self, attr, feat_new[:-1])
+                
+            else:
+                j = feat.split(':')
+                setattr(self, attr, str(j[0]) + ':' + str(j[1]) + ':' + str(round((float(j[2]) / float(norm_factor)), 3)))
 
 
 class Int_del:
@@ -293,7 +320,7 @@ class Int_del:
         self.freq = (self.abundance / mean_cov) ** corr_factor
 
     def write_freq(self, sites):
-        # parse new column at start of int del
+        # parse new column at start pos of int del
         id_site = sites[self.start]
         if id_site.int_del_freq == 'NA':
             id_site.int_del_freq = str(self.start) + ':' + str(self.end) + ':' + str(self.freq)
@@ -414,12 +441,12 @@ class Pileupread:
                 raise ValueError('Cigarstring contains unusual symbol: ' + cig_id)
 
 
-def reformat_tuple(tup, norm_factor):
+def reformat_tuple(tup):
     # takes a list of tuples
     # returns reformatted string for printing in tsv
     r = ''
     for i in tup:
-        r = r + str(i[0][0]) + ':' + str(i[0][1]) + ':' + str(i[1] / norm_factor) + ','
+        r = r + str(i[0][0]) + ':' + str(i[0][1]) + ':' + str(i[1]) + ','
     return r[:-1]
 
 

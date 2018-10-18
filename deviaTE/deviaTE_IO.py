@@ -56,21 +56,17 @@ class fq_file:
     
         
 class bam_file:
-    def __init__(self, inp, from_fq, orig_name=None):
+    def __init__(self, inp, orig_name=None):
         self.path = inp
-        self.from_fq = from_fq
         self.orig_name = orig_name
-        
-        if from_fq:
-            self.log = self.orig_name + '.log'
-            
+                    
     def fuse(self):
         args = ['deviaTE_fuse',
                 '--input', self.path]
         
         execute(command=' '.join(args))
         
-    def analyze(self, lib, fam, sid, out, anno, corr, hqt, scg):
+    def analyze(self, lib, fam, sid, out, anno, corr, hqt, scgs, rpm):
         args = ['deviaTE_analyse',
                 '--input', self.path,
                 '--family', fam,
@@ -84,15 +80,14 @@ class bam_file:
         if anno:
             args.append('--annotation')
             args.append(anno)
-        if self.from_fq:
-            args.append('--log')
-            args.append(self.log)
         if corr:
             args.append('--no_freq_corr')
-        if scg:
-            args.append('--single_copy_gene')
-            args.append(scg)
-        
+        if scgs:
+            args.append('--single_copy_genes')
+            args.append(scgs)
+        if rpm:
+            args.append('--rpm')
+            
         execute(command=' '.join(args))    
         
     
@@ -124,7 +119,6 @@ def filter_alignment_length(inp, outp, lim):
 
     inpfile.close()
     outfile.close()
-            
 
 
 
