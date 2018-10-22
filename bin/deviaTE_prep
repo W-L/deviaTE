@@ -15,7 +15,7 @@ parser.add_argument('--qual_threshold', default='15')
 parser.add_argument('--min_read_length', default='1')
 parser.add_argument('--min_alignment_length', default='1')
 parser.add_argument('--threads', default='1')
-parser.add_argument('--quality_encoding', default='sanger')
+parser.add_argument('--quality_encoding', default='sanger', choices=['illumina', 'sanger'])
 parser.add_argument('--nofuse', action='store_true', help='dev switch')
 args = parser.parse_args()
 

@@ -79,7 +79,7 @@ use deviaTE_trim;
     }
     else
     {
-        print  "Did not find an existing file for the second read; Switching to single-read mode\n";
+        print  "Single-read mode\n";
         MainProc::processSE($input1,$output,$encoder,$trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$verbose);
         
     }
