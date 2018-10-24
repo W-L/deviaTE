@@ -57,7 +57,7 @@ else:
 
 # fusing
 if args.nofuse == False:
-    fusing = ['deviaTE_fuse', '--input', filtered, '--output', fused]
+    fusing = ['deviaTE_fuse', '--input', filtered]
     IO.execute(command=' '.join(fusing))
 else:
     fusing = ['mv', filtered, fused]
