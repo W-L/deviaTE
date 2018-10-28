@@ -371,10 +371,10 @@ out_format <- args$out_format
 
 # load full dataframe with fread and name the columns - 20 cols
 print(paste('Loading data:', inp_arg, '; creating plot'))
-frame <- fread(paste('grep -v ^#', inp_arg), data.table=FALSE, header=FALSE,
+frame <- fread(cmd=paste('grep -v ^#', inp_arg), data.table=FALSE, header=FALSE,
  colClasses=list(character=c(1,2,4,14,15,18,19,20)))
 
-norm <- names(fread(paste('grep ", norm:"', inp_arg), sep=','))
+norm <- names(fread(cmd=paste('grep ", norm:"', inp_arg), sep=','))
 norm_meth <- norm[length(norm)]
 
 names(frame) <- c('TEfam', 'sample_id', 'pos', 'refbase', 'A', 'C', 'G', 'T',
