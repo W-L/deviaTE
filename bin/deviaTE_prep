@@ -60,7 +60,7 @@ if args.nofuse == False:
     fusing = ['deviaTE_fuse', '--input', filtered]
     IO.execute(command=' '.join(fusing))
     r1 = ['mv', filtered + '.fused.sort.bam', args.input + '.fused.sort.bam']
-    r2 = ['mv', filtered + '.fused.sort.bai', args.input + '.fused.sort.bai']
+    r2 = ['mv', filtered + '.fused.sort.bam.bai', args.input + '.fused.sort.bam.bai']
     IO.execute(command=' '.join(r1))
     IO.execute(command=' '.join(r2))
 else:
