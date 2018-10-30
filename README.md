@@ -6,10 +6,12 @@ deviaTE is a python tool for the analysis and visualization of mobile genetic el
 
 * python 3.6+
 * pip for python3 (https://pip.pypa.io/en/stable/installing/)
-* samtools (tested with version 1.6)
-* bwa (tested with version 0.7.17-r1188)
+* samtools (tested with version 1.6 and 1.9)
+* bwa (tested with version 0.7.17)
 * R (tested with version 3.4.3)
   * required R packages are installed automatically upon first usage
+
+samtools and bwa need to be in your `$PATH`
 
 
 ## Installation
