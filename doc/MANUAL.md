@@ -5,7 +5,7 @@ DeviaTE is a command-line program that analyzes and visualizes the diversity mob
 The tool operates in three individual steps (see Fig.). It first prepares sequencing reads (`deviaTE_prep`), analyses a transposon chosen from the consensus sequence library (`deviaTE_analyse`) and finally produces a visualization from the output of the previous step (`deviaTE_plot`). Alternatively `deviaTE` is a convenient, single-command wrapper. Available arguments for all scripts are listed by adding `-h` or `--help`.
 
 
-<img src="https://github.com/W-L/deviaTE/blob/master/doc/workflow.pdf" alt="Architecture of deviaTE" width="200"/>
+<img src="https://github.com/W-L/deviaTE/blob/master/doc/workflow.png" alt="Architecture of deviaTE" width="200"/>
 
 
 ## `deviaTE` 
