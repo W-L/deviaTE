@@ -362,7 +362,7 @@ fontsize <- as.numeric(args$fontsize)
 out_format <- args$out_format
 
 # replace commandline arguments for debugging
-# inp_arg <- 'PPI_diffnorm'
+# inp_arg <- 'jockey_dmel.fastq.DMLINEJA'
 # out_arg <- 'test.pdf'
 # axis_arg <- FALSE
 # fontsize <- 14
@@ -449,8 +449,8 @@ anno_plots <- lapply(samples[1:nfam], plot_anno)
 # and arrange them (without legends)
 plot_list <- append(TEplots, anno_plots)
 
-combo_grob <- plot_grid(plotlist=plot_list, ncol=nfam, nrow=nsample + 1, 
-    align='hv', axis='l', rel_heights=plot_heights, labels='AUTO', label_size=14)
+combo_grob <- suppressWarnings(plot_grid(plotlist=plot_list, ncol=nfam, nrow=nsample + 1, 
+    align='hv', axis='l', rel_heights=plot_heights, labels='AUTO', label_size=14))
 
 
 # create a legend for the plots
