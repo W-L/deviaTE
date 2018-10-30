@@ -56,3 +56,20 @@ column name | example value | description
 `annotation` | CDS | if an annotation file was provided this column contains the feature in which this base falls
 
 
+
+## More general application - *Drosophila*
+
+To produce a visualization of transposable element families in *Drosophila* from sequencing reads, you can use
+
+```deviaTE --input_fq foo.fq --families TEfamily1,TEfamily2,...```
+
+where TEfamily1 etc. are elements from the first column (ID) of the [available TE consensus sequences](https://github.com/W-L/deviaTE/blob/master/deviaTE/lib/te_table), separated by commas
+
+DeviaTE can also be applied to multiple files in a folder using:
+
+```deviaTE --input_fq_dir --families TEfamily1,TEfamily2,...```
+
+Other available arguments can be seen with ```deviaTE -h``` and are documented in the [Manual](https://github.com/W-L/deviaTE/blob/master/doc/MANUAL.md) 
+
+
+
