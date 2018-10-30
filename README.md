@@ -26,8 +26,8 @@ A manual and a walkthrough with examples using publicly available data can be fo
 * [Walkthrough](https://github.com/W-L/deviaTE/blob/master/doc/WALKTHROUGH.md) 
 
 
-## Bug reports
-If you find any problems please use the issue tracker on this repository
+## Bugs, issues, questions, suggestions ...
+If you find any problems, have questions or ideas for further improvement please use the issue tracker on this repository, thanks!
 
 
 ## License
