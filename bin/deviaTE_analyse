@@ -66,7 +66,7 @@ mean_cov = sum(cov_list) / len(cov_list)
 
 for s in sample.sites:
     s.is_snp(min_count=mean_cov * 0.1, min_freq=0.1, A=s.A, C=s.C, G=s.G, T=s.T, cov=s.cov)
-    s.filter_IND(att='int_del', min_count=mean_cov * 0.05)
+    s.filter_IND(att='int_del', min_count=mean_cov * 0.02)
     s.filter_IND(att='ins', min_count=mean_cov * 0.1)
     s.filter_IND(att='delet', min_count=mean_cov * 0.1)
     s.filter_trunc(min_trunc_count=mean_cov * 0.05)
@@ -90,7 +90,7 @@ for int_del in sample.int_dels:
 
 
 # write raw results
-ihat='NA'
+ihat = 'NA'
 comm = ' '.join(sys.argv)
 timestamp = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S")
 sample.write_frame(out=args.output + '.raw', insertions=ihat, command=comm, t=timestamp, norm='raw')
