@@ -29,7 +29,14 @@ Finally a visualization is produced, resulting in an illustration of jockey that
 
 
 
+
 ## Basic usage
+
+<p align="center">
+  <img src="https://github.com/W-L/deviaTE/blob/master/doc/workflow.png" alt="Architecture of deviaTE" width="600"/>
+</p>
+
+
 
 ### Using the single-command wrapper script
 
@@ -107,18 +114,28 @@ column name | example value | description
 
 
 
+## Normalization methods
+
+By default no normalization is performed and reported counts are raw abundances, which are not suitable for comparing TEs between samples. Therefore two different strategies are implemented, normalization per million mapped reads and normalization by single-copy genes.
+
+### Per million mapped reads
+
+This option normalizes all counts (coverage, polymorphisms and structural variants) per million mapped reads and thus accounts for different depth of sequencing when comparing two or more samples. This option can be selected in the wrapper script `deviaTE` or in the second step of the workflow `deviaTE_analyse` by simply adding the argument `--rpm`
+
+### Single-copy gene normalization
+
+This normalization method relates all counts to the number of reads mapping to one or more genes, which are present only once in the genome of the investigated species (i. e. single-copy genes). Therefore it accounts for the sequencing depth between samples and additionally obtains an estimate of the insertion/copy number of the analysed TE. For this normalization method you can add the sequence of multiple single-copy genes to the TE consensus sequences used as `--library` and then activate the normalization by adding `--single_copy_genes GENE1,GENE2,GENE3...` to either `deviaTE` or `deviaTE_analyse`, where GENE1 etc. are the headers with which these genes appear in the library file. The estimated copy number per haploid genome can then be found in the header-section of the resulting output table.
+
+
+
 ### Special use-case: *Drosophila*
 
 If you are analyzing TEs in *Drosophila* you do not have to specify a `--library` or `--annotation` of reference sequences, since we provide consensus sequences with our tool. When choosing which `--families` to analyze any elements from the first column (ID) of the [available TE consensus sequences in *Drosophila*](https://github.com/W-L/deviaTE/blob/master/deviaTE/lib/te_table) can be selected.
 
-
-### Example: Already mapped reads
-
-You might have already mapped the sequening reads of your experiments and want to analyze TEs in these samples without having to remap your fastq files. In this case you can easily substitute the input command to deviaTE with `--input_bam` for a single alignment file or with `--input_bam_dir` for a directory containing multiple files.
+For single-copy gene normalization we have also added five genes (Dmel_rpl32, Dmel_piwi, Dmel_act5C, Dmel_ras and Dmel_p53), which can be used in the following way: `--single_copy_genes Dmel_rpl32,Dmel_piwi...`
 
 
-
-### Example: Plot multiple TE families from one or more samples
+### Special use-case: Plot multiple TE families from one or more samples
 
 DeviaTE can handle plotting of an arbitrary number of TE families in one or more samples and automatically aligns plots by TE (column) and samples (row). To produce such a grid of plots, you can simply concatenate multiple output tables from `deviaTE_analyse` using the standard Unix tool `cat`. The sequence of your files for concatenation is irrelevant.
 
@@ -130,7 +147,10 @@ deviaTE --input allSamples_allTEs
 Depending on how many plots your figure consists of you may wish to increase the default text size in plots from 14 using `--fontsize`.
 
 
+### Special use-case: Already mapped reads
 
+You might have already mapped the sequening reads of your experiments and want to analyze TEs in these samples without having to remap your fastq files. In this case you can either use the wrapper script `deviaTE` and just substitute the input command to deviaTE with `--input_bam` for a single alignment file or with `--input_bam_dir` for a directory containing multiple files.
+Alternatively, you can also run `deviaTE_analyse` with your alignment file, basically skipping the first step of the workflow and then plot outputs individually. In any case you still need to provide the reference sequences used for mapping as `--library` to the script.
 
 
 
