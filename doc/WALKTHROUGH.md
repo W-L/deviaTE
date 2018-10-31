@@ -26,14 +26,64 @@ then the tool collects the quantitative information and calculates estimators, w
 The name is simply a combination of the input to the tool and the analysed TE family.
 Finally a visualization is produced, resulting in an illustration of jockey that should look like [this](https://github.com/W-L/deviaTE/blob/master/example/jockey_dmel.fastq.DMLINEJA.pdf)
 
-Additionally an output table is produced in both cases, which has the TE family name as file ending. 
-This is a space-separated file with a header denoted by #. The first line contains a timestamp, the command used to generate the file,
-the estimated number of TE insertions on the following line (only when single gene normalization was selected, see below)
-and finally the actual header of the table. 
 
-## Description of output
 
-The following table is a list of the columns in the output of deviaTE
+
+## Basic usage
+
+### Using the single-command wrapper script
+
+To analyze and visualize a transposable element families in from sequencing reads, you can use
+
+```deviaTE --input_fq foo.fastq --families TEfamily1,TEfamily2,... --library TE_consensus_sequences.fasta```
+
+where foo.fastq contains sequencing reads and TEfamily1 etc. are headers of TE reference sequences in the file defined by `--library`. Any fasta file used as library must first be indexed with:
+
+```
+bwa index TE_consensus_sequences.fasta
+```
+
+Multiple families can be selected, they just need to be separated by commas without spaces. DeviaTE can also be applied to multiple fastq files in a directory using `--input_fq_dir` when running the program from within that directory. 
+
+Other available arguments can be seen with `deviaTE -h/--help` and are documented in the [Manual](https://github.com/W-L/deviaTE/blob/master/doc/MANUAL.md) 
+
+This will result in a table of quantitative information and a visualization for each selected TE families in each of the specified samples.
+
+
+
+### Using the three sequential steps
+
+Similar to the example presented above, you can manually run the three steps in the workflow of DeviaTE for more flexibility. The first step involves the script called `deviaTE_prep`, which trims, maps and filters the input sequencing reads and performs the detection of internally deleted variants. Basic usage involves specifying the input sequences (single sample) and the consensus sequences of TEs, e. g.:
+
+```
+deviaTE_prep --input foo.fastq --library TE_consensus_sequences.fasta
+```
+
+Further arguments are available, which specify the quality encoding and the parameters used for trimming and filerting.
+
+From this step you obtain an alignment file of the form `foo.fastq.fused.sort.bam` and an index of this file. For preparation no TE family needs to be selected, thus reads are mapped to all reference sequences present in the library. This means that the next step of analysing TE families can be performed multiple times on this alignment file. The basic command for analysing a TE family is of this form:
+
+```
+deviaTE_analyse --input foo.fastq.fused.sort.bam --family TEfamily --library TE_consensus_sequences.fasta
+```
+
+Where the input is the alignment file from the previous step, the library contains the reference sequences and the selected family is a header within that library. Additional arguments can be used to provide an annotation of the TE sequences, name the sample and the output, set a threshold for unambiguously mapped reads or to select a normalization method.
+
+This script produces the output table containing the quantitative information, which by default will be named as: `input.TEfamily`. This file is then used to produce a visualization, e. g. in basic scenarios:
+
+```
+deviaTE_plot --input foo.fastq.fused.sort.bam.TEfamily
+```
+
+Here, optional arguments can be used to change the output name and its format (pdf or eps), change fontsize or switch the y-axis to be free between multiple plots in a grid, e. g. when more than one sample is plotted and the coverage between them is highly different. For a description on how to plot multiple samples and TE families at once, see below.
+
+
+## Description of the output table
+
+Besides the visualization an output table is produced, which contains the quantitative information about the TE family. Generally every row in the table corresponds to one position of the TE sequence.
+The table starts with some header-lines denoted by #. The first line contains a timestamp and the command used to generate the file, while the following line states the estimated number of TE insertions (only when single gene normalization was selected, see below). The final line of the header section contains the column names of the table. 
+
+The following is a list of these columns in the output table of deviaTE:
 
 column name | example value | description
 --- | --- | ---
@@ -57,19 +107,32 @@ column name | example value | description
 
 
 
-## More general application - *Drosophila*
+### Special use-case: *Drosophila*
 
-To produce a visualization of transposable element families in *Drosophila* from sequencing reads, you can use
+If you are analyzing TEs in *Drosophila* you do not have to specify a `--library` or `--annotation` of reference sequences, since we provide consensus sequences with our tool. When choosing which `--families` to analyze any elements from the first column (ID) of the [available TE consensus sequences in *Drosophila*](https://github.com/W-L/deviaTE/blob/master/deviaTE/lib/te_table) can be selected.
 
-```deviaTE --input_fq foo.fq --families TEfamily1,TEfamily2,...```
 
-where TEfamily1 etc. are elements from the first column (ID) of the [available TE consensus sequences](https://github.com/W-L/deviaTE/blob/master/deviaTE/lib/te_table), separated by commas
+### Example: Already mapped reads
 
-DeviaTE can also be applied to multiple files in a folder using:
+You might have already mapped the sequening reads of your experiments and want to analyze TEs in these samples without having to remap your fastq files. In this case you can easily substitute the input command to deviaTE with `--input_bam` for a single alignment file or with `--input_bam_dir` for a directory containing multiple files.
 
-```deviaTE --input_fq_dir --families TEfamily1,TEfamily2,...```
 
-Other available arguments can be seen with ```deviaTE -h``` and are documented in the [Manual](https://github.com/W-L/deviaTE/blob/master/doc/MANUAL.md) 
+
+### Example: Plot multiple TE families from one or more samples
+
+DeviaTE can handle plotting of an arbitrary number of TE families in one or more samples and automatically aligns plots by TE (column) and samples (row). To produce such a grid of plots, you can simply concatenate multiple output tables from `deviaTE_analyse` using the standard Unix tool `cat`. The sequence of your files for concatenation is irrelevant.
+
+```
+cat sample1.TE1 sample2.TE2 sample1.TE2 sample2.TE1 > allSamples_allTEs
+deviaTE --input allSamples_allTEs
+```
+
+Depending on how many plots your figure consists of you may wish to increase the default text size in plots from 14 using `--fontsize`.
+
+
+
+
+
 
 
 
