@@ -122,7 +122,7 @@ Argument name | Type | default | Description
 --- | --- | --- | ---
 `--output` | string | input + .pdf/.eps | User defined name for the resulting illustration
 `--out_format` | string | pdf | Format of the output. Either pdf or eps. 
-`--free_yaxis`| bool | false | frees the y axis, e.g. to make very different y axis ranges of multiple TE families visible
+`--free_yaxis`| bool | false | frees the y axis, e.g. to allow for different y axis ranges for different TE families
 `--fontsize` | int | 14 | Fontsize of any text in the plot, e.g. title, axis text and axis ticks
 
 
