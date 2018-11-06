@@ -8,8 +8,8 @@ def readme():
     
 setup(
     name='deviaTE',
-    version='0.1',
-    description='polymorphic TEs',
+    version='0.2',
+    description='Analysis and visualization of mobile genetic element composition',
     long_description=readme(),
     license='LICENSE',
     author='Lukas W',
