@@ -6,7 +6,7 @@ if (!suppressMessages(suppressWarnings(require(ggplot2)))) install.packages('ggp
 if (!suppressMessages(suppressWarnings(require(grid)))) install.packages('grid', repos=rep)
 if (!suppressMessages(suppressWarnings(require(gridExtra)))) install.packages('gridExtra', repos=rep)
 if (!suppressMessages(suppressWarnings(require(argparse)))) install.packages('argparse', repos=rep)
-if (!suppressMessages(suppressWarnings(require(data.table)))) install.packages('data.table'. repos=rep)
+if (!suppressMessages(suppressWarnings(require(data.table)))) install.packages('data.table', repos=rep)
 if (!suppressMessages(suppressWarnings(require(cowplot)))) install.packages('cowplot', repos=rep)
 library(ggplot2)
 library(grid)
