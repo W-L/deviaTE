@@ -1,12 +1,13 @@
 #! /usr/bin/env Rscript 
 # input is table from deviaTE_analyse
 
-if (!suppressMessages(suppressWarnings(require(ggplot2)))) install.packages('ggplot2')
-if (!suppressMessages(suppressWarnings(require(grid)))) install.packages('grid')
-if (!suppressMessages(suppressWarnings(require(gridExtra)))) install.packages('gridExtra')
-if (!suppressMessages(suppressWarnings(require(argparse)))) install.packages('argparse')
-if (!suppressMessages(suppressWarnings(require(data.table)))) install.packages('data.table')
-if (!suppressMessages(suppressWarnings(require(cowplot)))) install.packages('cowplot')
+rep<-"http://cran.rstudio.com/"
+if (!suppressMessages(suppressWarnings(require(ggplot2)))) install.packages('ggplot2', repos=rep)
+if (!suppressMessages(suppressWarnings(require(grid)))) install.packages('grid', repos=rep)
+if (!suppressMessages(suppressWarnings(require(gridExtra)))) install.packages('gridExtra', repos=rep)
+if (!suppressMessages(suppressWarnings(require(argparse)))) install.packages('argparse', repos=rep)
+if (!suppressMessages(suppressWarnings(require(data.table)))) install.packages('data.table'. repos=rep)
+if (!suppressMessages(suppressWarnings(require(cowplot)))) install.packages('cowplot', repos=rep)
 library(ggplot2)
 library(grid)
 library(gridExtra)
