@@ -1,3 +1,8 @@
+[![Anaconda-Server Badge version](https://anaconda.org/w-l/deviate/badges/version.svg)](https://anaconda.org/w-l/deviate)
+[![Anaconda-Server Badge platforms](https://anaconda.org/w-l/deviate/badges/platforms.svg)](https://anaconda.org/w-l/deviate)
+[![Anaconda-Server Badge lastupdate](https://anaconda.org/w-l/deviate/badges/latest_release_date.svg)](https://anaconda.org/w-l/deviate)
+[![Anaconda-Server Badge downloads](https://anaconda.org/w-l/deviate/badges/downloads.svg)](https://anaconda.org/w-l/deviate)
+
 # deviaTE
 
 deviaTE is a python tool for the analysis and visualization of mobile genetic element sequences. It is available for Unix and Linux systems.
@@ -12,7 +17,7 @@ Create a new conda virtual environment, and install deviaTE:
 
 ```conda create deviaTE -c r -c defaults -c conda-forge -c bioconda -c w-l -n deviaTE_env```
 
-this command loads all required anaconda channels (`r, defaults, conda-forge, bioconda, w-l`) and names the environment `deviaTE_env`, which can be changed to any other name
+this command loads all required anaconda channels (`r, defaults, conda-forge, bioconda, w-l`) and names the environment `deviaTE_env`
 
 The environment can then be activated, and deviaTE with all necessary dependencies can be used inside the environment:
 
