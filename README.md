@@ -1,8 +1,31 @@
 # deviaTE
 
-deviaTE is a python tool for the analysis and visualization of mobile genetic element sequences.
+deviaTE is a python tool for the analysis and visualization of mobile genetic element sequences. It is available for Unix and Linux systems.
 
-## Dependencies
+## Installation
+
+### Using Conda
+
+The recommended way of using deviaTE is in a conda virtual environment. This way, all dependencies should be resolved.
+
+Create a new conda virtual environment, and install deviaTE:
+
+```conda create deviaTE -c r -c defaults -c conda-forge -c bioconda -c w-l -n deviaTE_env```
+
+this command loads all required anaconda channels (`r, defaults, conda-forge, bioconda, w-l`) and names the environment `deviaTE_env`, which can be changed to any other name
+
+The environment can then be activated, and deviaTE with all necessary dependencies can be used inside the environment:
+
+```source activate deviaTE_env```
+
+After using deviaTE, the environment can be exited using:
+
+```source deactivate```
+
+
+### Using pip
+
+DeviaTE can also be installed with the pip python package manager. However, this does not take care of all dependencies. The following tools need to be set up manually beforehand:
 
 * python 3.6+
 * pip for python3 (https://pip.pypa.io/en/stable/installing/)
@@ -13,10 +36,21 @@ deviaTE is a python tool for the analysis and visualization of mobile genetic el
 
 samtools and bwa need to be in your `$PATH`
 
+DeviaTE can then be installed with 
 
-## Installation
+```pip3 install deviaTE```
 
-```pip3 install git+https://github.com/W-L/deviaTE/```
+
+## Uninstallation
+
+conda environment:
+
+```conda env remove -n deviaTE_env```
+
+pip package:
+
+```pip3 uninstall deviaTE```
+
 
 ## Usage manual and walkthroughs
 
