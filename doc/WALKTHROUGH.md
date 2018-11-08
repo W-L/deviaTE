@@ -136,13 +136,13 @@ If you are analyzing TEs in *Drosophila* specifying a `--library` or `--annotati
 For single-copy gene normalization we have also added five genes (Dmel_rpl32, Dmel_piwi, Dmel_act5C, Dmel_ras and Dmel_p53), which can be used in the following way: `--single_copy_genes Dmel_rpl32,Dmel_piwi...`
 
 
-### Special use-case: Plot multiple TE families from one or more samples
+### Special use-case: Plot multiple TE families from one or more samples output tables
 
-DeviaTE can handle plotting of an arbitrary number of TE families in one or more samples and automatically aligns plots by TE (column) and sample (row). To produce such a grid of plots, you can simply concatenate multiple output tables from `deviaTE_analyse` using the standard Unix tool `cat`. The order of your concatenated files is irrelevant.
+DeviaTE can handle plotting of an arbitrary number of TE families in one or more samples and automatically aligns plots by TE (column) and sample (row). To produce such a grid of plots, you can simply concatenate multiple output tables from `deviaTE_analyse` using the standard Unix tool `cat`, and then feed these merged output tables to the plotting script. The order of your concatenated files is irrelevant.
 
 ```
 cat sample1.TE1 sample2.TE2 sample1.TE2 sample2.TE1 > TwoSamples_TwoTEs
-deviaTE --input TwoSamples_TwoTEs
+deviaTE_plot --input TwoSamples_TwoTEs
 ```
 
 Depending on how many plots your figure consists of you may wish to increase the default text size in plots using `--fontsize`.
