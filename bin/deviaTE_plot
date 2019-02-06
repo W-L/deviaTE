@@ -450,6 +450,7 @@ anno_plots <- lapply(samples[1:nfam], plot_anno)
 # and arrange them (without legends)
 plot_list <- append(TEplots, anno_plots)
 
+pdf(NULL)
 combo_grob <- suppressWarnings(plot_grid(plotlist=plot_list, ncol=nfam, nrow=nsample + 1, 
     align='hv', axis='l', rel_heights=plot_heights, labels='AUTO', label_size=14))
 
@@ -458,6 +459,7 @@ combo_grob <- suppressWarnings(plot_grid(plotlist=plot_list, ncol=nfam, nrow=nsa
 # and add it to the grid
 legend <- make_legend()
 combo_leg <- plot_grid(legend, combo_grob, ncol = 1, nrow = 2, rel_heights = c(leg_height, 1 - leg_height))
+
 
 # add a shared y-axis, tilted label on an empty background
 if (norm_meth == 'norm: raw'){
@@ -477,7 +479,7 @@ combo_y <- plot_grid(yaxis, combo_leg, ncol=2, nrow=1, rel_widths = c(yaxs_width
 
 if (out_format == 'pdf'){
   if (out_arg == ''){out_arg <- paste(inp_arg, '.pdf', sep='')}
-
+  
   ggsave(file=out_arg, plot=combo_y, device='pdf', width=base_w, height=base_h, 
          units='cm', limitsize=FALSE)
 } else if (out_format == 'eps'){
