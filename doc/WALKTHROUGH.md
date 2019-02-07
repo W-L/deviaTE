@@ -10,13 +10,13 @@ These sequences are sanger reads from Drosophila 12 Genomes Consortium et al. 20
 You can now use the convenient wrapper script `deviaTE` to analyse the TE jockey (DMLINEJA) and get a visualization:
 
 ```bash
-deviaTE --input_fq jockey_dmel.fastq --read_type sanger --families DMLINEJA
+deviaTE --input_fq jockey_dmel.fastq --read_type phred+33 --families DMLINEJA
 ```
 
 Alternatively you can run all three steps of deviaTE manually with: 
 
 ```bash
-deviaTE_prep --input jockey_dmel.fastq --quality_encoding sanger
+deviaTE_prep --input jockey_dmel.fastq --quality_encoding phred+33
 deviaTE_analyse --input jockey_dmel.fastq.fused.sort.bam --family DMLINEJA
 deviaTE_plot --input jockey_dmel.fastq.fused.sort.bam.DMLINEJA
 ```
@@ -26,6 +26,15 @@ then the tool collects the quantitative information and calculates estimators, w
 Finally a visualization is produced, resulting in an illustration of jockey that should look like [this](https://github.com/W-L/deviaTE/blob/master/example/jockey_dmel.fastq.DMLINEJA.pdf)
 
 
+## Quality encoding of the FASTQ file
+
+Depending on the sequencing platform used to produce your sequences, quality scores are encoded with certain score offset.  The following parameters should be used for `--read_type`:
+
+* Sanger and Illumina version 1.8+ reads are encoded in: `phred+33`
+* Illumina reads from version 1.3 to pre 1.8: `phred+64`
+
+
+This is a rough and simple way to find out about the encoding: If the quality scores contain character 0 it is phred+33. If the quality scores do not contain 0, it is phred+64. More information can be found on the [FASTQ-wikipage](https://en.wikipedia.org/wiki/FASTQ_format#Encoding)
 
 
 
