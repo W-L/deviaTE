@@ -8,7 +8,7 @@ from deviaTE import deviaTE_IO as IO
 parser = argparse.ArgumentParser()
 # args for prepping
 parser.add_argument('--library', help='path to alternative reference library')
-parser.add_argument('--read_type', default='sanger', choices=['illumina', 'sanger'])
+parser.add_argument('--read_type', default='phred+33', choices=['phred+64', 'phred+33'], help='quality encoding can either be phred+33 for sanger and illumina 1.8+, or phred+64 for illumina 1.3 - 1.8')
 parser.add_argument('--min_read_len', default='1')
 parser.add_argument('--quality_threshold', default='15')
 parser.add_argument('--min_alignment_len', default='1')

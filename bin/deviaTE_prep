@@ -15,7 +15,7 @@ parser.add_argument('--qual_threshold', default='15')
 parser.add_argument('--min_read_length', default='1')
 parser.add_argument('--min_alignment_length', default='1')
 parser.add_argument('--threads', default='1')
-parser.add_argument('--quality_encoding', default='sanger', choices=['illumina', 'sanger'])
+parser.add_argument('--quality_encoding', default='phred+33', choices=['phred+64', 'phred+33'])
 parser.add_argument('--nofuse', action='store_true', help='dev switch')
 args = parser.parse_args()
 
@@ -34,15 +34,21 @@ print('Starting preparation: ' + args.input)
 # check for index of library
 index = os.path.isfile(args.library + '.bwt')
 if index is False:
-    raise ValueError('No index found for: ' + str(args.library) + '  Please use bwa index ' +  str(args.library))
+    raise ValueError('No index found for: ' + str(args.library) + '  Please use bwa index ' + str(args.library))
 
 print('Trimming reads: ' + args.input)
 # trimming
+if args.quality_encoding == 'phred+33':
+    qual = 'sanger'
+elif args.quality_encoding == 'phred+64':
+    qual = 'illumina'
+
 trimming = ['deviaTE_trim.pl', '--input1', args.input, '--output', trimmed,
             '--quality-threshold', args.qual_threshold, '--min-length', args.min_read_length,
-            '--fastq-type', args.quality_encoding]
-IO.execute(command=' '.join(trimming))
+            '--fastq-type', qual]
 
+IO.execute(command=' '.join(trimming))
+sys.exit()
 print('Mapping reads: ' + args.input)
 # mapping
 mapping = ['bwa', 'bwasw', '-M', '-t', args.threads, args.library, trimmed]
@@ -69,11 +75,10 @@ else:
 
     bam = ['samtools', 'view', '-b', fused, '-o', fused + '.bam']
     sort = ['samtools', 'sort', fused + '.bam', '-o', fused + '.sort.bam']
-    index = ['samtools', 'index', fused + '.sort.bam', fused + '.sort.bam.bai'] 
+    index = ['samtools', 'index', fused + '.sort.bam', fused + '.sort.bam.bai']
     subprocess.run(' '.join(bam), shell=True)
     subprocess.run(' '.join(sort), shell=True)
     subprocess.run(' '.join(index), shell=True)
-    
 
 
 # clean-up
