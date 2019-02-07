@@ -48,7 +48,7 @@ trimming = ['deviaTE_trim.pl', '--input1', args.input, '--output', trimmed,
             '--fastq-type', qual]
 
 IO.execute(command=' '.join(trimming))
-sys.exit()
+
 print('Mapping reads: ' + args.input)
 # mapping
 mapping = ['bwa', 'bwasw', '-M', '-t', args.threads, args.library, trimmed]
