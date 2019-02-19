@@ -31,7 +31,7 @@ Argument name | Type | default | Description
 Argument name | Type | default | Description
 --- | --- | --- | ---
 `--library` | string | included consensus set for *D. melanogaster* | FASTA file of reference consensus sequences of TE families. Items used in the list for `--families` must be headers in this file
-`--read_type` | string | sanger | type of sequencing read to determine quality encoding for trimming (either `illumina` or `sanger`)
+`--read_type` | string | phred+33 | quality encoding determined by read type (either `phred+64` for illumina 1.3-1.8 or `phred+33` for illumina 1.8+ and sanger)
 `--rpm` | bool | false | normalize abundances per million mapped reads. Mutually exclusive with single copy genes
 `--single_copy_genes` | string | false | Comma separated list of single copy genes to normalize abundances with. Must be present in file defined by `--library`. Mutually exclusive with rpm
 `--annotation`| string | included annotations for *D. mel.* consensus set | GFF3 file with annotations of the TE consensus sequences
@@ -64,7 +64,7 @@ Argument name | Type | default | Description
 Argument name | Type | default | Description
 --- | --- | --- | ---
 `--library` | string | included consensus set for *D. melanogaster* | FASTA file of reference consensus sequences of TE families
-`--quality_encoding` | string | sanger | type of sequencing read to determine quality encoding for trimming (either `illumina` or `sanger`)
+`--quality_encoding` | string | phred+33 | quality encoding determined by read type (either `phred+64` for illumina 1.3-1.8 or `phred+33` for illumina 1.8+ and sanger)
 `--qual_threshold` | int | 15 | minimum base quality for filtering, uses modified Mott algorithm
 `--min_read_length` | int | 1 | minimum length of reads to be retained
 `--min_alignment_length` | int | 1 | minimum length of aligned segments to be considered
