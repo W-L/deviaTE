@@ -28,15 +28,33 @@ class Sample:
         self.anno = anno
         self.bam = bam
 
-    def get_ref(self):
+    # def get_ref(self):
+    #     refs = open(self.lib, 'r')
+    #     self.refseq = None
+    # 
+    #     for line in refs:
+    #         if line.startswith('>'):
+    #             family = line.replace('>', '').rstrip('\n')
+    #             if family == self.fam:
+    #                 refseq = refs.readline().rstrip('\n')
+    #                 refs.close()
+    #                 self.refseq = refseq
+    #                 print(len(refseq))
+    #                 break
+                
+    def get_ref_multi(self):
         refs = open(self.lib, 'r')
         self.refseq = None
+        nline = ''
+        refseq = ''
 
         for line in refs:
             if line.startswith('>'):
                 family = line.replace('>', '').rstrip('\n')
-                if family == self.fam:
-                    refseq = refs.readline().rstrip('\n')
+                if family == self.fam:            
+                    while nline.startswith('>') is False:
+                        refseq = refseq + nline
+                        nline = refs.readline().rstrip('\n')
                     refs.close()
                     self.refseq = refseq
                     break

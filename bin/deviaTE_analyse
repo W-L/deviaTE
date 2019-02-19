@@ -40,7 +40,7 @@ sample = pileup.Sample(name=args.sample_id, fam=args.family, lib=args.library,
                        anno=args.annotation, bam=args.input)
 
 # get reference of family
-sample.get_ref()
+sample.get_ref_multi()
 if sample.refseq is None:
     raise ValueError('Selected family is not in references. Typo? ' + args.family)
 
