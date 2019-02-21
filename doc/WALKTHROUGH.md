@@ -159,7 +159,7 @@ Depending on how many plots your figure consists of you may wish to increase the
 
 ### Special use-case: Already mapped reads
 
-You might have already mapped sequencing reads of your sample and want to analyze TEs without remapping your fastq files. In this case you can either use the wrapper script `deviaTE` and simply substitute the input command with `--input_bam` for a single alignment file or with `--input_bam_dir` for a directory containing multiple files.
+You might have already mapped sequencing reads of your sample to a library of TEs and want to analyze another TE without remapping your fastq files. In this case you can either use the wrapper script `deviaTE` and simply substitute the input command with `--input_bam` for a single alignment file or with `--input_bam_dir` for a directory containing multiple files.
 Alternatively, you can also run `deviaTE_analyse` with your alignment file, basically skipping the first step of the workflow and then plot outputs individually. In any case you need to provide the reference sequences used for mapping as `--library` to the scripts.
 
 
