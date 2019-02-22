@@ -79,6 +79,7 @@ class Sample:
 
     def perform_pileup(self, hq_threshold):
         # initiate lookup sets
+        rc = 0
         readdump_int_del = set()
         readdump_trunc = set()
         readdump_indels = set()
@@ -87,6 +88,7 @@ class Sample:
 
         # for all covered positions in the reference
         for pileupcolumn in bamfile_op.pileup(contig=self.fam, truncate=True, max_depth=1000000):
+            print(pileupcolumn)
             # for each read at this pos
             for pileupread in pileupcolumn.pileups:
                 
@@ -119,7 +121,12 @@ class Sample:
                     if pr.query_name not in readdump_indels:
                         readdump_indels.add(pr.query_name)
                         pr.eval_indel(sample_sites=self.sites)
-
+                        
+            rc += 1
+            
+        if rc is 0:
+            raise ValueError('No reads mapped to the specified reference sequence')
+        
         bamfile_op.close()
 
     def mean_read_length(self):
