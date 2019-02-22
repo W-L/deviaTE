@@ -1,6 +1,16 @@
 #! /usr/bin/env Rscript 
 # input is table from deviaTE_analyse
 
+# set the location to look for packages
+# conda needs to be first if this script is run from a conda environment!
+prioritize_conda <- function(lib_tree){
+  cpath <-  grep('conda', lib_tree, value=TRUE, ignore.case=TRUE)
+  ifelse(length(cpath) == 0, return(lib_tree), return(rev(c(lib_tree, cpath))))
+}
+
+new_tree <- prioritize_conda(lib_tree=.libPaths())
+.libPaths(new_tree)
+
 rep<-"http://cran.rstudio.com/"
 if (!suppressMessages(suppressWarnings(require(ggplot2)))) install.packages('ggplot2', repos=rep)
 if (!suppressMessages(suppressWarnings(require(grid)))) install.packages('grid', repos=rep)
