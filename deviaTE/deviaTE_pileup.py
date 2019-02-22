@@ -88,7 +88,6 @@ class Sample:
 
         # for all covered positions in the reference
         for pileupcolumn in bamfile_op.pileup(contig=self.fam, truncate=True, max_depth=1000000):
-            print(pileupcolumn)
             # for each read at this pos
             for pileupread in pileupcolumn.pileups:
                 
