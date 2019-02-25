@@ -14,7 +14,7 @@ SOFT_CLIP = 4
 EQUAL = 7
 
 uniq_nuc = {'A', 'C', 'G', 'T'}
-ambig_nuc = {'V', 'Y', 'H', 'D', 'N'}
+ambig_nuc = {'V', 'Y', 'H', 'D', 'N', 'K', 'M', 'S', 'W', 'R', 'B', '.', '-'}
 
 
 class Sample:
@@ -55,6 +55,8 @@ class Sample:
                     while nline.startswith('>') is False:
                         refseq = refseq + nline
                         nline = refs.readline().rstrip('\n')
+                        if nline is '':
+                            break
                     refs.close()
                     self.refseq = refseq
                     break
