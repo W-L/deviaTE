@@ -81,6 +81,7 @@ class Sample:
 
     def perform_pileup(self, hq_threshold):
         # initiate lookup sets
+        maxlen = len(self.sites)
         rc = 0
         readdump_int_del = set()
         readdump_trunc = set()
@@ -90,6 +91,11 @@ class Sample:
 
         # for all covered positions in the reference
         for pileupcolumn in bamfile_op.pileup(contig=self.fam, truncate=True, max_depth=1000000):
+            
+            # sometimes truncate is not reliable, disregard columns outside of refseq
+            if pileupcolumn.pos >= maxlen:
+                    continue
+                
             # for each read at this pos
             for pileupread in pileupcolumn.pileups:
                 
