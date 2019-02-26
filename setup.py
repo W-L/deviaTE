@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name='deviaTE',
-    version='0.3.2',
+    version='0.3.3',
     description='Analysis and visualization of mobile genetic element composition',
     long_description=readme(),
     license='LICENSE',
