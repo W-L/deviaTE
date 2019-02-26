@@ -107,7 +107,7 @@ base_plot <- function(snps, sample){
     baseplot <- ggplot() +
         geom_polygon(data=pg, aes(x=px, y=py), fill='lightgrey', color='lightgrey') +
         geom_polygon(data=pg_hq, aes(x=px, y=py), fill='grey', color='grey') +
-        geom_bar(data=snps, aes(x=pos_col, y=counts_col, fill=base_col), stat='identity', width=3) +
+        geom_bar(data=snps, aes(x=pos_col, y=counts_col, fill=base_col), stat='identity', width=1.5) +
         labs(fill='') +
         ylab('') +
         xlab('') +
