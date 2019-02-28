@@ -35,7 +35,7 @@ if args.library is None:
 if args.annotation is None:
     args.annotation = get_data('lib/te_features.gff')
 
-print('Starting analysis of: ' + args.family + ' in: ' + args.input + '..' + '\n')
+print('Starting analysis of ' + args.family + ' in ' + args.input + '..' + '\n')
 sample = pileup.Sample(name=args.sample_id, fam=args.family, lib=args.library,
                        anno=args.annotation, bam=args.input)
 
@@ -115,6 +115,6 @@ elif args.single_copy_genes is not None:
 else:
     print("Normalization: none (values are raw abundances)")
     mv = ['mv', args.output + '.raw', args.output]
-    execute(command=' '.join(mv))
+    execute(command=' '.join(mv), printout=False)
 
 print('Analysis completed - output written to: ' + args.output)

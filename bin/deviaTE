@@ -34,7 +34,7 @@ args = parser.parse_args()
 
 def process_fq(file, families):
     fq = IO.fq_file(inp=file)
-    print('Input file: ' + fq.path)
+    print('Input file: ' + fq.path + '\n')
     fq.prep(lib=args.library, qual_tr=args.quality_threshold, min_rl=args.min_read_len,
             min_al=args.min_alignment_len, read_ty=args.read_type, thr=args.threads)
 

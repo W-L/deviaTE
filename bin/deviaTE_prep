@@ -62,6 +62,7 @@ else:
 # fusing
 if args.nofuse == False:
     fusing = ['deviaTE_fuse', '--input', filtered]
+    print('Detecting internal deletions..')
     IO.execute(command=' '.join(fusing))
     r1 = ['mv', filtered + '.fused.sort.bam', args.input + '.fused.sort.bam']
     r2 = ['mv', filtered + '.fused.sort.bam.bai', args.input + '.fused.sort.bam.bai']
