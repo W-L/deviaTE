@@ -54,7 +54,7 @@ class fq_file:
             args.append('--library')
             args.append(lib)
 
-        print('Step 1 - Preparation')
+        print('*' * 20 + ' Preparation')
         execute(command=' '.join(args))
 
 
@@ -92,7 +92,7 @@ class bam_file:
         if rpm:
             args.append('--rpm')
 
-        print('Step 2 - Analysis')
+        print('*' * 20 + ' Analysis')
         execute(command=' '.join(args))
 
 
@@ -109,7 +109,7 @@ class analysis_table:
         if free_y:
             args.append('--free_yaxis')
 
-        print('Step 3 - Visualization')
+        print('*' * 20 + ' Visualization')
         execute(command=' '.join(args))
 
 
