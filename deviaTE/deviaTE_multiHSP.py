@@ -12,6 +12,7 @@ SOFT_CLIP = 4
 
 cig_dict = {0: 'M', 1: 'I', 2: 'D', 3: 'N', 4: 'S', 5: 'S'}
 
+
 class Multihit:
 
     def __init__(self, read_id, hsp_list, fam):
@@ -68,11 +69,11 @@ class MAC(Multihit):
         # checks for overlaps in the read and ref ranges
         if self.n_hsp is 1:
             return()
-        
+
         elif self.n_hsp > 1:
             for subset in itertools.combinations(self.ref_ranges, 2):
                 ref_overlap = set.intersection(*subset)
-                
+
                 # check for chiasma reads
                 if min(subset[0]) >= (max(subset[1]) - 5):
                     self.valid = False
@@ -110,23 +111,22 @@ class MAC(Multihit):
 
         else:
             warnings.warn('mac contains no hsp')
-            
+
     def score_MAC(self):
         # evaluates a score for every mac - depending on non-overlapping al_len
         if self.n_hsp is 1:
             self.score = self.hsps[0].al_len
-            
+
         elif self.n_hsp > 1:
             score_set = set()
             for range_set in self.read_ranges:
                 score_set = score_set.union(range_set)
-            
+
             self.score = len(score_set)
-        
+
         else:
             warnings.warn('mac contains no hsp')
-            
-        
+
     def build_cigar(self):
         # used on hMAC to generate cigarstring
         cigarbox = ''
@@ -235,17 +235,17 @@ class MAC(Multihit):
         ref_starts = [hsp.ref_start for hsp in self.hsps]
         read_list[3] = str(min(ref_starts) + 1)
         read_list[5] = self.cig
-        
+
         if read_list[1] == '256':
             read_list[1] = '0'
         elif read_list[1] == '272':
             read_list[1] = '16'
-            
+
         # check if len CIG == len seq
         cig_split = iter([''.join(x) for _, x in itertools.groupby(self.cig, key=str.isdigit)])
         cig_len = sum([int(x) for x in cig_split if next(cig_split) not in 'ND'])
         seq_len = len(read_list[9])
-        
+
         if cig_len != seq_len:
             print('CIGAR and read of unequal length')
             print(self.cig)
@@ -285,4 +285,3 @@ def get_ranges(inp):
 def nand(a, b):
     res = [x for x in a if x not in b]
     return(res)
-    

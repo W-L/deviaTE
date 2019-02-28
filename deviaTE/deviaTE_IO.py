@@ -4,9 +4,9 @@ import subprocess
 import pysam
 import os
 
-
-
 _ROOT = os.path.abspath(os.path.dirname(__file__))
+
+
 def get_data(path):
     return os.path.join(_ROOT, path)
 
@@ -17,8 +17,8 @@ def execute(command):
     stdout, stderr = running.communicate()
     print(stdout)
     print(stderr)
-    
-    
+
+
 def map_bwa(command, outfile):
     mapping = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                encoding='utf-8', shell=True)
@@ -33,12 +33,12 @@ def map_bwa(command, outfile):
             m.write(chunk)
 
     print(str(mapping.stderr))
-        
+
 
 class fq_file:
     def __init__(self, inp):
         self.path = inp
-        
+
     def prep(self, lib, qual_tr, min_rl, min_al, read_ty, thr):
         args = ['deviaTE_prep',
                 '--input', self.path,
@@ -53,19 +53,19 @@ class fq_file:
             args.append(lib)
 
         execute(command=' '.join(args))
-    
-        
+
+
 class bam_file:
     def __init__(self, inp, orig_name=None):
         self.path = inp
         self.orig_name = orig_name
-                    
+
     def fuse(self):
         args = ['deviaTE_fuse',
                 '--input', self.path]
-        
+
         execute(command=' '.join(args))
-        
+
     def analyze(self, lib, fam, sid, out, anno, corr, hqt, scgs, rpm):
         args = ['deviaTE_analyse',
                 '--input', self.path,
@@ -73,7 +73,7 @@ class bam_file:
                 '--sample_id', sid,
                 '--output', out,
                 '--hq_threshold', hqt]
-        
+
         if lib:
             args.append('--library')
             args.append(lib)
@@ -87,24 +87,24 @@ class bam_file:
             args.append(scgs)
         if rpm:
             args.append('--rpm')
-            
-        execute(command=' '.join(args))    
-        
-    
+
+        execute(command=' '.join(args))
+
+
 class analysis_table:
-    
+
     def __init__(self, inp):
         self.path = inp
-    
+
     def plot(self, out, free_y):
         args = ['deviaTE_plot',
                 '--input', self.path,
                 '--output', out]
-        
+
         if free_y:
             args.append('--free_yaxis')
-        
-        execute(command=' '.join(args))    
+
+        execute(command=' '.join(args))
 
 
 def filter_alignment_length(inp, outp, lim):
