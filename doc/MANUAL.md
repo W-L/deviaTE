@@ -24,7 +24,7 @@ Argument name | Type | default | Description
 `--input_bam` | string | none | Alternatively already mapped reads can be analysed. Part of mutually exclusive argument group `--input_*`
 `--input_fq_dir` |  string | none | Use all fastq files in a directory instead of an individual file. Part of mutually exclusive argument group `--input_*`
 `--input_bam_dir` | string | none | Use all bam files in a directory instead of an individual file. Part of mutually exclusive argument group `--input_*`
-`--families` | string | none | Comma separated list of TE families to be analysed, no spaces. E.g. PPI251,DMLINEJA,DMCOPIA
+`--families` | string | none | Comma separated list of TE families to be analysed, no spaces. E.g. PPI251,DMLINEJA,DMCOPIA. 'ALL' to analyse all reference sequences.
 
 #### Optional
 

@@ -164,5 +164,9 @@ Alternatively, you can also run `deviaTE_analyse` with your alignment file, basi
 
 It is, however, not possible to analyze TEs from an alignment file, which contains sequencing reads mapped to a reference other than a library of TE consensus sequences. This is meant to decrease the time needed to analyze TEs from sequencing reads that have already been mapped to TE reference sequences.
 
+### Special use-case: Analyse all reference sequences in the library
+
+By specifying `--families ALL` it is possible to run `deviaTE` on all consensus sequences in a fasta library.
+
 
 
