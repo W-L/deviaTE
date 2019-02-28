@@ -379,9 +379,13 @@ out_format <- args$out_format
 # fontsize <- 14
 # out_format <- 'pdf'
 
+if (!file.exists(inp_arg)){
+  warning('Input file does not exist')
+  q()
+}
 
 # load full dataframe with fread and name the columns - 20 cols
-print(paste('Loading data:', inp_arg))
+cat(paste('Loading data:', inp_arg, '\n'))
 frame <- fread(cmd=paste('grep -v ^#', inp_arg), data.table=FALSE, header=FALSE,
  colClasses=list(character=c(1,2,4,14,15,18,19,20)))
 
@@ -500,5 +504,5 @@ if (out_format == 'pdf'){
   dev.off()
 }
 
-print(paste('Visualization written to:', out_arg))
+cat(paste('Visualization written to:', out_arg, '\n'))
 
