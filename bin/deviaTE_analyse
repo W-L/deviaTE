@@ -35,7 +35,7 @@ if args.library is None:
 if args.annotation is None:
     args.annotation = get_data('lib/te_features.gff')
 
-print('Starting analysis of: ' + args.family + ' in: ' + args.input)
+print('Starting analysis of: ' + args.family + ' in: ' + args.input + '..' + '\n')
 sample = pileup.Sample(name=args.sample_id, fam=args.family, lib=args.library,
                        anno=args.annotation, bam=args.input)
 
@@ -47,7 +47,7 @@ if sample.refseq is None:
 # get annotation for family
 sample.get_anno()
 if len(sample.fam_anno) is 0:
-    print('no annotaions found for: ' + args.family)
+    print('No annotaions found for: ' + args.family)
 
 # fill sites of sample
 c = 0
@@ -117,4 +117,4 @@ else:
     mv = ['mv', args.output + '.raw', args.output]
     execute(command=' '.join(mv))
 
-print('analysis completed; table written to: ' + args.output)
+print('Analysis completed - output written to: ' + args.output)

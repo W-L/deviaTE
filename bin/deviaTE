@@ -32,17 +32,9 @@ inp_group.add_argument('--input_bam_dir', action='store_true', help='directory o
 args = parser.parse_args()
 
 
-def grab_all_fams(lib):
-    families = []
-    with open(lib, 'r') as library:
-        for line in library:
-            if line.startswith('>'):
-                f = line.replace('>', '').rstrip('\n')
-                families.append(f)
-    return(families)
-
 def process_fq(file, families):
     fq = IO.fq_file(inp=file)
+    print('Input file: ' + fq.path)
     fq.prep(lib=args.library, qual_tr=args.quality_threshold, min_rl=args.min_read_len,
             min_al=args.min_alignment_len, read_ty=args.read_type, thr=args.threads)
 
@@ -62,6 +54,8 @@ def process_fq(file, families):
 
 def process_bam(bam, families):
     prep_bam = IO.bam_file(inp=bam)
+    print('Input file: ' + prep_bam.path)
+    print('Alignment provided, skipping step 1')
     prep_bam.fuse()
 
     for f in families:
@@ -79,37 +73,35 @@ def process_bam(bam, families):
 
 
 if args.families == 'ALL':
-    fams = grab_all_fams(lib=args.library)
+    fams = IO.grab_all_fams(lib=args.library)
 else:
     fams = args.families.split(',')
 
+print('*' * 20 + '\n' + 'deviaTE v0.3.4' + '\n' + 'For questions and issues: https://github.com/W-L/deviaTE/issues' + '\n' + '*' * 20 + '\n\n')
+print('Starting analysis of the following genetic elements: \n' + ' '.join(fams) + '\n')
 
 if args.input_fq:
-    print('Fastq provided: preparing for alignment')
     process_fq(file=args.input_fq, families=fams)
 
 elif args.input_bam:
-    print('Alignment file provided: skipping preparation')
     process_bam(bam=args.input_bam, families=fams)
 
 elif args.input_fq_dir:
-    print('Directory of fastq files provided: preparing for alignment')
     fq_list = glob.glob('*.fastq')
+    print('Multiple inputs provided: \n' + ' '.join(fq_list) + '\n')
 
     for f in fq_list:
-        print(f)
         process_fq(file=f, families=fams)
 
 elif args.input_bam_dir:
-    print('Directory of bam-files provided: skipping preparation')
     bam_list = glob.glob('*.bam')
+    print('Multiple inputs provided: \n' + ' '.join(bam_list) + '\n')
 
     for b in bam_list:
-        print(b)
         process_bam(bam=b, families=fams)
 
 else:
     sys.exit('No input provided')
 
-print('done')
+print('End of deviaTE run')
 

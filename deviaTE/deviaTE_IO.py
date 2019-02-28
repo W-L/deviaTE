@@ -11,12 +11,14 @@ def get_data(path):
     return os.path.join(_ROOT, path)
 
 
-def execute(command):
+def execute(command, printout=True):
     running = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                encoding='utf-8', shell=True)
     stdout, stderr = running.communicate()
-    print(stdout)
-    print(stderr)
+    
+    if printout is True:
+        print(stdout)
+        print(stderr)
 
 
 def map_bwa(command, outfile):
@@ -32,7 +34,7 @@ def map_bwa(command, outfile):
         else:
             m.write(chunk)
 
-    print(str(mapping.stderr))
+    #print(str(mapping.stderr))
 
 
 class fq_file:
@@ -52,6 +54,7 @@ class fq_file:
             args.append('--library')
             args.append(lib)
 
+        print('Step 1 - Preparation')
         execute(command=' '.join(args))
 
 
@@ -64,6 +67,7 @@ class bam_file:
         args = ['deviaTE_fuse',
                 '--input', self.path]
 
+        print('Detecting internal deletions..')
         execute(command=' '.join(args))
 
     def analyze(self, lib, fam, sid, out, anno, corr, hqt, scgs, rpm):
@@ -88,6 +92,7 @@ class bam_file:
         if rpm:
             args.append('--rpm')
 
+        print('Step 2 - Analysis')
         execute(command=' '.join(args))
 
 
@@ -104,11 +109,13 @@ class analysis_table:
         if free_y:
             args.append('--free_yaxis')
 
+        print('Step 3 - Visualization')
         execute(command=' '.join(args))
 
 
 def filter_alignment_length(inp, outp, lim):
     # remove reads under alignment length limit
+    print("\nFiltering query sequences with alignments < " + str(lim) + ' bp.. \n')
     inpfile = pysam.AlignmentFile(inp, 'r')
     outfile = pysam.AlignmentFile(outp, 'w', template=inpfile)
 
@@ -121,5 +128,13 @@ def filter_alignment_length(inp, outp, lim):
     outfile.close()
 
 
+def grab_all_fams(lib):
+    families = []
+    with open(lib, 'r') as library:
+        for line in library:
+            if line.startswith('>'):
+                f = line.replace('>', '').rstrip('\n')
+                families.append(f)
+    return(families)
 
 

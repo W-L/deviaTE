@@ -29,14 +29,12 @@ mapped = args.input + '.sam.tmp'
 filtered = args.input + '.filt.tmp'
 fused = args.input + '.fused'
 
-print('Starting preparation: ' + args.input)
-
 # check for index of library
 index = os.path.isfile(args.library + '.bwt')
 if index is False:
     raise ValueError('No index found for: ' + str(args.library) + '  Please use bwa index ' + str(args.library))
 
-print('Trimming reads: ' + args.input)
+print('Trimming reads..')
 # trimming
 if args.quality_encoding == 'phred+33':
     qual = 'sanger'
@@ -49,7 +47,7 @@ trimming = ['deviaTE_trim.pl', '--input1', args.input, '--output', trimmed,
 
 IO.execute(command=' '.join(trimming))
 
-print('Mapping reads: ' + args.input)
+print('Mapping reads..')
 # mapping
 mapping = ['bwa', 'bwasw', '-M', '-t', args.threads, args.library, trimmed]
 IO.map_bwa(command=' '.join(mapping), outfile=mapped)
@@ -59,7 +57,7 @@ if args.min_alignment_length != '1':
     IO.filter_alignment_length(inp=mapped, outp=filtered, lim=args.min_alignment_length)
 else:
     mv = ['cp', mapped, filtered]
-    IO.execute(command=' '.join(mv))
+    IO.execute(command=' '.join(mv), printout=False)
 
 # fusing
 if args.nofuse == False:
@@ -67,11 +65,11 @@ if args.nofuse == False:
     IO.execute(command=' '.join(fusing))
     r1 = ['mv', filtered + '.fused.sort.bam', args.input + '.fused.sort.bam']
     r2 = ['mv', filtered + '.fused.sort.bam.bai', args.input + '.fused.sort.bam.bai']
-    IO.execute(command=' '.join(r1))
-    IO.execute(command=' '.join(r2))
+    IO.execute(command=' '.join(r1), printout=False)
+    IO.execute(command=' '.join(r2), printout=False)
 else:
     fusing = ['mv', filtered, fused]
-    IO.execute(command=' '.join(fusing))
+    IO.execute(command=' '.join(fusing), printout=False)
 
     bam = ['samtools', 'view', '-b', fused, '-o', fused + '.bam']
     sort = ['samtools', 'sort', fused + '.bam', '-o', fused + '.sort.bam']
@@ -83,8 +81,7 @@ else:
 
 # clean-up
 cleaning = ['rm', trimmed, filtered, mapped, trimmed + '.params']
-IO.execute(command=' '.join(cleaning))
+IO.execute(command=' '.join(cleaning), printout=False)
 
-print('finished preparation')
 
 
