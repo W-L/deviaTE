@@ -32,6 +32,15 @@ inp_group.add_argument('--input_bam_dir', action='store_true', help='directory o
 args = parser.parse_args()
 
 
+def grab_all_fams(lib):
+    families = []
+    with open(lib, 'r') as library:
+        for line in library:
+            if line.startswith('>'):
+                f = line.replace('>', '').rstrip('\n')
+                families.append(f)
+    return(families)
+
 def process_fq(file, families):
     fq = IO.fq_file(inp=file)
     fq.prep(lib=args.library, qual_tr=args.quality_threshold, min_rl=args.min_read_len,
@@ -69,7 +78,11 @@ def process_bam(bam, families):
         table.plot(out=output_plot, free_y=args.free_yaxis)
 
 
-fams = args.families.split(',')
+if args.families == 'ALL':
+    fams = grab_all_fams(lib=args.library)
+else:
+    fams = args.families.split(',')
+
 
 if args.input_fq:
     print('Fastq provided: preparing for alignment')
