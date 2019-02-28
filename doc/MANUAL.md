@@ -36,7 +36,7 @@ Argument name | Type | default | Description
 `--single_copy_genes` | string | false | Comma separated list of single copy genes to normalize abundances with. Must be present in file defined by `--library`. Mutually exclusive with rpm
 `--annotation`| string | included annotations for *D. mel.* consensus set | GFF3 file with annotations of the TE consensus sequences
 `--min_read_len` | int | 1 | minimum length of reads to be retained
-`--min_alignment_len` | int | 1 | minimum length of aligned segments to be considered
+`--min_alignment_len` | int | 1 | The minimum length an alignment of a query sequence has to have on a reference, otherwise the sam/bam entry is filtered out
 `--quality_threshold` | int | 15 | minimum base quality for filtering, uses modified Mott algorithm
 `--hq_threshold`| int | 20 | threshold of which mapped segments to consider ambiguous or unambiguous
 `--no_freq_corr` | bool | false | deactivates the correction of estimated frequencies of internal deletions
@@ -67,7 +67,7 @@ Argument name | Type | default | Description
 `--quality_encoding` | string | phred+33 | quality encoding determined by read type (either `phred+64` for illumina 1.3-1.8 or `phred+33` for illumina 1.8+ and sanger)
 `--qual_threshold` | int | 15 | minimum base quality for filtering, uses modified Mott algorithm
 `--min_read_length` | int | 1 | minimum length of reads to be retained
-`--min_alignment_length` | int | 1 | minimum length of aligned segments to be considered
+`--min_alignment_length` | int | 1 | The minimum length an alignment of a query sequence has to have on a reference, otherwise the sam/bam entry is filtered out
 `--threads`| int | 1 | use this many threads for whichever subroutines possible      
 `--nofuse`| bool | false | skip the detection of internal deletions by novel algorithm
 
