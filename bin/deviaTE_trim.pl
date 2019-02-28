@@ -79,7 +79,7 @@ use deviaTE_trim;
     }
     else
     {
-        print  "Single-read mode\n";
+        #print  "Single-read mode\n";
         MainProc::processSE($input1,$output,$encoder,$trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$verbose);
         
     }
@@ -161,22 +161,22 @@ use deviaTE_trim;
             
             if($verbose)
             {
-                print "\n\n";
-                print "FINISHED: end statistics\n";
+                print "\n";
+                #print "FINISHED: end statistics\n";
                 print "Reads processed: $countProcessed\n";
                 print "Reads passed filtering: $countPasFiltering\n";
                 print "5p poly-N sequences trimmed: $count5ptrims\n";
                 print "3p poly-N sequences trimmed: $count3ptrims\n";
                 print "Reads discarded during 'remaining N filtering': $countRemainingNdiscards\n";
                 print "Reads discarded during length filtering: $countLengthDiscard\n";
-                print "Count sequences trimed during quality filtering: $countQualityTrims\n" if $trimQuality;
-                print "\nRead length distribution\n";
-                print "length\tcount\n";
+                print "Reads trimmed during quality filtering: $countQualityTrims\n" if $trimQuality;
+                #print "\nRead length distribution\n";
+                #print "length\tcount\n";
                 for(my $i=1; $i<@$rld; $i++)
                 {
                     my $val=$rld->[$i];
                     next unless $val;
-                    print "$i\t$val\n";
+                    #print "$i\t$val\n";
                 }
             }
         }
@@ -317,8 +317,8 @@ use deviaTE_trim;
             
             if($verbose)
             {
-                print "\n\n";
-                print "FINISHED: end statistics\n";
+                print "\n";
+                #print "FINISHED: end statistics\n";
                 print "Read-pairs processed: $countProcessed\n";
                 print "Read-pairs trimmed in pairs: $paired\n";
                 print "Read-pairs trimmed as singles: $single\n";
@@ -331,13 +331,13 @@ use deviaTE_trim;
                 print "Reads discarded during 'remaining N filtering': $countRemainingNdiscards1\n";
                 print "Reads discarded during length filtering: $countLengthDiscard1\n";
                 print "Count sequences trimed during quality filtering: $countQualityTrims1\n" if $trimQuality;
-                print "\nRead length distribution first read\n";
-                print "length\tcount\n";
+                #print "\nRead length distribution first read\n";
+                #print "length\tcount\n";
                 for(my $i=1; $i<@$rld1; $i++)
                 {
                     my $val=$rld1->[$i];
                     next unless $val;
-                    print "$i\t$val\n";
+                    #print "$i\t$val\n";
                 }
                 
                 print "\n\nSECOND READ STATISTICS\n";
@@ -347,13 +347,13 @@ use deviaTE_trim;
                 print "Reads discarded during 'remaining N filtering': $countRemainingNdiscards2\n";
                 print "Reads discarded during length filtering: $countLengthDiscard2\n";
                 print "Count sequences trimed during quality filtering: $countQualityTrims2\n" if $trimQuality;
-                print "\nRead length distribution second read\n";
-                print "length\tcount\n";
+                #print "\nRead length distribution second read\n";
+                #print "length\tcount\n";
                 for(my $i=1; $i<@$rld2; $i++)
                 {
                     my $val=$rld2->[$i];
                     next unless $val;
-                    print "$i\t$val\n";
+                    #print "$i\t$val\n";
                 }
             }
         }
