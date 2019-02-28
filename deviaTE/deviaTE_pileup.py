@@ -28,20 +28,6 @@ class Sample:
         self.anno = anno
         self.bam = bam
 
-    # def get_ref(self):
-    #     refs = open(self.lib, 'r')
-    #     self.refseq = None
-    # 
-    #     for line in refs:
-    #         if line.startswith('>'):
-    #             family = line.replace('>', '').rstrip('\n')
-    #             if family == self.fam:
-    #                 refseq = refs.readline().rstrip('\n')
-    #                 refs.close()
-    #                 self.refseq = refseq
-    #                 print(len(refseq))
-    #                 break
-                
     def get_ref_multi(self):
         refs = open(self.lib, 'r')
         self.refseq = None
@@ -51,7 +37,7 @@ class Sample:
         for line in refs:
             if line.startswith('>'):
                 family = line.replace('>', '').rstrip('\n')
-                if family == self.fam:            
+                if family == self.fam:
                     while nline.startswith('>') is False:
                         refseq = refseq + nline
                         nline = refs.readline().rstrip('\n')
@@ -70,14 +56,13 @@ class Sample:
                 entry = line.split('\t')
                 self.fam_anno.append(tuple(entry[2:5]))
         anno_file.close()
-            
+
     def get_norm_fac_rpm(self):
         # count number of reads
         bamfile_op = pysam.AlignmentFile(self.bam, 'rb')
         c = bamfile_op.mapped + bamfile_op.unmapped
         bamfile_op.close()
         return(c / (10**6))
-        
 
     def perform_pileup(self, hq_threshold):
         # initiate lookup sets
@@ -91,14 +76,14 @@ class Sample:
 
         # for all covered positions in the reference
         for pileupcolumn in bamfile_op.pileup(contig=self.fam, truncate=True, max_depth=1000000):
-            
+
             # sometimes truncate is not reliable, disregard columns outside of refseq
             if pileupcolumn.pos >= maxlen:
-                    continue
-                
+                continue
+
             # for each read at this pos
             for pileupread in pileupcolumn.pileups:
-                
+
                 pr = Pileupread(isdel=pileupread.is_del, isref=pileupread.is_refskip,
                                 qseq=pileupread.alignment.query_sequence, qpos=pileupread.query_position,
                                 colpos=pileupcolumn.pos, cig_string=pileupread.alignment.cigarstring,
@@ -128,12 +113,12 @@ class Sample:
                     if pr.query_name not in readdump_indels:
                         readdump_indels.add(pr.query_name)
                         pr.eval_indel(sample_sites=self.sites)
-                        
+
             rc += 1
-            
+
         if rc is 0:
-            raise ValueError('No reads mapped to the specified reference sequence')
-        
+            warnings.warn('No reads mapped to the specified reference sequence')
+
         bamfile_op.close()
 
     def mean_read_length(self):
@@ -165,12 +150,12 @@ class Sample:
             for int_del in self.int_dels:
                 if site.pos in int_del.range:
                     site.phys_cov += int_del.abundance
-                    
+
     def get_norm_fac_scg(self, genes):
         bamfile_op = pysam.AlignmentFile(self.bam, 'rb')
         # dict of refs and their len
-        ref_dict = dict(zip(bamfile_op.references,bamfile_op.lengths))
-        
+        ref_dict = dict(zip(bamfile_op.references, bamfile_op.lengths))
+
         genes = genes.split(',')
         av_cov_genes = list()
         for g in genes:
@@ -178,19 +163,19 @@ class Sample:
             sum_cov = sum([len(pileupcolumn.pileups) for pileupcolumn in bamfile_op.pileup(contig=g, truncate=True)])
             if sum_cov > 0:
                 av_cov_genes.append(sum_cov / ref_dict[g])
-        
+
         # average across multiple genes
         norm_fac = sum(av_cov_genes) / len(av_cov_genes)
         bamfile_op.close()
         return(norm_fac)
-        
+
     def estimate_insertions(self, norm_factor):
         # average cov of TE
         av_cov = average_cov(sitelist=self.sites, start=1, end=len(self.sites))
         # normalize with single copy gene to obtain copy number per haploid
         ihat = av_cov / norm_factor
         return(ihat)
-        
+
     def write_frame(self, out, insertions, command, t, norm):
         # create a list of all object instances
         # and turn into a pandas frame
@@ -203,9 +188,9 @@ class Sample:
                  'trunc_left', 'trunc_right', 'ins', 'delet', 'annotation']]
         fr = fr.rename(columns={'TEfam': '#TEfam'})
         # add a line with the insertions
-        with open(out, 'w') as outfile: 
+        with open(out, 'w') as outfile:
             outfile.write('# ' + t + ', command: ' + command + ', norm: ' + norm + '\n')
-            outfile.write('# insertions/haploid: ' + str(insertions) + '\n') 
+            outfile.write('# insertions/haploid: ' + str(insertions) + '\n')
         fr.to_csv(out, index=False, sep=' ', mode='a')
 
 
@@ -317,11 +302,11 @@ class Site:
             self.trunc_left = round(self.trunc_left / norm_factor, 3)
         if self.trunc_right is not 'NA':
             self.trunc_right = round(self.trunc_right / norm_factor, 3)
-            
+
         self.norm_feature(attr='int_del', norm_factor=norm_factor)
         self.norm_feature(attr='ins', norm_factor=norm_factor)
         self.norm_feature(attr='delet', norm_factor=norm_factor)
-        
+
     def norm_feature(self, attr, norm_factor):
         feat = getattr(self, attr)
         if feat is not 'NA':
@@ -332,7 +317,7 @@ class Site:
                     j = csd.split(':')
                     feat_new = str(feat_new) + str(j[0]) + ':' + str(j[1]) + ':' + str(round((float(j[2]) / float(norm_factor)), 3)) + ','
                 setattr(self, attr, feat_new[:-1])
-                
+
             else:
                 j = feat.split(':')
                 setattr(self, attr, str(j[0]) + ':' + str(j[1]) + ':' + str(round((float(j[2]) / float(norm_factor)), 3)))
@@ -390,12 +375,11 @@ class Pileupread:
 
         else:
             warnings.warn('ignoring unknown base in read: ' + nt)
-            
+
     def count_hq_coverage(self, sample_sites, hqt):
         # count coverage only above threshold
         site = sample_sites[self.column_pos]
-        mapping_qual = site.hq_cov
-        
+
         if self.mapq >= hqt:
             site.hq_cov = site.hq_cov + 1
         else:
@@ -425,7 +409,6 @@ class Pileupread:
                 raise ValueError('Cigarstring contains unusual symbol: ' + cig_id)
 
     def eval_trunc(self, sample_sites):
-        truncs = []
         left_id = self.cigar_tuple[0][0]
         left_len = self.cigar_tuple[0][1]
         right_id = self.cigar_tuple[-1][0]
@@ -441,7 +424,6 @@ class Pileupread:
 
     def eval_indel(self, sample_sites):
         indel_shift = 0
-        indels_read = []
 
         for cig_id, length in self.cigar_tuple:
             if cig_id == DELETION:
