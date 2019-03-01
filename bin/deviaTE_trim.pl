@@ -122,7 +122,7 @@ use deviaTE_trim;
 
                 
                 $countProcessed++;
-                print "Processed $countProcessed reads\n" if($verbose && ($countProcessed % $processStep)==0); 
+                #print "Processed $countProcessed reads\n" if($verbose && ($countProcessed % $processStep)==0); 
                 
                 my($c5ptrims,$c3ptrims)=(0,0);
                 ($nucleotide,$quality,$c5ptrims,$c3ptrims)=Utility::trimNs($nucleotide,$quality);
@@ -235,7 +235,7 @@ use deviaTE_trim;
                 
                 
                 $countProcessed++;
-                print "Processed $countProcessed pairs\n" if($verbose && ($countProcessed % $processStep)==0); 
+                #print "Processed $countProcessed pairs\n" if($verbose && ($countProcessed % $processStep)==0); 
                 
                 my($c5ptr1,$c3ptr1)=(0,0);
                 my($c5ptr2,$c3ptr2)=(0,0);
