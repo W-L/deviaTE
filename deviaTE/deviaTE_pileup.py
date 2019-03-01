@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import warnings
 import pandas
 import pysam
 from collections import Counter
@@ -117,7 +116,7 @@ class Sample:
             rc += 1
 
         if rc is 0:
-            warnings.warn('No reads mapped to the specified reference sequence')
+            print('No reads mapped to the specified reference sequence\n\n')
 
         bamfile_op.close()
 
@@ -199,7 +198,7 @@ class Site:
     def __init__(self, pos, refbase, sid, fam):
 
         if refbase not in uniq_nuc:
-            warnings.warn('Reference sequence contains ambiguous nucleotide: ' + refbase)
+            print('Reference sequence contains ambiguous nucleotide: ' + refbase)
 
         self.TEfam = fam
         self.sample_id = sid
@@ -374,7 +373,7 @@ class Pileupread:
             setattr(site, nt, getattr(site, nt) + 1)
 
         else:
-            warnings.warn('ignoring unknown base in read: ' + nt)
+            print('ignoring unknown base in read: ' + nt)
 
     def count_hq_coverage(self, sample_sites, hqt):
         # count coverage only above threshold
