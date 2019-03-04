@@ -169,4 +169,40 @@ It is, however, not possible to analyze TEs from an alignment file, which contai
 By specifying `--families ALL` it is possible to run `deviaTE` on all consensus sequences in a fasta library.
 
 
+## Troubleshooting section
+
+### libcrypto missing libraries
+
+On MacOS, samtools sometimes encounters an error similar to:
+
+*samtools: error while loading shared libraries: libcrypto.so.1.0.0: cannot open shared object file: No such file or directory *
+
+This can usually be solved by making sure that openssl is installed, and then linking the missing libraries manually:
+
+```
+brew update
+brew install openssl
+
+ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/
+ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/
+```
+
+### Conda not accessing executables
+
+Usually conda adds its environment to the user's PATH during the initial installation of conda/anaconda. If there are issues with that the following lines can be added to the user's .bashrc/.bash_profile.
+
+
+miniconda:
+```
+export PATH="/home/YOURUSER/miniconda3/bin:$PATH"
+export LD_LIBRARY_PATH=/home/YOURUSER/miniconda3/lib:/homes/YOURUSER/miniconda3/lib64:$LD_LIBRARY_PATH
+
+
+anaconda:
+```
+export PATH="/home/YOURUSER/anaconda3/bin:$PATH"
+export LD_LIBRARY_PATH=/home/YOURUSER/anaconda3/lib:/homes/YOURUSER/anaconda3/lib64:$LD_LIBRARY_PATH
+```
+
+
 
