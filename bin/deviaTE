@@ -82,7 +82,7 @@ if args.families == 'ALL':
 else:
     fams = args.families.split(',')
 
-print('*' * 20 + '\n' + 'deviaTE v0.3.4' + '\n' + 'For questions and issues: https://github.com/W-L/deviaTE/issues' + '\n' + '*' * 20 + '\n\n')
+print('*' * 20 + '\n' + 'deviaTE' + '\n' + 'For questions and issues: https://github.com/W-L/deviaTE/issues' + '\n' + '*' * 20 + '\n\n')
 print('Starting analysis of the following genetic elements: \n' + ' '.join(fams) + '\n')
 
 if args.input_fq:
