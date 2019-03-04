@@ -32,6 +32,11 @@ inp_group.add_argument('--input_bam_dir', action='store_true', help='directory o
 args = parser.parse_args()
 
 
+# set resource file
+if args.library is None:
+    args.library = IO.get_data('lib/te_library')
+    
+
 def process_fq(file, families):
     fq = IO.fq_file(inp=file)
     print('Input file: ' + fq.path + '\n')
