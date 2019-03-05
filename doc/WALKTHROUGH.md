@@ -175,7 +175,7 @@ By specifying `--families ALL` it is possible to run `deviaTE` on all consensus 
 
 On MacOS, samtools sometimes encounters an error similar to:
 
-*samtools: error while loading shared libraries: libcrypto.so.1.0.0: cannot open shared object file: No such file or directory *
+*samtools: error while loading shared libraries: libcrypto.so.1.0.0: cannot open shared object file: No such file or directory*
 
 This can usually be solved by making sure that openssl is installed, and then linking the missing libraries manually:
 
@@ -196,7 +196,7 @@ miniconda:
 ```
 export PATH="/home/YOURUSER/miniconda3/bin:$PATH"
 export LD_LIBRARY_PATH=/home/YOURUSER/miniconda3/lib:/homes/YOURUSER/miniconda3/lib64:$LD_LIBRARY_PATH
-
+```
 
 anaconda:
 ```
