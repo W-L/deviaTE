@@ -142,7 +142,7 @@ This normalization method relates all counts to the number of reads mapping to o
 
 If you are analyzing TEs in *Drosophila* specifying a `--library` or `--annotation` of reference sequences is optional, since we provide consensus sequences with our tool (from https://github.com/bergmanlab/transposons). When choosing which `--families` to analyze any elements from the first column (ID) of the [available TE consensus sequences in *Drosophila*](https://github.com/W-L/deviaTE/blob/master/deviaTE/lib/te_table) can be selected.
 
-For single-copy gene normalization we have also added five genes (Dmel_rpl32, Dmel_piwi, Dmel_act5C, Dmel_ras and Dmel_p53), which can be used in the following way: `--single_copy_genes Dmel_rpl32,Dmel_piwi...`
+For single-copy gene normalization we have also added five genes (Dmel_rpl32, Dmel_piwi, Dmel_act5C, Dmel_RpII140 and Dmel_p53), which can be used in the following way: `--single_copy_genes Dmel_rpl32,Dmel_piwi...`
 
 
 ### Special use-case: Plot multiple TE families from one or more samples output tables
