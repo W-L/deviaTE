@@ -170,10 +170,22 @@ class Sample:
 
     def estimate_insertions(self, norm_factor):
         # average cov of TE
-        av_cov = average_cov(sitelist=self.sites, start=1, end=len(self.sites))
+        sum_cov = 0
+        sum_hqcov = 0
+        for s in self.sites:
+            sum_cov = sum_cov + s.cov + s.phys_cov
+            sum_hqcov = sum_hqcov + s.hq_cov + s.phys_cov
+
+        av_cov = sum_cov / len(self.sites)
+        av_hqcov = sum_hqcov / len(self.sites)
+
+        # av_cov = average_cov(sitelist=self.sites, start=1, end=len(self.sites))
+
         # normalize with single copy gene to obtain copy number per haploid
         ihat = av_cov / norm_factor
-        return(ihat)
+        ihat_hq = av_hqcov / norm_factor
+
+        return((ihat, ihat_hq))
 
     def write_frame(self, out, insertions, command, t, norm):
         # create a list of all object instances
@@ -186,10 +198,12 @@ class Sample:
                  'phys_cov', 'hq_cov', 'snp', 'refsnp', 'int_del', 'int_del_freq',
                  'trunc_left', 'trunc_right', 'ins', 'delet', 'annotation']]
         fr = fr.rename(columns={'TEfam': '#TEfam'})
-        # add a line with the insertions
+
+        # add headers
+        ihat = str(insertions[0]) + ' or ' + str(insertions[1]) + ' (hq coverage only)'
         with open(out, 'w') as outfile:
             outfile.write('# ' + t + ', command: ' + command + ', norm: ' + norm + '\n')
-            outfile.write('# insertions/haploid: ' + str(insertions) + '\n')
+            outfile.write('# insertions/haploid: ' + ihat + '\n')
         fr.to_csv(out, index=False, sep=' ', mode='a')
 
 
