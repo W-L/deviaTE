@@ -171,6 +171,18 @@ By specifying `--families ALL` it is possible to run `deviaTE` on all consensus 
 
 ## Troubleshooting section
 
+
+### Error during visualization: unused argument 'cmd='
+
+```
+Error in fread(cmd = paste("grep -v ^#", inp_arg), data.table = FALSE,  : 
+  unused argument (cmd = paste("grep -v ^#", inp_arg))
+Execution halted
+```
+
+If you see an error like this, you probably have an outdated version of the R package data.table. Please update to a newer version (>1.11.6).
+
+
 ### libcrypto missing libraries
 
 On MacOS, samtools sometimes encounters an error similar to:
