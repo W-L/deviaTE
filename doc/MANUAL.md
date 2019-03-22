@@ -2,6 +2,9 @@
 
 DeviaTE is a command-line program that analyzes and visualizes the diversity of mobile genetic elements from sequencing data without the need for an assembled genome of the host species. Besides coverage, it displays single nucleotide polymorphisms, indels, truncations and internal deletions and allows for easy comparative analyses. 
 
+DeviaTE was designed to be as widely applicable as possible and can thus be used with paired-end and single-end sequencing reads. However, the paired-end information is ignored and reads are treated as single-end.
+Reason being that split-reads, as used in DeviaTE, allow to more accurately identify the position of internal deletions than paired-end reads,  as the inner distance of paired-ends is subject to a substantial amount of variation.
+
 The tool operates in three individual steps (see Fig.). It first prepares sequencing reads (`deviaTE_prep`), analyses a transposon chosen from the consensus sequence library (`deviaTE_analyse`) and finally produces a visualization from the output of the previous step (`deviaTE_plot`). Alternatively `deviaTE` is a convenient, single-command wrapper. Available arguments for all scripts are listed by adding `-h` or `--help`.
 
 <p align="center">
@@ -12,7 +15,7 @@ The tool operates in three individual steps (see Fig.). It first prepares sequen
 
 ### Description
 
-This script executes the full pipeline to produce a table describing each position of the TE and a visualization of the TE using that table. The input can either be sequencing reads (FASTQ), already mapped reads (BAM) or directories of either of those.
+This script executes the full pipeline to produce a table describing each position of the TE and a visualization of the TE using that table. The input can either be sequencing reads (FASTQ), reads already mapped to TE sequences (BAM) or directories of either of those.
 
 ### Arguments
 
