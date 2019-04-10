@@ -13,6 +13,7 @@ parser.add_argument('--min_read_len', default='1')
 parser.add_argument('--quality_threshold', default='15')
 parser.add_argument('--min_alignment_len', default='1')
 parser.add_argument('--threads', default='1')
+parser.add_argument('--no_delet_detect', action='store_true', help='dev switch')
 # args for analysis
 parser.add_argument('--families', required=True)
 parser.add_argument('--annotation', help='alternative annotation in gff-format')
@@ -61,14 +62,21 @@ def process_bam(bam, families):
     prep_bam = IO.bam_file(inp=bam)
     print('Input file: ' + prep_bam.path)
     print('Alignment provided, skipping step 1')
-    prep_bam.fuse()
+    if args.no_delet_detect == False:
+        prep_bam.fuse() # only detect int del if args is not set
+    else:
+        print('Skipping detection of internal deletions \n')
 
     for f in families:
         sample_id = bam
         output_table = sample_id + '.' + f
         output_plot = output_table + '.pdf'
 
-        fused_bam = IO.bam_file(inp=bam + '.fused.sort.bam')
+        if args.no_delet_detect == False:
+            fused_bam = IO.bam_file(inp=bam + '.fused.sort.bam')
+        else:
+            fused_bam = IO.bam_file(inp=bam) # if no_delet_detect, use fused bam directly
+            
         fused_bam.analyze(lib=args.library, fam=f, sid=sample_id, out=output_table,
                           anno=args.annotation, corr=args.no_freq_corr, hqt=args.hq_threshold,
                           scgs=args.single_copy_genes, rpm=args.rpm)
