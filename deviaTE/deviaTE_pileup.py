@@ -35,7 +35,7 @@ class Sample:
 
         for line in refs:
             if line.startswith('>'):
-                family = line.replace('>', '').rstrip('\n')
+                family = line.replace('>', '').rstrip('\n').rstrip(' ')
                 if family == self.fam:
                     while nline.startswith('>') is False:
                         refseq = refseq + nline
