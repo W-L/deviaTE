@@ -26,6 +26,9 @@ then the tool collects the quantitative information and calculates estimators, w
 Finally a visualization is produced, resulting in an illustration of jockey that should look like [this](https://github.com/W-L/deviaTE/blob/master/example/jockey_dmel.fastq.DMLINEJA.pdf)
 
 
+**If deviaTE does not work at this point, please consult the Troubleshooting section at the bottom of this document or do not hesitate to open an issue on this GitHub**
+
+
 ## Quality encoding of the FASTQ file
 
 Depending on the sequencing platform used to produce your sequences, quality scores are encoded with certain score offset.  The following parameters should be used for `--read_type`:
@@ -50,7 +53,9 @@ This is a rough and simple way to find out about the encoding: If the quality sc
 
 To analyze and visualize transposable element families from sequencing reads the most basic usage is:
 
-```deviaTE --input_fq foo.fastq --families TEfamily1,TEfamily2,... --library TE_consensus_sequences.fasta```
+```
+deviaTE --input_fq foo.fastq --families TEfamily1,TEfamily2,... --library TE_consensus_sequences.fasta
+```
 
 where foo.fastq contains sequencing reads and TEfamily1 etc. are headers of TE reference sequences in the file defined by `--library`. 
 
@@ -170,6 +175,31 @@ By specifying `--families ALL` it is possible to run `deviaTE` on all consensus 
 
 
 ## Troubleshooting section
+
+### bash: deviaTE: command not found... OR EnvironmentError: (Errno 13) Permission denied
+
+```
+bash: deviaTE: command not found...
+Could not install packages due to an EnvironmentError: [Errno 13] Permission denied:
+```
+
+If you encounter one of these errors during or after an installation with pip, the automatic transfer of deviaTE's executable scripts has probably failed. 
+This can, for example, happen on a shared computing environment with restricted permissions.
+
+To properly install deviaTE in such cases, you can use the `--user` flag with pip after declaring the installation directory (`~/deviaTE` here):
+
+```
+export PYTHONUSERBASE=~/deviaTE
+pip3 install --user deviaTE
+```
+
+
+Afterwards, please add the following line to your `~/.bashrc` or `~/.bashprofile` to make deviaTE executable from anywhere in your system
+
+```
+export PATH=~/deviaTE/bin:$PATH
+```
+
 
 
 ### Error during visualization: unused argument 'cmd='
