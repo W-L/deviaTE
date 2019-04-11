@@ -70,7 +70,7 @@ class bam_file:
         print('Detecting internal deletions..')
         execute(command=' '.join(args))
 
-    def analyze(self, lib, fam, sid, out, anno, corr, hqt, scgs, rpm):
+    def analyze(self, lib, fam, sid, out, anno, corr, hqt, scgs, rpm, minID):
         args = ['deviaTE_analyse',
                 '--input', self.path,
                 '--family', fam,
@@ -91,7 +91,10 @@ class bam_file:
             args.append(scgs)
         if rpm:
             args.append('--rpm')
-
+        if minID:
+            args.append('--minID')
+            args.append(minID)
+            
         print('*' * 20 + ' Analysis')
         execute(command=' '.join(args))
 
