@@ -42,9 +42,11 @@ Argument name | Type | default | Description
 `--min_alignment_len` | int | 1 | The minimum length an alignment of a query sequence has to have on a reference, otherwise the sam/bam entry is filtered out
 `--quality_threshold` | int | 15 | minimum base quality for filtering, uses modified Mott algorithm
 `--hq_threshold`| int | 20 | threshold of which mapped segments to consider ambiguous or unambiguous
+`--minID`| int | 2% mean cov | Number of reads with a certain internal deletion required to support that deletion
 `--no_freq_corr` | bool | false | deactivates the correction of estimated frequencies of internal deletions
 `--free_yaxis`| bool | false | frees the y axis during plotting, e.g. to make very different y axis ranges visible
 `--threads`| int | 1 | use this many threads for whichever subroutines possible
+`--no_delet_detect`| bool | false | deactivate the detection of internal deletions; useful for quick reanalysis or visualization
 
 
 
@@ -101,6 +103,7 @@ Argument name | Type | default | Description
 `--sample_id` | string | input | name that is given to the sample in the output table and also displayed in the resulting visualization
 `--no_freq_corr` | bool | false | deactivates the correction of estimated frequencies of internal deletions
 `--hq_threshold`| int | 20 | threshold of which mapped segments to consider ambiguous or unambiguous
+`--minID`| int | 2% mean cov | Number of reads with a certain internal deletion required to support that deletion
 `--rpm` | bool | false | normalize abundances per million mapped reads. Mutually exclusive with single copy genes
 `--single_copy_genes` | string | false | Comma separated list of single copy genes to normalize abundances with. Must be present in file defined by `--library`. Mutually exclusive with rpm
 

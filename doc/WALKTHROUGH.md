@@ -174,6 +174,12 @@ It is, however, not possible to analyze TEs from an alignment file, which contai
 By specifying `--families ALL` it is possible to run `deviaTE` on all consensus sequences in a fasta library.
 
 
+### Sepcial use-case: Skip the detection of internal deletions
+
+If you already have an alignment file, in which internal deletions have been detected from a previous run (`FILE.fused.sort.bam`), or you simply are not interested in internally deleted TEs, you can deactivate the detection with the option `--no_delet_detect`.
+This can be useful in cases where reads have successfully been mapped and deletions have been detected and a quick reanalysis and visualization is desired.
+
+
 ## Troubleshooting section
 
 ### bash: deviaTE: command not found... OR EnvironmentError: (Errno 13) Permission denied
