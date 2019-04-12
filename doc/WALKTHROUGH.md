@@ -206,6 +206,12 @@ Afterwards, please add the following line to your `~/.bashrc` or `~/.bashprofile
 export PATH=~/deviaTE/bin:$PATH
 ```
 
+or run this line to automatically add the location to your PATH:
+
+```
+printf "\nexport PATH=~/deviaTE/bin:$PATH\n" >> ~/.bash_profile
+```
+
 
 
 ### Error during visualization: unused argument 'cmd='
