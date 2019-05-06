@@ -57,13 +57,28 @@ pip package:
 ```pip3 uninstall deviaTE```
 
 
-## Usage manual and walkthroughs
+## Usage manual, walkthroughs and reference
 
 A manual and a walkthrough with examples using publicly available data can be found here:
 
 * [Manual](https://github.com/W-L/deviaTE/blob/master/doc/MANUAL.md) 
 * [Walkthrough](https://github.com/W-L/deviaTE/blob/master/doc/WALKTHROUGH.md) 
 
+A published manuscript is available here (accepted, unedited):
+
+* [https://onlinelibrary.wiley.com/doi/10.1111/1755-0998.13030](https://onlinelibrary.wiley.com/doi/10.1111/1755-0998.13030)
+
+```
+@article{weilguny2019,
+ author = {Weilguny, Lukas and Kofler, Robert},
+ title = {{DeviaTE}: {Assembly-free} analysis and visualization of mobile genetic element composition},
+ journal = {Molecular Ecology Resources},
+ volume = {Epub ahead of print},
+ year= {2019},
+ doi = {10.1111/1755-0998.13030}
+}
+
+```
 
 ## Bugs, issues, questions, suggestions ...
 If you find any problems, have questions or ideas for further improvement please use the issue tracker on this repository, thanks!
