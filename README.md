@@ -73,7 +73,7 @@ A published manuscript is available here (accepted, unedited):
  author = {Weilguny, Lukas and Kofler, Robert},
  title = {{DeviaTE}: {Assembly-free} analysis and visualization of mobile genetic element composition},
  journal = {Molecular Ecology Resources},
- volume = {Epub ahead of print},
+ volume = {Accepted Author Manuscript},
  year= {2019},
  doi = {10.1111/1755-0998.13030}
 }
