@@ -64,7 +64,7 @@ A manual and a walkthrough with examples using publicly available data can be fo
 * [Manual](https://github.com/W-L/deviaTE/blob/master/doc/MANUAL.md) 
 * [Walkthrough](https://github.com/W-L/deviaTE/blob/master/doc/WALKTHROUGH.md) 
 
-A published manuscript is available here (accepted, unedited):
+A paper describing deviaTE is available here:
 
 * [https://onlinelibrary.wiley.com/doi/10.1111/1755-0998.13030](https://onlinelibrary.wiley.com/doi/10.1111/1755-0998.13030)
 
