@@ -101,7 +101,7 @@ elif args.input_bam:
     process_bam(bam=args.input_bam, families=fams)
 
 elif args.input_fq_dir:
-    fq_list = glob.glob('*.fastq')
+    fq_list = glob.glob('*.fastq') + glob.glob('*.fq')
     print('Multiple inputs provided: \n' + ' '.join(fq_list) + '\n')
 
     for f in fq_list:
