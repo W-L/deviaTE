@@ -8,9 +8,10 @@ def readme():
 
 setup(
     name='deviaTE',
-    version='0.3.7',
+    version='0.3.8',
     description='Analysis and visualization of mobile genetic element composition',
     long_description=readme(),
+    long_description_content_type='text/markdown',
     license='LICENSE',
     author='Lukas W',
     url="https://github.com/W-L/deviaTE.git",
