@@ -179,6 +179,16 @@ By specifying `--families ALL` it is possible to run `deviaTE` on all consensus 
 If you already have an alignment file, in which internal deletions have been detected from a previous run (`FILE.fused.sort.bam`), or you simply are not interested in internally deleted TEs, you can deactivate the detection with the option `--no_delet_detect`.
 This can be useful in cases where reads have successfully been mapped and deletions have been detected and a quick reanalysis and visualization is desired.
 
+### Special use-case: Paired-end reads 
+
+You can use DeviaTE for paired-end reads by mapping them in single read mode. This can be done, for example, by using a single concatenated fastq file that contains both read pairs (read1 and read2). In order to prevent some issues the reads then need to be given unique names (e.g. readID_1, readID_2, ..., readID_n), which can be achieved using a little script found at: example/rename_reads.py
+
+```
+python rename_reads.py sample.fq >sample_uniq.fq
+```
+
+Thanks to Anna for pointing out this issue!
+
 
 ## Troubleshooting section
 
