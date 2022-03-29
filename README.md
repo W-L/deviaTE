@@ -70,14 +70,15 @@ A paper describing deviaTE is available here:
 
 ```
 @article{weilguny2019,
- author = {Weilguny, Lukas and Kofler, Robert},
- title = {{DeviaTE}: {Assembly-free} analysis and visualization of mobile genetic element composition},
- journal = {Molecular Ecology Resources},
- volume = {Accepted Author Manuscript},
- year= {2019},
- doi = {10.1111/1755-0998.13030}
+  title = {{{DeviaTE}}: {{Assembly-free}} Analysis and Visualization of Mobile Genetic Element Composition},
+  author = {Weilguny, Lukas and Kofler, Robert},
+  year = {2019},
+  journal = {Molecular Ecology Resources},
+  volume = {19},
+  number = {5},
+  pages = {1346--1354},
+  doi = {10.1111/1755-0998.13030}
 }
-
 ```
 
 ## Bugs, issues, questions, suggestions ...
