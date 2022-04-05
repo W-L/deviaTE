@@ -27,6 +27,10 @@ if args.sample_id is None:
     args.sample_id = args.input
 
 if args.output is None:
+    invalid_chars = '/\`*|;":. ' + "'"
+    for c in invalid_chars:
+        args.family = args.family.replace(c, '-')
+
     args.output = args.sample_id + '.' + args.family
 
 if args.library is None:
