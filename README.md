@@ -72,20 +72,22 @@ Manual and Walkthrough of previous versions can be found (at this [github link](
 
 ## Description of results table
 
-The table starts with some header-lines denoted by #. This header contains the estimated number of TE insertions (if selected) and column names. Each row corresponds to one position of the TE sequence.
+The table starts with some header-lines denoted by #. This header contains the estimated number of TE insertions (if selected) and column names. Each row corresponds to one position of the TE sequence. Since version 2, `hq_cov` reports coverage of high quality bases instead of high-quality mappings, since that's more interesing e.g. for nanopore data. 
 
 
-| Column      | Description                                                                             |
-|-------------|-----------------------------------------------------------------------------------------|
-| `TEfam`     | Name of the analysed TE family                                                          |
-| `sample_id` | input file name                                                                         |
-| `pos`       | position in the reference sequence                                                      |
-| `refbase`   | Nucleotide in the reference sequence at this position                                   |
-| `A C G T`   | counts of each nucleotide at this position                                              |
-| `cov`       | total coverage at this position                                                         |
-| `hq_cov`    | coverage above the specified threshold for unambigously mapped reads (`--hq_threshold`) |
-| `snp`       | indicator for variant position                                                          |
-| `delet`     | count of gap observations                                                               |
+| Column      | Description                                |
+|-------------|--------------------------------------------|
+| `TEfam`     | Name of the analysed TE family             |
+| `sample_id` | input file name                            |
+| `pos`       | position in the reference sequence         |
+| `refbase`   | Nucleotide in the reference sequence at this position |
+| `A C G T`   | counts of each nucleotide at this position |
+| `cov`       | total coverage at this position            |
+| `hq_cov`    | coverage of high-quality bases only (>Q15) |
+| `snp`       | indicator for variant position             |
+| `delet`     | count of gap observations                  |
+
+
 
 
 
