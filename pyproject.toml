@@ -42,8 +42,8 @@ deviaTE = "deviaTE.deviate:main"
 include = ["/deviaTE",]
 exclude = [
     "/data",
-    "/doc",
     "/tests",
+    "/scripts",
     "/.git",
     "/simulations",
     "/benchmark",
