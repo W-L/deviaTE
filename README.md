@@ -15,9 +15,7 @@ Since the previous python base reached end of life, deviaTE needed an update. Th
 
 Feature deprecation:
 
-- Detection of structural variants is currently not included. 
-
-Please use previous version (add url) for this and let me know via GitHub issue that this is of interest, then I'll include it in the next version
+- Detection of structural variants is currently not included. Please use the previous version (at this [github link](https://github.com/W-L/deviaTE/tree/10d2b7063b2fef7fcaa24b0a45fa655a0c4d7565)) for this and let me know via GitHub issue that this is of interest, then I'll include it in the next version
 
 
 ## Installation
@@ -36,14 +34,14 @@ usage: deviaTE [-h] [--input INPUT] [--preset {sr,map-ont,map-pb,map-hifi}] [--l
 [--rpm | --single_copy_genes [SINGLE_COPY_GENES ...]]
 
 options:
--h, --help            show this help message and exit
---input INPUT         Input file(s) to be analysed. Can be *.fastq, *.fa, or directory of files. Optionally gzipped.
+-h, --help                  show this help message and exit
+--input INPUT               Input file(s) to be analysed. Can be *.fastq, *.fa, or directory of files. Optionally gzipped.
 --preset {sr,map-ont,map-pb,map-hifi}   Minimap2 mapping preset. (sr, map-ont, map-pb, map-hifi) [sr]
 --library LIBRARY           Path to reference library. Defaults to drosophila transposons from https://github.com/bergmanlab/drosophila-transposons
 --annotation ANNOTATION     Path to annotation (gff) of sequences in library. Defaults to drosophila TE annotation from https://github.com/bergmanlab/drosophila-transposons
---min_align_len MIN_ALIGN_LEN       Minimum length of valid alignments
---families [FAMILIES ...]       Which transposon families to analyse. Default: all sequences in library.
---rpm                 normalize all abundances by reads per million
+--min_align_len MIN_ALIGN_LEN           Minimum length of valid alignments
+--families [FAMILIES ...]   Which transposon families to analyse. Default: all sequences in library.
+--rpm                       normalize all abundances by reads per million
 --single_copy_genes [SINGLE_COPY_GENES ...]     space-separated names of single-copy genes in reference to use for normalisation
 ```
 
@@ -62,13 +60,14 @@ Available arguments are listed with `-h` or `--help`.
 An example is available for testing. The sequences are from the Drosophila 12 Genomes Consortium et al. 2007. Evolution of genes and genomes on the Drosophila phylogeny. *Nature*. 450(7167):203-218.
 
 We can analyse the TE jockey (DMLINEJA) and get a visualization using:
+
 `deviaTE --input ../data/jockey_dmel.fastq --families FBte0000088`
 
 this produces an alignment file called `jockey_dmel.fastq.paf`, creates the output table `jockey_dmel.fastq.FBte0000088.deviate` with information about coverage and estimated insertions (if selected), and the visualisation `jockey_dmel.fastq.FBte0000088.deviate.pdf`. 
 
 
 
-Manual and Walkthrough of previous versions can be found here: (add url)
+Manual and Walkthrough of previous versions can be found (at this [github link](https://github.com/W-L/deviaTE/tree/10d2b7063b2fef7fcaa24b0a45fa655a0c4d7565))
 
 
 ## Description of results table
@@ -76,15 +75,17 @@ Manual and Walkthrough of previous versions can be found here: (add url)
 The table starts with some header-lines denoted by #. This header contains the estimated number of TE insertions (if selected) and column names. Each row corresponds to one position of the TE sequence.
 
 
-`TEfam` | Name of the analysed TE family
-`sample_id` | input file name 
-`pos` | position in the reference sequence
-`refbase` | Nucleotide in the reference sequence at this position
-`A C G T` | counts of each nucleotide at this position
-`cov` | total coverage at this position
-`hq_cov` | coverage above the specified threshold for unambigously mapped reads (`--hq_threshold`)
-`snp` | indicator for variant position
-`delet` | count of gap observations
+| Column      | Description                                                                             |
+|-------------|-----------------------------------------------------------------------------------------|
+| `TEfam`     | Name of the analysed TE family                                                          |
+| `sample_id` | input file name                                                                         |
+| `pos`       | position in the reference sequence                                                      |
+| `refbase`   | Nucleotide in the reference sequence at this position                                   |
+| `A C G T`   | counts of each nucleotide at this position                                              |
+| `cov`       | total coverage at this position                                                         |
+| `hq_cov`    | coverage above the specified threshold for unambigously mapped reads (`--hq_threshold`) |
+| `snp`       | indicator for variant position                                                          |
+| `delet`     | count of gap observations                                                               |
 
 
 
@@ -99,27 +100,25 @@ By default no normalization is performed and reported counts are raw abundances,
 
 ## Special use-case: *Drosophila*
 
-If you are analyzing TEs in *Drosophila* specifying a `--library` or `--annotation` of reference sequences is optional. If not provided, deviaTE automatically downloads and uses the TE library from https://github.com/bergmanlab/drosophila-transposons.
+If you are analyzing TEs in *Drosophila* specifying a `--library` or `--annotation` of reference sequences is optional. By default deviaTE automatically downloads and uses the TE library from https://github.com/bergmanlab/drosophila-transposons if no library and annotation are given.
 
-For single-copy gene normalization in Drosophila five genes are automatically added to the library (Dmel_rpl32, Dmel_piwi, Dmel_Act5C, Dmel_RpII140 and Dmel_p53), which can be used for normalisation: `--single_copy_genes Dmel_rpl32 Dmel_piwi ...`
+For single-copy gene normalization in Drosophila five genes are automatically added to the library (Dmel_rpl32, Dmel_piwi, Dmel_Act5C, Dmel_RpII140 and Dmel_p53), which can be used for normalisation: 
+
+`--single_copy_genes Dmel_rpl32 Dmel_piwi ...`
 
 
 ## Special use-case: Paired-end reads 
 
-You can use DeviaTE for paired-end reads by mapping them in single read mode. This can be done, for example, by using a single concatenated fastq file that contains both read pairs (read1 and read2). In order to prevent some issues the reads then need to be given unique names (e.g. readID_1, readID_2, ..., readID_n), which can be achieved using a script found at: scripts/rename_reads.py
+You can use DeviaTE for paired-end reads by mapping them in single read mode. This can be done, for example, by using a single concatenated fastq file that contains both read pairs (read1 and read2). In order to prevent some issues the reads then need to be given unique names (e.g. readID_1, readID_2, ..., readID_n), which can be achieved using a script found at: `scripts/rename_reads.py`  (Thanks Anna for pointing out this issue)
 
 ```
 python rename_reads.py sample.fq >sample_uniq.fq
 ```
 
-(Thanks Anna for pointing out this issue)
-
 
 ## Citation
 
-A paper describing deviaTE is available here:
-
-* [https://onlinelibrary.wiley.com/doi/10.1111/1755-0998.13030](https://onlinelibrary.wiley.com/doi/10.1111/1755-0998.13030)
+A paper describing deviaTE is available here: https://onlinelibrary.wiley.com/doi/10.1111/1755-0998.13030
 
 ```
 @article{weilguny2019,
