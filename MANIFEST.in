@@ -1,6 +1,0 @@
-include bin/*
-include deviaTE/*
-include deviaTE/tests/*
-include deviaTE/lib/*
-include README.md
-include LICENSE
