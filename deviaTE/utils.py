@@ -118,7 +118,12 @@ def readfq(fp: TextIO):
 
 
 
-def is_gzipped(filepath):
+def is_gzipped(filepath: str) -> bool:
+    """
+    Check if a file is gzipped.
+    :param filepath: string of filepath to be checked.
+    :return: boolean indicating if the file is gzipped.
+    """
     with open(filepath, 'rb') as fh:
         return fh.read(2) == b'\x1f\x8b'
 
