@@ -118,4 +118,8 @@ def readfq(fp: TextIO):
 
 
 
+def is_gzipped(filepath):
+    with open(filepath, 'rb') as fh:
+        return fh.read(2) == b'\x1f\x8b'
+
 
