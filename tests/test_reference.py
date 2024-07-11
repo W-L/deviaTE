@@ -159,7 +159,7 @@ def test_viz(infile_converted):
 def test_viz_gz(infile_converted_gz):
     infile_converted_gz.analyse_families()
     infile_converted_gz.visualise()
-    assert Path(f"jockey_dmel.fastq.{testfam}.gz.deviate.pdf").is_file()
+    assert Path(f"jockey_dmel.fastq.gz.{testfam}.deviate.pdf").is_file()
 
 
 
