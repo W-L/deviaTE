@@ -15,6 +15,11 @@ def testfq():
 
 
 @pytest.fixture(scope="module")
+def testfq_gz():
+    return "../data/jockey_dmel.fastq.gz"
+
+
+@pytest.fixture(scope="module")
 def testpaf():
     return "jockey_dmel.fastq.paf"
 

@@ -8,6 +8,7 @@ import deviaTE.config
 
 
 testfq = "../data/jockey_dmel.fastq"
+testfq_gz = "../data/jockey_dmel.fastq"
 testpaf = "jockey_dmel.fastq.paf"
 testref = "../data/transposon_sequence_set_v10.2.fa"
 testfam = "FBte0000088"
@@ -26,6 +27,12 @@ args_non_input = SimpleNamespace(
 
 args_short = SimpleNamespace(
     input=testfq,
+    families=[testfam],
+)
+
+
+args_short_gz = SimpleNamespace(
+    input=testfq_gz,
     families=[testfam],
 )
 
@@ -103,6 +110,12 @@ def test_no_dir():
 
 def test_short_single():
     conf = deviaTE.config.Config(args_debug=args_short)
+    for k, v in conf.__dict__.items():
+        logging.info(f'{k}')
+    assert conf
+
+def test_short_single_gz():
+    conf = deviaTE.config.Config(args_debug=args_short_gz)
     for k, v in conf.__dict__.items():
         logging.info(f'{k}')
     assert conf

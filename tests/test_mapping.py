@@ -14,6 +14,13 @@ def test_mapping(testfq, testref):
     assert Path(outfile).stat().st_size
 
 
+def test_mapping_gz(testfq_gz, testref):
+    m = Mapper(ref=testref, preset="sr")
+    outfile = m.map_file(seq_file=testfq_gz)
+    assert outfile == f"{Path(testfq_gz).name}.paf"
+    assert Path(outfile).stat().st_size
+
+
 def test_mapping_mmi(testfq):
     m = Mapper(ref="../data/transposon_sequence_set_v10.2.mmi", preset="sr")
     outfile = m.map_file(seq_file=testfq)
