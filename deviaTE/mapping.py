@@ -1,8 +1,9 @@
+import gzip
 from pathlib import Path
 
 import mappy
 
-from deviaTE.utils import readfq
+from deviaTE.utils import readfq, is_gzipped
 
 
 class Mapper:
@@ -36,11 +37,17 @@ class Mapper:
             raise FileNotFoundError("Given sequence file does not exist")
         # collect results in a list
         results = []
-        with open(seq_file, 'r') as sf:
-            for desc, name, seq, quals in readfq(sf):
-                hits = self.aligner.map(seq)
-                for hit in hits:
-                    results.append(f"{name}\t{len(seq)}\t{hit}")
+        # check if file is zipped
+        if is_gzipped(seq_file):
+            sf = gzip.open(seq_file, 'rt')
+        else:
+            sf = open(seq_file, 'r')
+        # loop the sequencing reads
+        for desc, name, seq, quals in readfq(sf):
+            hits = self.aligner.map(seq)
+            for hit in hits:
+                results.append(f"{name}\t{len(seq)}\t{hit}")
+        sf.close()
         # transform to a single string
         alignments = '\n'.join(results)
         # write alignments to file
