@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pytest
-import btllib
 
 from deviaTE.paf import Paf
 from deviaTE.analyse import CoverageConverter
