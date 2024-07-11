@@ -1,6 +1,7 @@
 import argparse
 from typing import TextIO
 from itertools import groupby
+from pathlib import Path
 
 import numpy as np
 from numpy.typing import NDArray
@@ -118,7 +119,7 @@ def readfq(fp: TextIO):
 
 
 
-def is_gzipped(filepath: str) -> bool:
+def is_gzipped(filepath: str | Path) -> bool:
     """
     Check if a file is gzipped.
     :param filepath: string of filepath to be checked.
