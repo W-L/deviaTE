@@ -2,7 +2,13 @@
 
 deviaTE is a python tool for the analysis and visualization of mobile genetic element sequences.
 
-## Update v2 (2024-04)
+## Changelog 
+
+### v2.1 (2024-07-11)
+
+fixed usage of gzipped input files, included new test cases
+
+### Update v2 (2024-04)
 
 Since the previous python base reached end of life, deviaTE needed an update. This update became quite substantial - hence bumped to version 2:
 
