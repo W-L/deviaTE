@@ -1,12 +1,11 @@
 import logging
-import gzip
 from pathlib import Path
 
 import numpy as np
 from numpy.typing import NDArray
 import pandas as pd
 
-from deviaTE.utils import Seq2Int, readfq, is_gzipped
+from deviaTE.utils import Seq2Int, rawcount, is_gzipped, rapidgzip_count_lines
 from deviaTE.analyse import CoverageConverter, incr_type
 from deviaTE.plot import visualise
 from deviaTE.config import Config
@@ -107,7 +106,13 @@ class InputFile:
         # normalize by rpm
         if self.conf.args.rpm:
             logging.info('Normalization: reads per million')
-            fam.normalize_rpm(nreads=len(self.seqs))
+            # get the number of reads in the input file
+            if is_gzipped(self.input):
+                c = rapidgzip_count_lines(filepath=self.input)
+            else:
+                c = rawcount(filename=self.input)
+            nreads = int(c / 4)
+            fam.normalize_rpm(nreads=nreads)
         # or normalize with set of single copy genes
         elif self.conf.args.single_copy_genes:
             logging.info('Normalization: single copy genes')
