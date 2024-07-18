@@ -43,7 +43,11 @@ class Mapper:
         else:
             sf = open(seq_file, 'r')
         # loop the sequencing reads
-        for desc, name, seq, quals in readfq(sf):
+        i = 0
+        for name, seq, quals in mappy.fastx_read(seq_file):
+            name = name + f'.{i}'
+            # quals_t = qt.shift_qual(quals)
+            quals_t = quals
             hits = self.aligner.map(seq)
             for hit in hits:
                 results.append(f"{name}\t{len(seq)}\t{hit}")

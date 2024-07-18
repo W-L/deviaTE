@@ -4,8 +4,9 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import requests
+import mappy
 
-from deviaTE.utils import init_logger, read_fa
+from deviaTE.utils import init_logger
 
 
 # Sequences of the single copy genes in Dmel
@@ -153,14 +154,12 @@ class Config:
         """
         invalid_chars = '/\`*|;":. ' + "'"
         library = dict()
-        with open(self.args.library, 'r') as fa:
-            for header, seq in read_fa(fa):
-                header = header[1:]  # remove >
-                # make sure headers don't contain any invalid characters
-                if any(x in header for x in invalid_chars):
-                    for c in invalid_chars:
-                        header = header.replace(c, '-')
-                library[header] = seq
+        for name, seq, _ in mappy.fastx_read(self.args.library):
+            # make sure headers don't contain any invalid characters
+            if any(x in name for x in invalid_chars):
+                for c in invalid_chars:
+                    name = name.replace(c, '-')
+            library[name] = seq
         return library
 
 
