@@ -20,6 +20,7 @@ dependencies = [
     "requests~=2.31",
     "gffutils~=0.13",
     "plotnine~=0.13.4",
+    "rapidgzip~=0.14.2",
 ]
 
 
