@@ -86,8 +86,8 @@ class InputFile:
         # use converted object to get the counts
         c = CoverageConverter()
         c_hq = CoverageConverter(qt=hq_limit)
-        incr = c.convert_records(paf_dict=self.paf_dict, seqs=self.seqs, quals=self.quals)
-        incr_hq = c_hq.convert_records(paf_dict=self.paf_dict, seqs=self.seqs, quals=self.quals)
+        incr = c.convert_records(paf_dict=self.paf_dict)
+        incr_hq = c_hq.convert_records(paf_dict=self.paf_dict)
         return incr, incr_hq
 
 

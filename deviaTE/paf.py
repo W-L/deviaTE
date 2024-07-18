@@ -43,6 +43,8 @@ class PafLine:
             self.s1 = tags_parsed.get("s1", 0)
             prim = tags_parsed.get("tp", None)
             self.primary = 1 if prim == 'P' else 0
+            self.seq = tags_parsed.get("sq", None)
+            self.qual = tags_parsed.get("ql", None)
 
 
     @staticmethod
