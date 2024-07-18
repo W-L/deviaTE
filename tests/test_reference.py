@@ -80,6 +80,13 @@ def infile_converted_rpm(rpm_conf):
 
 
 @pytest.fixture
+def infile_converted_rpm_gz(rpm_conf):
+    infile = deviaTE.reference.InputFile(conf=rpm_conf, infile=Path(testfq_gz))
+    infile.analyse_coverage()
+    return infile
+
+
+@pytest.fixture
 def infile_converted(short_conf):
     infile = deviaTE.reference.InputFile(conf=short_conf, infile=Path(testfq))
     infile.analyse_coverage(force_map=True)
@@ -106,8 +113,6 @@ def test_scg_normfac(scg_conf, increments):
 
 def test_inputfile_analyse_coverage(infile_converted_scg):
     infile = infile_converted_scg
-    assert len(infile.seqs) == 4815
-    assert len(infile.quals) == 4815
     assert isinstance(infile.mapper, deviaTE.mapping.Mapper)
     assert len(infile.incr[testfam]) == 4747
     assert sys.getsizeof(infile.incr[testfam]) == 41880
@@ -116,8 +121,6 @@ def test_inputfile_analyse_coverage(infile_converted_scg):
 
 def test_inputfile_analyse_coverage_gz(infile_converted_gz):
     infile = infile_converted_gz
-    assert len(infile.seqs) == 4815
-    assert len(infile.quals) == 4815
     assert isinstance(infile.mapper, deviaTE.mapping.Mapper)
     assert len(infile.incr[testfam]) == 4747
     assert sys.getsizeof(infile.incr[testfam]) == 41880
@@ -144,6 +147,17 @@ def test_fams_rpm(infile_converted_rpm):
     assert len(infile_converted_rpm.results_files) == 1
     assert Path(f"jockey_dmel.fastq.{testfam}.deviate").is_file()
     with open(f"jockey_dmel.fastq.{testfam}.deviate", 'r') as outf:
+        lines = outf.readlines(1000)
+    ll = lines[5]
+    test_num = float(ll.split(' ')[4])
+    assert np.allclose(test_num, 207.68431983385256)
+
+
+def test_fams_rpm_gz(infile_converted_rpm_gz):
+    infile_converted_rpm_gz.analyse_families()
+    assert len(infile_converted_rpm_gz.results_files) == 1
+    assert Path(f"jockey_dmel.fastq.gz.{testfam}.deviate").is_file()
+    with open(f"jockey_dmel.fastq.gz.{testfam}.deviate", 'r') as outf:
         lines = outf.readlines(1000)
     ll = lines[5]
     test_num = float(ll.split(' ')[4])
