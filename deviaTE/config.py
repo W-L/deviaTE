@@ -48,7 +48,12 @@ class Config:
             logging.info(str(i))
         # log some other basic info
         logging.info(f"using TE reference sequences in:\t{self.args.library}")
-        logging.info(f"running analysis against these selected reference sequences:\t{self.args.families}")
+        # list only if it is not all of them
+        if self.args.families != list(self.sequences.keys()):
+            logging.info(f"running analysis against these selected reference sequences:\t{self.args.families}")
+        else:
+            logging.info(f"running analysis against ALL reference sequences in {self.args.library}")
+
 
 
     def _get_parser(self) -> None:

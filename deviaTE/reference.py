@@ -29,6 +29,7 @@ class InputFile:
         self.seqs = {}
         self.quals = {}
 
+        logging.info(f"starting analysis of input file: {self.input}")
         if is_gzipped(self.input):
             sf = gzip.open(str(self.input), 'rt')
         else:
@@ -51,11 +52,13 @@ class InputFile:
         afile = f'{self.input.name}.paf'
         if not Path(afile).is_file():
             # map all reads against the reference library
+            logging.info(f"Starting mapping of {self.input.name} to {self.conf.args.library}")
             alignment_file = self.mapper.map_file(seq_file=str(self.input))
         else:
             logging.info(f'Alignment file {afile} already exists. Skipping read mapping')
             alignment_file = afile
         # filter the alignments for length
+        logging.info(f"Parsing alignment file: {alignment_file}")
         paf_dict = deviaTE.paf.Paf.parse_PAF(alignment_file, min_len=self.conf.args.min_align_len)
         # if multiple mappings for a read: choose best one
         self.paf_dict = deviaTE.paf.Paf.single_rec(paf_dict)
@@ -77,6 +80,7 @@ class InputFile:
         """
         # run further analysis for all selected references
         self.results_files = []
+        logging.info(f"Starting analysis of TE sequeces")
         for family in self.conf.args.families:
             rf = self._analyse_family(f=family)
             self.results_files.append(rf)
@@ -130,6 +134,7 @@ class InputFile:
         Produce visualised results
         :return:
         """
+        logging.info(f"Starting visualisation of TE sequences")
         for rf in self.results_files:
             visualise(rf, self.conf.args.annotation)
 
