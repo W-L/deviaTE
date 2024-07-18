@@ -25,20 +25,9 @@ class InputFile:
         """
         self.conf = conf
         self.input = infile
-        # load sequences into memory for conversion
-        self.seqs = {}
-        self.quals = {}
 
         logging.info(f"starting analysis of input file: {self.input}")
-        if is_gzipped(self.input):
-            sf = gzip.open(str(self.input), 'rt')
-        else:
-            sf = open(str(self.input), 'r')
 
-        for desc, name, seq, qual in readfq(sf):
-            self.seqs[name] = seq
-            self.quals[name] = qual
-        sf.close()
         # initialise a mapper given the configuration
         self.mapper = deviaTE.mapping.Mapper(ref=conf.args.library, preset=conf.args.preset)
 

@@ -1,9 +1,8 @@
-import gzip
 from pathlib import Path
 
 import mappy
 
-from deviaTE.utils import readfq, is_gzipped
+from deviaTE.utils import QualTrans
 
 
 class Mapper:
@@ -37,21 +36,17 @@ class Mapper:
             raise FileNotFoundError("Given sequence file does not exist")
         # collect results in a list
         results = []
-        # check if file is zipped
-        if is_gzipped(seq_file):
-            sf = gzip.open(seq_file, 'rt')
-        else:
-            sf = open(seq_file, 'r')
+        # get a quality translator
+        qt = QualTrans()
         # loop the sequencing reads
         i = 0
         for name, seq, quals in mappy.fastx_read(seq_file):
             name = name + f'.{i}'
-            # quals_t = qt.shift_qual(quals)
-            quals_t = quals
+            quals_t = qt.shift_qual(quals)
             hits = self.aligner.map(seq)
             for hit in hits:
-                results.append(f"{name}\t{len(seq)}\t{hit}")
-        sf.close()
+                results.append(f"{name}\t{len(seq)}\t{hit}\tsq:Z:{seq}\tql:Z:{quals_t}")
+            i += 1
         # transform to a single string
         alignments = '\n'.join(results)
         # write alignments to file

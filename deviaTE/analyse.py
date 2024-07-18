@@ -40,14 +40,10 @@ class CoverageConverter:
     def convert_records(
             self,
             paf_dict: deviaTE.paf.paf_dict_type,
-            seqs: dict[str, str],
-            quals: dict[str, str]
             ) -> incr_type:
         """
         Convert mappings to coverage counts
         :param paf_dict: Dict of mappings
-        :param seqs: Dict of read sequences
-        :param quals: Dict of read qualities
         :return: Defaultdict of lists of coverage counts per target seq
         """
         # container to collect increments per contig
@@ -66,12 +62,12 @@ class CoverageConverter:
             end = max(rec.tstart, rec.tend)
             # handle strands
             if rec.rev:   # reverse
-                seq = reverse_complement(seqs[rec.qname])
-                qual = quals[rec.qname][::-1]
+                seq = reverse_complement(rec.seq)
+                qual = rec.qual[::-1]
                 offcut = rec.qlen - rec.qend
             else:
-                seq = seqs[rec.qname]
-                qual = quals[rec.qname]
+                seq = rec.seq
+                qual = rec.qual
                 offcut = rec.qstart
             # get array of counts for each base and indels
             query_arr, qual_arr = self._parse_cigar(

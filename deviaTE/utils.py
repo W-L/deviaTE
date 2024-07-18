@@ -70,3 +70,62 @@ def is_gzipped(filepath: str | Path) -> bool:
         return fh.read(2) == b'\x1f\x8b'
 
 
+
+def rapidgzip_count_lines(filepath: str | Path) -> int:
+    '''
+    Count the number of lines in a file.
+    :param filepath:  string or path to a file.
+    :return:
+    '''
+    import rapidgzip
+    result = 0
+    with rapidgzip.open(str(filepath)) as file:
+        while chunk := file.read(1024 * 1024):
+            result += chunk.count(b'\n')
+    return result
+
+
+def rawcount(filename: str | Path) -> int:
+    '''
+    Get the number of lines in a file.
+    :param filename: string or path to a file.
+    :return: number of lines in the file.
+    '''
+    sf = open(str(filename), 'rb')
+
+    lines = 0
+    buf_size = 1024 * 1024
+    read_f = sf.raw.read
+
+    buf = read_f(buf_size)
+    while buf:
+        lines += buf.count(b'\n')
+        buf = read_f(buf_size)
+
+    sf.close()
+    return int(lines)
+
+
+
+class QualTrans:
+
+    def __init__(self):
+        '''
+        translator class to shift the colon quality symbol
+        this makes sure that the paf tag parsing still works
+        '''
+        self.qtrans = str.maketrans({':': '9'})
+
+
+    def shift_qual(self, qual_string: str) -> str:
+        '''
+        apply the translation of the quality string
+        :param qual_string: input quality string
+        :return: translated quality string
+        '''
+        return qual_string.translate(self.qtrans)
+
+
+
+
+
