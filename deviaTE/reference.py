@@ -32,14 +32,15 @@ class InputFile:
         self.mapper = deviaTE.mapping.Mapper(ref=conf.args.library, preset=conf.args.preset)
 
 
-    def analyse_coverage(self) -> None:
+    def analyse_coverage(self, force_map: bool = False) -> None:
         """
         Run analysis for this input file and all selected families
+        :param force_map: force mapping even if alignments exist
         :return:
         """
         # only map if the alignment file does not already exist
         afile = f'{self.input.name}.paf'
-        if not Path(afile).is_file():
+        if not Path(afile).is_file() or force_map:
             # map all reads against the reference library
             logging.info(f"Starting mapping of {self.input.name} to {self.conf.args.library}")
             alignment_file = self.mapper.map_file(seq_file=str(self.input))

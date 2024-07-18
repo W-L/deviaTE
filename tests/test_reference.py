@@ -82,7 +82,7 @@ def infile_converted_rpm(rpm_conf):
 @pytest.fixture
 def infile_converted(short_conf):
     infile = deviaTE.reference.InputFile(conf=short_conf, infile=Path(testfq))
-    infile.analyse_coverage()
+    infile.analyse_coverage(force_map=True)
     return infile
 
 
