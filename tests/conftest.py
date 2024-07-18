@@ -5,7 +5,7 @@ import pytest
 from deviaTE.paf import Paf
 from deviaTE.analyse import CoverageConverter
 from deviaTE.mapping import Mapper
-from deviaTE.utils import readfq, read_fa
+
 
 
 @pytest.fixture(scope="module")
@@ -59,28 +59,12 @@ def paf_dict(default_mapping, testpaf):
     return paf_dict
 
 
-@pytest.fixture(scope="module")
-def seqs(testfq):
-    seqs = {}
-    with open(testfq, 'r') as fq:
-        for desc, name, seq, qual in readfq(fq):
-            seqs[name] = seq
-    return seqs
 
 
 @pytest.fixture(scope="module")
-def quals(testfq):
-    quals = {}
-    with open(testfq, 'r') as fq:
-        for desc, name, seq, qual in readfq(fq):
-            quals[name] = qual
-    return quals
-
-
-@pytest.fixture(scope="module")
-def increments(paf_dict, seqs, quals):
+def increments(paf_dict):
     cc = CoverageConverter()
-    incr = cc.convert_records(paf_dict=paf_dict, seqs=seqs, quals=quals)
+    incr = cc.convert_records(paf_dict=paf_dict)
     return incr
 
 
