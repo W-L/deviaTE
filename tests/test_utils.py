@@ -26,3 +26,13 @@ def test_revcomp(seq, rev):
     r = deviaTE.utils.reverse_complement(seq)
     assert r == rev
 
+
+def test_rawcount(testfq):
+    lines = deviaTE.utils.rawcount(testfq)
+    assert lines == 19261
+
+
+def test_rapidgz(testfq_gz):
+    lines = deviaTE.utils.rapidgzip_count_lines(testfq_gz)
+    assert lines == 19261
+
