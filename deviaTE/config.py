@@ -68,6 +68,7 @@ class Config:
         parser.add_argument('--annotation', default=None, help='Path to annotation (gff) of sequences in library. Defaults to drosophila TE annotation from https://github.com/bergmanlab/drosophila-transposons')
         parser.add_argument('--min_align_len', default=1, help='Minimum length of valid alignments')
         parser.add_argument('--families', nargs='*', help="Which transposon families to analyse. Default: all sequences in library.", default=None)
+        parser.add_argument('--no_viz', default=False, action='store_true', help="only analyse, but don't visualize the results")
         norm_group = parser.add_mutually_exclusive_group()
         norm_group.add_argument('--rpm', default=False, action='store_true', help='normalize all abundances by reads per million')
         norm_group.add_argument('--single_copy_genes', nargs='*', help='space-separated names of single-copy genes in reference to use for normalisation', default=None)

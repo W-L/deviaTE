@@ -18,7 +18,10 @@ def main() -> None:
         inf = InputFile(conf=conf, infile=i)
         inf.analyse_coverage()
         inf.analyse_families()
-        inf.visualise()
+        if conf.args.no_viz:
+            continue
+        else:
+            inf.visualise()
     logging.info("done")
 
 
