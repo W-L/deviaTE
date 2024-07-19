@@ -271,7 +271,7 @@ class Reference:
         self.snp[polys] = True
         # alternative option: the majority of counts are for nucleotide that is not reference
         intseq = Seq2Int(seq=self.seq).translate()
-        notref = np.where(np.argmax(self.cov, axis=1) != intseq)[0]
+        notref = np.where((np.argmax(self.cov, axis=1) != intseq) & (covsum > 5) & (covsum > meanc * 0.1))[0]
         self.snp[notref] = True
 
 
