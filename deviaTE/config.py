@@ -71,6 +71,7 @@ class Config:
         parser.add_argument('--min_align_len', default=1, help='Minimum length of valid alignments')
         parser.add_argument('--families', nargs='*', help="Which transposon families to analyse. Default: all sequences in library.", default=None)
         parser.add_argument('--no_viz', default=False, action='store_true', help="Only analyse, but don't visualize the results")
+        parser.add_argument('--tar', default=False, action='store_true', help="Collect all results in a tar archive to reduce number of produced files")
         parser.add_argument('-v', '--version', action='version', version=version('deviaTE'), help='Show version information and exit.')
         norm_group = parser.add_mutually_exclusive_group()
         norm_group.add_argument('--rpm', default=False, action='store_true', help='normalize all abundances by reads per million')

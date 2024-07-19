@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 from pathlib import Path
 import sys
+import tarfile
 
 import numpy as np
 import pytest
@@ -41,6 +42,13 @@ args_short_gz = SimpleNamespace(
 )
 
 
+args_short_tar = SimpleNamespace(
+    input=testfq,
+    families=[testfam],
+    tar=True
+)
+
+
 @pytest.fixture
 def scg_conf():
     conf = deviaTE.config.Config(args_debug=args_short_scg)
@@ -56,6 +64,12 @@ def rpm_conf():
 @pytest.fixture
 def short_conf():
     conf = deviaTE.config.Config(args_debug=args_short)
+    return conf
+
+
+@pytest.fixture
+def short_conf_tar():
+    conf = deviaTE.config.Config(args_debug=args_short_tar)
     return conf
 
 
@@ -99,6 +113,12 @@ def infile_converted_gz(short_conf_gz):
     infile.analyse_coverage()
     return infile
 
+
+@pytest.fixture
+def infile_converted_tar(short_conf_tar):
+    infile = deviaTE.reference.InputFile(conf=short_conf_tar, infile=Path(testfq_gz))
+    infile.analyse_coverage()
+    return infile
 
 
 def test_scg_normfac(scg_conf, increments):
@@ -164,6 +184,18 @@ def test_fams_rpm_gz(infile_converted_rpm_gz):
     assert np.allclose(test_num, 207.68431983385256)
 
 
+def test_fams_tar(infile_converted_tar):
+    infile_converted_tar.analyse_families()
+    assert len(infile_converted_tar.results_files) == 1
+    tar = Path("jockey_dmel.fastq.gz.deviate.tar")
+    assert tar.is_file()
+    with tarfile.open(str(tar), "r") as tarf:
+        members = tarf.getmembers()
+        assert len(members) == 1
+        assert members[0].name == f'jockey_dmel.fastq.gz.{testfam}.deviate'
+        assert members[0].size == 330285
+
+
 def test_viz(infile_converted):
     infile_converted.analyse_families()
     infile_converted.visualise()
@@ -174,6 +206,20 @@ def test_viz_gz(infile_converted_gz):
     infile_converted_gz.analyse_families()
     infile_converted_gz.visualise()
     assert Path(f"jockey_dmel.fastq.gz.{testfam}.deviate.pdf").is_file()
+
+
+def test_viz_tar(infile_converted_tar):
+    infile_converted_tar.analyse_families()
+    infile_converted_tar.visualise()
+    assert not Path(f"jockey_dmel.fastq.gz.{testfam}.deviate.pdf").is_file()
+    tar = Path("jockey_dmel.fastq.gz.deviate.visualisations.tar")
+    assert tar.is_file()
+    with tarfile.open(str(tar), "r") as tarf:
+        members = tarf.getmembers()
+        assert len(members) == 1
+        assert members[0].name == f'jockey_dmel.fastq.gz.{testfam}.deviate.pdf'
+        assert members[0].size == 139940
+
 
 
 

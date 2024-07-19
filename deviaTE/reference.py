@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+import tarfile
 
 import numpy as np
 from numpy.typing import NDArray
@@ -70,9 +71,22 @@ class InputFile:
         # run further analysis for all selected references
         self.results_files = []
         logging.info(f"Starting analysis of TE sequeces")
+        tar = None
+        if self.conf.args.tar:
+            outf = f'{self.input.name}.deviate.tar'
+            Path(outf).unlink(missing_ok=True)  # ensure empty file
+            tar = tarfile.open(outf, "a")
+        # loop the selected fams
         for family in self.conf.args.families:
             rf = self._analyse_family(f=family)
             self.results_files.append(rf)
+            if self.conf.args.tar:
+                tar.add(rf)
+                if self.conf.args.no_viz:
+                    Path(rf).unlink()
+        # close results archive
+        if self.conf.args.tar:
+            tar.close()
 
 
     def _convert_to_increments(self, hq_limit: int = 15) -> tuple[incr_type, incr_type]:
@@ -130,8 +144,22 @@ class InputFile:
         :return:
         """
         logging.info(f"Starting visualisation of TE sequences")
+        tar = None
+        if self.conf.args.tar:
+            outf = f'{self.input.name}.deviate.visualisations.tar'
+            Path(outf).unlink(missing_ok=True)  # ensure empty file
+            tar = tarfile.open(outf, "a")
+        # loop the results files
         for rf in self.results_files:
             visualise(rf, self.conf.args.annotation)
+            if self.conf.args.tar:
+                viz = f"{Path(rf).name}.pdf"
+                tar.add(viz)
+                Path(rf).unlink()
+                Path(viz).unlink()
+        # close results archive
+        if self.conf.args.tar:
+            tar.close()
 
 
 
