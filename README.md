@@ -4,6 +4,16 @@ deviaTE is a python tool for the analysis and visualization of mobile genetic el
 
 ## Changelog 
 
+### v2.2 (2024-07-19)
+
+fixed issue of concatenated read pairs having the same name. This used to require running `scripts/rename_reads.py` to make the names unique.
+This is now handled internally, so using the script is no longer necessary.
+
+new command-line flag `--no_viz` to prevent visualisation if its not needed
+
+internal efficiency improvements
+
+
 ### v2.1 (2024-07-11)
 
 fixed usage of gzipped input files, included new test cases
@@ -36,19 +46,20 @@ deviaTE needs python >=3.10 and pip:
 
 
 ```
-usage: deviaTE [-h] [--input INPUT] [--preset {sr,map-ont,map-pb,map-hifi}] [--library LIBRARY] [--annotation ANNOTATION] [--min_align_len MIN_ALIGN_LEN] [--families [FAMILIES ...]]
-[--rpm | --single_copy_genes [SINGLE_COPY_GENES ...]]
+usage: deviaTE [-h] [--input INPUT] [--preset {sr,map-ont,map-pb,map-hifi}] [--library LIBRARY] [--annotation ANNOTATION] [--min_align_len MIN_ALIGN_LEN] [--families [FAMILIES ...]] [--no_viz] [-v] [--rpm | --single_copy_genes [SINGLE_COPY_GENES ...]]
 
 options:
--h, --help                  show this help message and exit
---input INPUT               Input file(s) to be analysed. Can be *.fastq, *.fa, or directory of files. Optionally gzipped.
---preset {sr,map-ont,map-pb,map-hifi}   Minimap2 mapping preset. (sr, map-ont, map-pb, map-hifi) [sr]
---library LIBRARY           Path to reference library. Defaults to drosophila transposons from https://github.com/bergmanlab/drosophila-transposons
---annotation ANNOTATION     Path to annotation (gff) of sequences in library. Defaults to drosophila TE annotation from https://github.com/bergmanlab/drosophila-transposons
---min_align_len MIN_ALIGN_LEN           Minimum length of valid alignments
---families [FAMILIES ...]   Which transposon families to analyse. Default: all sequences in library.
---rpm                       normalize all abundances by reads per million
---single_copy_genes [SINGLE_COPY_GENES ...]     space-separated names of single-copy genes in reference to use for normalisation
+-h, --help            show this help message and exit
+--input INPUT         Input file(s) to be analysed. Can be *.fastq, *.fa, or directory of files. Optionally gzipped.
+--preset {sr,map-ont,map-pb,map-hifi} Minimap2 mapping preset. (sr, map-ont, map-pb, map-hifi) [sr]
+--library LIBRARY     Path to reference library. Defaults to drosophila transposons from https://github.com/bergmanlab/drosophila-transposons
+--annotation ANNOTATION Path to annotation (gff) of sequences in library. Defaults to drosophila TE annotation from https://github.com/bergmanlab/drosophila-transposons
+--min_align_len MIN_ALIGN_LEN Minimum length of valid alignments
+--families [FAMILIES ...] Which transposon families to analyse. Default: all sequences in library.
+--no_viz              Only analyse, but don't visualize the results
+-v, --version         Show version information and exit.
+--rpm                 normalize all abundances by reads per million
+--single_copy_genes [SINGLE_COPY_GENES ...] space-separated names of single-copy genes in reference to use for normalisation
 ```
 
 
@@ -117,11 +128,9 @@ For single-copy gene normalization in Drosophila five genes are automatically ad
 
 ## Special use-case: Paired-end reads 
 
-You can use DeviaTE for paired-end reads by mapping them in single read mode. This can be done, for example, by using a single concatenated fastq file that contains both read pairs (read1 and read2). In order to prevent some issues the reads then need to be given unique names (e.g. readID_1, readID_2, ..., readID_n), which can be achieved using a script found at: `scripts/rename_reads.py`  (Thanks Anna for pointing out this issue)
-
-```
-python rename_reads.py sample.fq >sample_uniq.fq
-```
+You can use DeviaTE for paired-end reads by mapping them in single read mode.  
+This can be done, for example, by using a single concatenated fastq file that contains both read pairs (read1 and read2). 
+(Using the script `scripts/rename_reads.py` to give unique names to the mates is no longer necessary, this is done internally since 2.2.0)
 
 
 ## Citation
@@ -152,5 +161,5 @@ deviaTE is licensed under the GPLv3 License
 ## Testing
 
 The code is covered by pytests. To run these install: `pip install pytest pytest-cov`. Then run tests: `cd tests; pytest --cov --cov-report html`.
-To test local builds: `pip install dist/deviate-2.0.0-py3-none-any.whl --force-reinstall --no-deps`
+To test local builds: `hatch build && pip install dist/deviate-2.2.0-py3-none-any.whl --force-reinstall --no-deps`
 
