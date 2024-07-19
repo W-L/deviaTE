@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+from importlib.metadata import version
 
 import numpy as np
 from numpy.typing import NDArray
@@ -40,7 +41,7 @@ def init_logger(logfile: str, args: argparse.Namespace) -> None:
                         level=logging.INFO,
                         handlers=[logging.FileHandler(f"{logfile}"), logging.StreamHandler()])
 
-    logging.info("deviaTE")
+    logging.info(f"deviaTE {version('deviaTE')}")
     logging.info('\n')
     for a, aval in args.__dict__.items():
         logging.info(f'{a} {aval}')
