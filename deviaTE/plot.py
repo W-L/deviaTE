@@ -154,7 +154,7 @@ def visualise(input_file: str, annotations: str = None) -> None:
         p9.geom_bar(data=snp_f,
                     mapping=p9.aes(x='pos_col', y='counts_col', fill='base_col'),
                     stat='identity',
-                    width=5) +
+                    width=1) +
         p9.labs(fill='') +
         p9.ylab("coverage") +
         p9.xlab("") +
