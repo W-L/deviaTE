@@ -4,6 +4,14 @@ deviaTE is a python tool for the analysis and visualization of mobile genetic el
 
 ## Changelog 
 
+### v2.2.1 (2024-07-22)
+
+new command-line flag `--tar` to collect results and plots in tar files. Useful in case a lot of TE seqs are analyzed
+
+added nanopore test data and unit tests
+
+
+
 ### v2.2 (2024-07-19)
 
 fixed issue of concatenated read pairs having the same name. This used to require running `scripts/rename_reads.py` to make the names unique.
