@@ -106,6 +106,8 @@ class CoverageConverter:
         # translate sequence and qualities to integers
         read_integer = read_string.translate(self.base2int)
         int_seq = np.frombuffer(read_integer.encode(), 'u1') - ord('0')
+        if not qual_string:
+            qual_string = '~' * len(read_string)
         qual_integer = qual_string.translate(self.qual2int)
         # int_qual = np.frombuffer(qual_integer.encode(), 'u1') - ord('0')
         int_qual = np.array(qual_integer.split(',')[:-1], dtype="uint8")

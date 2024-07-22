@@ -42,7 +42,10 @@ class Mapper:
         i = 0
         for name, seq, quals in mappy.fastx_read(seq_file):
             name = name + f'.{i}'
-            quals_t = qt.shift_qual(quals)
+            if quals:
+                quals_t = qt.shift_qual(quals)
+            else:
+                quals_t = ''
             hits = self.aligner.map(seq)
             for hit in hits:
                 results.append(f"{name}\t{len(seq)}\t{hit}\tsq:Z:{seq}\tql:Z:{quals_t}")
