@@ -96,7 +96,7 @@ def test_fams_tar(infile_converted_tar, testfam):
 def test_fams_nanopore_short(infile_converted_nanopore_short, testfam_short):
     infile_converted_nanopore_short.analyse_families()
     assert len(infile_converted_nanopore_short.results_files) == 1
-    result_file = f"SRR28208594_1_FBte0000400_270.fq.{testfam_short}.deviate"
+    result_file = f"SRR28208594_1_FBte0000400_270.fa.{testfam_short}.deviate"
     assert Path(result_file).is_file()
     with open(result_file, 'r') as outf:
         lines = outf.readlines(1000)
@@ -153,7 +153,7 @@ def test_viz_tar(infile_converted_tar, testfam):
 def test_viz_nanopore(infile_converted_nanopore_short, testfam_short):
     infile_converted_nanopore_short.analyse_families()
     infile_converted_nanopore_short.visualise()
-    res = f"SRR28208594_1_FBte0000400_270.fq.{testfam_short}.deviate.pdf"
+    res = f"SRR28208594_1_FBte0000400_270.fa.{testfam_short}.deviate.pdf"
     assert Path(res).is_file()
     Path(res).unlink()
 

@@ -21,8 +21,8 @@ def testfq_gz():
 
 
 @pytest.fixture(scope="module")
-def testfq_nanopore_short():
-    return "../data/SRR28208594_1_FBte0000400_270.fq"
+def testfa_nanopore_short():
+    return "../data/SRR28208594_1_FBte0000400_270.fa"
 
 
 @pytest.fixture(scope="module")
@@ -139,9 +139,9 @@ def args_short_tar(testfq, testfam):
 
 
 @pytest.fixture(scope="module")
-def args_nanopore_short(testfq_nanopore_short, testfam_short):
+def args_nanopore_short(testfa_nanopore_short, testfam_short):
     return SimpleNamespace(
-        input=testfq_nanopore_short,
+        input=testfa_nanopore_short,
         families=[testfam_short],
         preset="map-ont"
     )
@@ -247,8 +247,8 @@ def infile_converted_tar(short_conf_tar, testfq_gz):
 
 
 @pytest.fixture(scope="module")
-def infile_converted_nanopore_short(nanopore_conf_short, testfq_nanopore_short):
-    infile = InputFile(conf=nanopore_conf_short, infile=Path(testfq_nanopore_short))
+def infile_converted_nanopore_short(nanopore_conf_short, testfa_nanopore_short):
+    infile = InputFile(conf=nanopore_conf_short, infile=Path(testfa_nanopore_short))
     infile.analyse_coverage(force_map=True)
     return infile
 
