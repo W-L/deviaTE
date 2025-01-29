@@ -1,0 +1,12 @@
+name: deviate
+channels:
+  - conda-forge
+dependencies:
+  - hatch
+  - hatchling
+  - pip
+  - pytest
+  - python
+  - pip:
+      - pytest-cov
+prefix: /home/lukas/miniforge3/envs/deviate
