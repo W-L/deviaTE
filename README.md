@@ -4,6 +4,13 @@ deviaTE is a python tool for the analysis and visualization of mobile genetic el
 
 ## Changelog 
 
+### v2.2.2 (2025-01-29)
+
+fix for using input reads in fasta format
+
+fixed error causing crash when using `--min_aling_len` parameter
+
+
 ### v2.2.1 (2024-07-22)
 
 new command-line flag `--tar` to collect results and plots in tar files. Useful in case a lot of TE seqs are analyzed
