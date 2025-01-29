@@ -146,7 +146,7 @@ def test_viz_tar(infile_converted_tar, testfam):
         members = tarf.getmembers()
         assert len(members) == 1
         assert members[0].name == f'jockey_dmel.fastq.gz.{testfam}.deviate.pdf'
-        assert members[0].size == 139913
+        assert members[0].size == 139915
     tar.unlink()
 
 

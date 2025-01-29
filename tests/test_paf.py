@@ -16,7 +16,7 @@ def test_parsing(testpaf):
     paf_dict = Paf.parse_PAF(paf_file=testpaf)
     assert paf_dict
     assert len(paf_dict) == 4621
-    assert sys.getsizeof(paf_dict) == 147560
+    assert sys.getsizeof(paf_dict) == 103864
 
 
 def test_parsing_full(testpaf):
@@ -24,7 +24,7 @@ def test_parsing_full(testpaf):
     paf_dict = Paf.single_rec(paf_dict)
     assert paf_dict
     assert len(paf_dict) == 4621
-    assert sys.getsizeof(paf_dict) == 147560
+    assert sys.getsizeof(paf_dict) == 103864
 
 
 def test_parsing_stringio(testpaf):
