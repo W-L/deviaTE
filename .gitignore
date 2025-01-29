@@ -3,6 +3,13 @@
 *.pyc
 /dist/
 .coverage
-tests/htmlcov/
 .idea/
+
+tests/htmlcov/
+tests/*.paf
+tests/*.tar
+tests/*.deviate
+tests/*.log
+tests/*.fa
+tests/*.gff
 
