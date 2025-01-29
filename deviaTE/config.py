@@ -68,7 +68,7 @@ class Config:
         parser.add_argument('--preset', help='Minimap2 mapping preset. (sr, map-ont, map-pb, map-hifi) [sr]', choices=["sr", "map-ont", "map-pb", "map-hifi"], default="sr")
         parser.add_argument('--library', default=None, help='Path to reference library. Defaults to drosophila transposons from https://github.com/bergmanlab/drosophila-transposons')
         parser.add_argument('--annotation', default=None, help='Path to annotation (gff) of sequences in library. Defaults to drosophila TE annotation from https://github.com/bergmanlab/drosophila-transposons')
-        parser.add_argument('--min_align_len', default=1, help='Minimum length of valid alignments')
+        parser.add_argument('--min_align_len', default=1, help='Minimum length of valid alignments (int)', type=int)
         parser.add_argument('--families', nargs='*', help="Which transposon families to analyse. Default: all sequences in library.", default=None)
         parser.add_argument('--no_viz', default=False, action='store_true', help="Only analyse, but don't visualize the results")
         parser.add_argument('--tar', default=False, action='store_true', help="Collect all results in a tar archive to reduce number of produced files")
