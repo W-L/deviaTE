@@ -10,6 +10,8 @@ fix for using input reads in fasta format
 
 fixed error causing crash when using `--min_aling_len` parameter
 
+updated dependencies
+
 
 ### v2.2.1 (2024-07-22)
 
@@ -178,3 +180,23 @@ deviaTE is licensed under the GPLv3 License
 The code is covered by pytests. To run these install: `pip install pytest pytest-cov`. Then run tests: `cd tests; pytest --cov --cov-report html`.
 To test local builds: `hatch build && pip install dist/deviate-2.2.0-py3-none-any.whl --force-reinstall --no-deps`
 
+
+
+## Install development environment
+
+```
+conda env create -f dev.yaml -n deviate_dev
+conda activate deviate_dev
+pip install -e .
+cd tests
+pytest --cov --cov-report html
+```
+
+# New release
+
+```
+hatch build
+pip install dist/deviate-X.Y.Z-py3-none-any.whl --force-reinstall --no-deps
+pytest --cov --cov-report html
+hatch publish
+```
