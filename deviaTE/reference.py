@@ -224,7 +224,7 @@ class Reference:
         return np.sum(self.cov_hq, axis=1)
 
 
-    def mean_cov(self) -> float:
+    def mean_cov(self) -> np.float64:
         """
         Mean coverage of this reference sequence
         :return: Mean coverage after summing across all nucleotides
@@ -232,7 +232,7 @@ class Reference:
         return np.mean(self._cov_sum())
 
 
-    def _normalize(self, norm_factor: float) -> None:
+    def _normalize(self, norm_factor: np.float64 | float) -> None:
         """
         Normalise the coverage counts by given factor
         :param norm_factor: Can be either from rpm or scg
@@ -258,7 +258,7 @@ class Reference:
             self._normalize(norm_factor=rpm_fac)
 
 
-    def normalize_scg(self, scg_factor: float) -> None:
+    def normalize_scg(self, scg_factor: np.float64) -> None:
         """
         Normalise using the single copy genes, and estimate the number of insertions
         :param scg_factor: Mean coverage of the single copy genes
@@ -271,7 +271,7 @@ class Reference:
             self._normalize(norm_factor=scg_factor)
 
 
-    def _estimate_insertions(self, norm_factor: float) -> None:
+    def _estimate_insertions(self, norm_factor: np.float64) -> None:
         """
         Estimate the number of insertions of this reference
         :param norm_factor: Mean coverage of the single copy genes
@@ -335,7 +335,8 @@ class Reference:
 
 
 
-def single_gene_norm_fac(scgs: list, sequence_lib: dict[str, str], increments: incr_type) -> float:
+
+def single_gene_norm_fac(scgs: list, sequence_lib: dict[str, str], increments: incr_type) -> np.float64:
     """
     Calculate the normalisation factor (mean coverage) of the single copy genes
     :param scgs: List of names of the genes that should be used
