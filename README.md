@@ -4,6 +4,11 @@ deviaTE is a python tool for the analysis and visualization of mobile genetic el
 
 ## Changelog 
 
+### v2.2.3 (2025-05-26)
+
+fix name sanitization for TE names with special characters.
+
+
 ### v2.2.2 (2025-01-29)
 
 fix for using input reads in fasta format
@@ -175,14 +180,16 @@ If you find any problems, have questions or ideas for further improvement please
 deviaTE is licensed under the GPLv3 License
 
 
-## Testing
+## Development
+
+### testing
 
 The code is covered by pytests. To run these install: `pip install pytest pytest-cov`. Then run tests: `cd tests; pytest --cov --cov-report html`.
 To test local builds: `hatch build && pip install dist/deviate-2.2.0-py3-none-any.whl --force-reinstall --no-deps`
 
 
 
-## Install development environment
+### dev environment
 
 ```
 conda env create -f dev.yaml -n deviate_dev
@@ -192,7 +199,11 @@ cd tests
 pytest --cov --cov-report html
 ```
 
-# New release
+### New release
+
+- bump version in __init__.py
+- update changelog in README.md
+
 
 ```
 hatch build
