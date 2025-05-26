@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 
+from deviaTE.utils import translate_name
 
 
 
@@ -33,6 +34,7 @@ class PafLine:
         # make sure query and target name are strings
         self.qname = str(self.qname)
         self.tname = str(self.tname)
+        self.tname = translate_name(self.tname)
         # marker for reverse sequences
         self.rev = 0 if self.strand == '+' else 1
         # parse the tags only if needed
