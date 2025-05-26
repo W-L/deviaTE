@@ -7,7 +7,7 @@ from importlib.metadata import version
 import requests
 import mappy
 
-from deviaTE.utils import init_logger
+from deviaTE.utils import init_logger, translate_name
 
 
 # Sequences of the single copy genes in Dmel
@@ -155,14 +155,10 @@ class Config:
         Load the sequences from the library fasta file
         :return: dictionary of id: sequence
         """
-        invalid_chars = '/\`*|;":. ' + "'"
         library = dict()
         for name, seq, _ in mappy.fastx_read(self.args.library):
-            # make sure headers don't contain any invalid characters
-            if any(x in name for x in invalid_chars):
-                for c in invalid_chars:
-                    name = name.replace(c, '-')
-            library[name] = seq
+            name_tr = translate_name(name)
+            library[name_tr] = seq
         return library
 
 
