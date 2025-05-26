@@ -107,6 +107,51 @@ def rawcount(filename: str | Path) -> int:
     return int(lines)
 
 
+def translate_name(name: str) -> str:
+    """
+    Translate a name by replacing invalid characters with dashes.
+    :param name: The input name string.
+    :return: The translated name string.
+    """
+    invalid_chars = '/\`*|;":. ' + "'"
+    # make sure names don't contain any invalid characters
+    if any(x in name for x in invalid_chars):
+        for c in invalid_chars:
+            name = name.replace(c, '-')
+    return name.strip()
+
+
+
+def find_blocks_generic(arr: NDArray, x: int, min_len: int) -> NDArray:
+    """
+    Find blocks in the array that match x.
+
+    :param arr: The input array.
+    :param x: The value to find blocks of.
+    :param min_len: The minimum length of blocks to report.
+    :return: An array containing the start and end positions of the blocks.
+    """
+    # find run starts
+    x_pos = np.where(arr == x)[0]
+
+    if x_pos.shape[0] == 0:
+        return np.array([])
+
+    # diff between neighboring loc
+    x_diff = np.diff(x_pos)
+    # if diff > 1: new block
+    big_dist = np.where(x_diff > 1)[0]
+    # the first entry is a block start and then all other where a big change happens
+    # also each change is a block end, and the last entry of course as well
+    block_ranges = np.concatenate((np.array([x_pos[0]]), x_pos[big_dist + 1],
+                                   x_pos[big_dist] + 1, np.array([x_pos[-1] + 1])))
+    blocks = block_ranges.reshape(big_dist.shape[0] + 1, 2, order='F')
+    # only report blocks longer than min_len
+    blocks_filt = blocks[np.where(blocks[:, 1] - blocks[:, 0] > min_len)[0], :]
+    return blocks_filt
+
+
+
 
 class QualTrans:
 
